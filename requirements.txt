@@ -1,7 +1,4 @@
-# Core dependencies (only what's actually used)
-torch>=2.1.0
-numpy>=1.21.0
-datasets>=2.14.0
-transformers>=4.35.0
-torchtune>=0.1.0
-tqdm>=4.65.0
+datasets
+transformers
+torchtune
+torchao
