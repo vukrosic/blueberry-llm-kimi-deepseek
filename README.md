@@ -4,16 +4,16 @@ A Mixture of Experts (MoE) language model implementation.
 
 **Goal: Make LLM training accessible to anyone** - clone, install dependencies, and train your own language model with a single command.
 
-This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
-
 ## Quick Start
 
 ```bash
-git clone https://github.com/your-username/blueberry
-cd blueberry
+git clone https://github.com/Open-Superintelligence-Lab/blueberry-llm
+cd blueberry-llm
 pip install -r requirements.txt
 python llm.py
 ```
+
+This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
 
 ## Research Questions
 
