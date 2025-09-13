@@ -1,0 +1,42 @@
+services:
+  blueberry-train:
+    build: .
+    runtime: nvidia
+    volumes:
+      - ./data_cache:/app/data_cache
+      - ./models:/app/models
+      - ./logs:/app/logs
+    shm_size: '2gb'
+    command: python llm.py
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  blueberry-dev:
+    build: .
+    runtime: nvidia
+    volumes:
+      - .:/app
+    shm_size: '2gb'
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  tensorboard:
+    build: .
+    volumes:
+      - ./logs:/app/logs:ro
+    ports:
+      - "6006:6006"
+    command: tensorboard --logdir=/app/logs --host=0.0.0.0 --port=6006
