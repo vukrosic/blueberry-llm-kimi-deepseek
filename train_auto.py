@@ -132,6 +132,7 @@ def main():
         'model_state_dict': model.state_dict(),
         'config': model_config,
         'auto_config': configurator.config,
+        'tokenizer': tokenizer,
         'final_metrics': final_metrics
     }, 'blueberry_model.pt')
     

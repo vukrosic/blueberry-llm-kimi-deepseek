@@ -11,6 +11,7 @@ import torch
 import torch.nn.functional as F
 from llm import MoEMinimalLLM, MoEModelConfig
 from auto_config import AutoConfig
+from transformers import AutoTokenizer
 import argparse
 
 def load_model(checkpoint_path="blueberry_model.pt"):
@@ -23,7 +24,17 @@ def load_model(checkpoint_path="blueberry_model.pt"):
     # Load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location='cpu')
     config = checkpoint['config']
-    tokenizer = checkpoint['tokenizer']
+    
+    # Handle tokenizer - create if not in checkpoint
+    if 'tokenizer' in checkpoint:
+        tokenizer = checkpoint['tokenizer']
+        print("✅ Loaded tokenizer from checkpoint")
+    else:
+        print("⚠️  Tokenizer not found in checkpoint, creating new one...")
+        tokenizer = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM-135M", token=False)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        print("✅ Created tokenizer from HuggingFaceTB/SmolLM-135M")
     
     # Create model
     model = MoEMinimalLLM(config)
