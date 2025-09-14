@@ -4,6 +4,9 @@ Auto-configured training for Blueberry LLM
 Just run: python train_auto.py
 """
 
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 import torch
 from torch.utils.data import DataLoader, random_split
 from auto_config import auto_configure
@@ -15,6 +18,21 @@ def main():
     # Auto-configure everything
     configurator = auto_configure()
     configurator.print_config()
+    
+    # Setup distributed training if needed
+    if configurator.config.use_distributed:
+        import torch.distributed as dist
+        try:
+            dist.init_process_group(backend='nccl')
+            local_rank = int(os.environ.get('LOCAL_RANK', 0))
+            torch.cuda.set_device(local_rank)
+            print(f"🌐 Initialized data parallel training: rank {dist.get_rank()}/{dist.get_world_size()}")
+            print(f"   Each GPU gets different data batches, same model")
+        except Exception as e:
+            print(f"❌ Distributed training failed: {e}")
+            print(f"💡 To use {configurator.config.num_gpus} GPUs, run with:")
+            print(f"   torchrun --nproc_per_node={configurator.config.num_gpus} train_auto.py")
+            raise RuntimeError(f"Multi-GPU setup detected but distributed training failed: {e}")
     
     # Get model configuration
     model_config = configurator.get_model_config()
@@ -47,11 +65,19 @@ def main():
         generator=torch.Generator().manual_seed(42)
     )
     
-    # Create data loaders
+    # Create data loaders with distributed sampler if needed
+    train_sampler = None
+    if configurator.config.use_distributed:
+        import torch.distributed as dist
+        from torch.utils.data.distributed import DistributedSampler
+        if dist.is_initialized():
+            train_sampler = DistributedSampler(train_dataset)
+    
     train_loader = DataLoader(
         train_dataset, 
         batch_size=model_config.batch_size, 
-        shuffle=True, 
+        shuffle=(train_sampler is None), 
+        sampler=train_sampler,
         num_workers=2
     )
     val_loader = DataLoader(

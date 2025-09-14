@@ -119,7 +119,8 @@ class BlueberryAutoConfigurator:
         print(f"⚡ Mixed Precision: {'Yes' if self.config.use_amp else 'No'}")
         
         if self.config.use_distributed:
-            print(f"🌐 Distributed: Yes")
+            print(f"🌐 Data Parallel: Yes (across {self.config.num_gpus} GPUs)")
+            print(f"   Run with: torchrun --nproc_per_node={self.config.num_gpus} train_auto.py")
         
         print("=" * 50)
     
