@@ -9,8 +9,9 @@ A Mixture of Experts (MoE) language model implementation.
 ```bash
 git clone https://github.com/Open-Superintelligence-Lab/blueberry-llm
 cd blueberry-llm
-pip install -r requirements.txt
-python llm.py
+chmod +x setup.sh
+./setup.sh
+python train_auto.py
 ```
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
@@ -30,3 +31,7 @@ Test with [Token Order Prediction](https://github.com/zaydzuhri/token-order-pred
 ## Contributing
 
 We welcome contributions! Fork the repo, experiment with different architectures, and submit PRs with your findings.
+
+## Vision
+
+Any company or person (even with no technical experience) should be able to download this repository and run it on their GPU setup - from 1 GPU to 1 million GPUs. The system will be able to automatically detects your hardware configuration, tunes hyperparameters for optimal performance, and runs the best possible training with or without manual configuration from your side.
