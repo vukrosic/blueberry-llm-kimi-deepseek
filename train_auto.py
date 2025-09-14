@@ -12,8 +12,43 @@ from torch.utils.data import DataLoader, random_split
 from auto_config import auto_configure
 from llm import train_moe_model, load_and_cache_data, TextTokenDataset
 
+def auto_launch_distributed():
+    """Auto-launch with torchrun if multi-GPU detected and not already in distributed mode"""
+    import sys
+    import subprocess
+    
+    # Check if we're already in distributed mode
+    if 'RANK' in os.environ:
+        return False  # Already launched with torchrun
+    
+    # Quick GPU check
+    if torch.cuda.is_available() and torch.cuda.device_count() > 1:
+        num_gpus = torch.cuda.device_count()
+        print(f"🚀 Auto-launching with {num_gpus} GPUs...")
+        
+        # Re-launch with torchrun
+        cmd = [
+            'torchrun', 
+            f'--nproc_per_node={num_gpus}',
+            '--standalone',
+            sys.argv[0]  # This script
+        ] + sys.argv[1:]  # Plus any additional args
+        
+        try:
+            result = subprocess.run(cmd, check=True)
+            sys.exit(result.returncode)
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Auto-launch failed: {e}")
+            print(f"💡 Try manually: torchrun --nproc_per_node={num_gpus} train_auto.py")
+            sys.exit(1)
+    
+    return False
+
 def main():
     print("🫐 Starting Blueberry LLM Auto-Training")
+    
+    # Auto-launch with torchrun if needed
+    auto_launch_distributed()
     
     # Auto-configure everything
     configurator = auto_configure()
@@ -30,8 +65,6 @@ def main():
             print(f"   Each GPU gets different data batches, same model")
         except Exception as e:
             print(f"❌ Distributed training failed: {e}")
-            print(f"💡 To use {configurator.config.num_gpus} GPUs, run with:")
-            print(f"   torchrun --nproc_per_node={configurator.config.num_gpus} train_auto.py")
             raise RuntimeError(f"Multi-GPU setup detected but distributed training failed: {e}")
     
     # Get model configuration
