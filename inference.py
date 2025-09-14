@@ -9,12 +9,15 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import torch
 import torch.nn.functional as F
-from llm import MoEMinimalLLM
+from llm import MoEMinimalLLM, MoEModelConfig
 import argparse
 
 def load_model(checkpoint_path="blueberry_model.pt"):
     """Load the trained model"""
     print(f"📦 Loading model from {checkpoint_path}...")
+    
+    # Add safe globals for custom classes
+    torch.serialization.add_safe_globals([MoEModelConfig])
     
     # Load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location='cpu')
