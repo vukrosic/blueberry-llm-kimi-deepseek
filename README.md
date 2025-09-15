@@ -14,7 +14,7 @@ chmod +x setup.sh
 python train.py
 ```
 
-```
+```bash
 # Quick test with 500 steps (fast validation)
 python core/train.py --config dev --max-steps 500
 ```
