@@ -60,37 +60,14 @@ def mm_backward_op(g: torch.Tensor, x_f8: torch.Tensor, w_f8: torch.Tensor, x_s:
         grad_inv_s = grad.new_tensor(grad_s, dtype=torch.float32)
         grad_f8 = grad.div(grad_s).to(torch.float8_e5m2)
         
-        # Check if dimensions are compatible with _scaled_mm (divisible by 16)
-        if (grad_f8.size(-1) % 16 == 0 and w_f8.size(-1) % 16 == 0 and 
-            x_f8.size(-1) % 16 == 0 and grad_f8.size(0) % 16 == 0):
-            # Use FP8 scaled_mm for compatible dimensions
-            # For grad_x = grad_out @ w: need w to be transposed and contiguous
-            w_f8_t = w_f8.T.contiguous()
-            grad_x = torch._scaled_mm(
-                grad_f8,
-                w_f8_t,
-                out_dtype=torch.bfloat16,
-                scale_a=grad_inv_s,
-                scale_b=w_inv_s,
-                use_fast_accum=False,
-            )
-            # For grad_w = x.T @ grad_out: need grad_out to be transposed and contiguous
-            grad_f8_t = grad_f8.T.contiguous()
-            grad_w = torch._scaled_mm(
-                x_f8.T.contiguous(),
-                grad_f8_t,
-                out_dtype=torch.float32,
-                scale_a=x_inv_s,
-                scale_b=grad_inv_s,
-                use_fast_accum=False,
-            )
-        else:
-            # Fallback to standard matmul for incompatible dimensions
-            grad_x = torch.matmul(grad_f8.to(torch.bfloat16), w_f8.to(torch.bfloat16))
-            grad_x = grad_x * (grad_s / w_s)  # Apply scaling
-            
-            grad_w = torch.matmul(x_f8.T.to(torch.float32), grad_f8.to(torch.float32))
-            grad_w = grad_w * (x_s * grad_s)  # Apply scaling
+        # For _scaled_mm to work, we need very specific memory layouts
+        # Let's use fallback for now since _scaled_mm layout requirements are complex
+        # Fallback to standard matmul for all cases in backward pass
+        grad_x = torch.matmul(grad_f8.to(torch.bfloat16), w_f8.to(torch.bfloat16))
+        grad_x = grad_x * (grad_s / w_s)  # Apply scaling
+        
+        grad_w = torch.matmul(x_f8.T.to(torch.float32), grad_f8.to(torch.float32))
+        grad_w = grad_w * (x_s * grad_s)  # Apply scaling
         
         return grad_x, grad_w
 
