@@ -153,29 +153,32 @@ def _training_loop(
             total_aux_loss += loss_dict.get('aux_loss', 0.0)
             num_batches += 1
             
-            # Optimizer step
-            if (state.step + 1) % state.config.gradient_accumulation_steps == 0:
+            # Increment step counter first
+            state.step += 1
+
+            # Optimizer step (only when accumulation is complete)
+            if state.step % state.config.gradient_accumulation_steps == 0:
                 _optimizer_step(state)
-            
+
             # Logging
             if state.step % 100 == 0:
                 _log_training_progress(state, loss_dict, pbar)
-            
+
             # Evaluation
             if state.step % state.config.eval_every == 0 and state.step > 0:
                 eval_metrics = _evaluate_and_log(state, val_loader)
-                
+
                 # Check for best model
                 if eval_metrics['val_loss'] < state.best_val_loss:
                     state.best_val_loss = eval_metrics['val_loss']
                     print(f"🎉 New best validation loss: {state.best_val_loss:.4f}")
-            
+
             # Milestone evaluations
             if state.step in state.config.log_milestones:
                 eval_metrics = _evaluate_and_log(state, val_loader)
                 print(f"\n🧪 Milestone {state.step}: Val Loss: {eval_metrics['val_loss']:.4f}")
-            
-            state.step += 1
+
+            # Update progress bar
             if state.step % 20 == 0:
                 pbar.update(20)
     
