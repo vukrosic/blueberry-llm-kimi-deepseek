@@ -66,7 +66,7 @@ def mm_backward_op(g: torch.Tensor, x_f8: torch.Tensor, w_f8: torch.Tensor, x_s:
             # Use FP8 scaled_mm for compatible dimensions
             grad_x = torch._scaled_mm(
                 grad_f8,
-                w_f8.T.contiguous().T,
+                w_f8,  # w_f8 is already transposed relative to what we need
                 out_dtype=torch.bfloat16,
                 scale_a=grad_inv_s,
                 scale_b=w_inv_s,
@@ -74,12 +74,12 @@ def mm_backward_op(g: torch.Tensor, x_f8: torch.Tensor, w_f8: torch.Tensor, x_s:
             )
             grad_w = torch._scaled_mm(
                 x_f8.T.contiguous(),
-                grad_f8.T.contiguous().T,
+                grad_f8,
                 out_dtype=torch.float32,
                 scale_a=x_inv_s,
                 scale_b=grad_inv_s,
                 use_fast_accum=False,
-            ).T
+            )
         else:
             # Fallback to standard matmul for incompatible dimensions
             grad_x = torch.matmul(grad_f8.to(torch.bfloat16), w_f8.to(torch.bfloat16))
@@ -95,7 +95,10 @@ def mm_backward_op(g: torch.Tensor, x_f8: torch.Tensor, w_f8: torch.Tensor, x_s:
 
 @mm_backward_op.register_fake
 def _(g: torch.Tensor, x_f8: torch.Tensor, w_f8: torch.Tensor, *_):
-    return x_f8.to(torch.bfloat16), w_f8.T.contiguous().T.to(torch.float32)
+    # grad_x should have same shape as x_f8, grad_w should have same shape as w_f8
+    grad_x_shape = x_f8.shape
+    grad_w_shape = w_f8.shape
+    return torch.empty(grad_x_shape, dtype=torch.bfloat16, device=g.device), torch.empty(grad_w_shape, dtype=torch.float32, device=g.device)
 
 
 def backward(ctx, grad_out: torch.Tensor, *_):
