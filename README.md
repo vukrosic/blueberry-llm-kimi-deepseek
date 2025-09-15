@@ -12,12 +12,21 @@ cd blueberry-llm
 chmod +x setup.sh
 ./setup.sh
 python train.py
+# Or use the direct command:
+python core/train_auto.py
 ```
 
 ```bash
 # Quick test with 500 steps (fast validation)
 python core/train.py --config dev --max-steps 500
+
+# Use Megatron for distributed training
+python core/train_auto.py --use-megatron
+
+# Use native PyTorch (default)
+python core/train_auto.py --no-megatron
 ```
+
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
 

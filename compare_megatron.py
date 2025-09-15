@@ -15,7 +15,7 @@ def run_training(backend_name, megatron_flag, max_steps=50):
     print(f"{'='*60}")
     
     cmd = [
-        sys.executable, "train.py",
+        sys.executable, "core/train_auto.py",
         megatron_flag
     ]
     

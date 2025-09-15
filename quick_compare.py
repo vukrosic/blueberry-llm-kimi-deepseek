@@ -13,7 +13,7 @@ def run_quick_test(backend_name, megatron_flag):
     print(f"🚀 Testing {backend_name}")
     print(f"{'='*50}")
     
-    cmd = [sys.executable, "train.py", megatron_flag]
+    cmd = [sys.executable, "core/train_auto.py", megatron_flag]
     print(f"Command: {' '.join(cmd)}")
     
     start_time = time.time()
