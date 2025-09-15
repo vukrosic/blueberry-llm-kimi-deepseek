@@ -72,6 +72,7 @@ def parse_arguments():
     parser.add_argument("--device", type=str, help="Device to use (cuda/cpu)")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--validate-setup", action="store_true", help="Validate setup before training")
+    parser.add_argument("--no-megatron", action="store_true", help="Force native backend (disable Megatron)")
     
     return parser.parse_args()
 
@@ -113,6 +114,8 @@ def get_config(args):
         config.use_fp8 = False
     if args.no_amp:
         config.use_amp = False
+    if args.no_megatron:
+        config.use_megatron = False
     
     # Re-run post_init to update dependent values
     config.__post_init__()
