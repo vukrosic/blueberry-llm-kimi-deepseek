@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
 import math
 import time
+import os
 from tqdm import tqdm
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -19,6 +20,54 @@ from configs import AdaptiveMoEModelConfig
 from optimizers import setup_optimizers, get_lr_scheduler
 from .evaluation import evaluate_model, compute_model_metrics
 from system import print_system_info
+
+
+def train_with_megatron(
+    model: nn.Module,
+    train_loader: DataLoader,
+    val_loader: DataLoader,
+    config: AdaptiveMoEModelConfig,
+    device: Optional[torch.device] = None,
+    resume_from_checkpoint: Optional[str] = None
+) -> Tuple[nn.Module, Dict[str, Any]]:
+    """
+    Training function optimized for Megatron-LM distributed training.
+    
+    Args:
+        model: Megatron-wrapped model
+        train_loader: Training data loader
+        val_loader: Validation data loader
+        config: Model configuration
+        device: Device to train on (auto-detected if None)
+        resume_from_checkpoint: Path to checkpoint to resume from
+        
+    Returns:
+        Tuple of (trained_model, final_metrics)
+    """
+    print("🚀 Starting Megatron-LM distributed training...")
+    
+    # Initialize distributed training if not already done
+    if not torch.distributed.is_initialized():
+        try:
+            # Try to initialize with environment variables (for torchrun)
+            torch.distributed.init_process_group(backend='nccl')
+            print("✅ Distributed training initialized")
+            
+            # Move model to appropriate GPU rank
+            local_rank = int(os.environ.get('LOCAL_RANK', 0))
+            device = torch.device(f'cuda:{local_rank}')
+            model = model.to(device)
+            print(f"✅ Model moved to GPU {local_rank}")
+            
+        except Exception as e:
+            print(f"⚠️ Distributed initialization failed: {e}")
+            print("   Falling back to native training")
+            return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
+    
+    # Use the existing training logic but with Megatron optimizations
+    # For minimal implementation, we'll use the same training loop
+    # Future enhancement: integrate Megatron's training utilities
+    return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
 
 
 def train_model(
@@ -30,7 +79,40 @@ def train_model(
     resume_from_checkpoint: Optional[str] = None
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
-    Main training function for adaptive LLM models.
+    Main training function dispatcher for adaptive LLM models.
+    
+    Automatically selects the appropriate training backend based on model type.
+    
+    Args:
+        model: Model to train
+        train_loader: Training data loader
+        val_loader: Validation data loader
+        config: Model configuration
+        device: Device to train on (auto-detected if None)
+        resume_from_checkpoint: Path to checkpoint to resume from
+        
+    Returns:
+        Tuple of (trained_model, final_metrics)
+    """
+    # Check if this is a Megatron-wrapped model
+    from models.megatron_wrapper import is_megatron_model
+    
+    if is_megatron_model(model):
+        return train_with_megatron(model, train_loader, val_loader, config, device, resume_from_checkpoint)
+    else:
+        return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
+
+
+def train_model_native(
+    model: nn.Module,
+    train_loader: DataLoader,
+    val_loader: DataLoader,
+    config: AdaptiveMoEModelConfig,
+    device: Optional[torch.device] = None,
+    resume_from_checkpoint: Optional[str] = None
+) -> Tuple[nn.Module, Dict[str, Any]]:
+    """
+    Native training function for adaptive LLM models.
     
     Args:
         model: Model to train

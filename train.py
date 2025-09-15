@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Entry point for Blueberry LLM training.
-This script redirects to the core training functionality.
+This script redirects to the core training functionality with proper argument passing.
 """
 
 import sys
@@ -13,5 +13,7 @@ sys.path.insert(0, current_dir)
 
 # Import and run the main training script
 if __name__ == "__main__":
-    from core.train_auto import main
-    main()
+    # Import the train_auto module and run it directly
+    # This ensures command line arguments are properly parsed
+    import core.train_auto
+    core.train_auto.main()

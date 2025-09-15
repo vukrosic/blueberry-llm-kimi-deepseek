@@ -16,8 +16,13 @@ python train.py
 
 ```bash
 # Quick test with 500 steps (fast validation)
-python core/train.py --config dev --max-steps 500
+# python core/train.py --config dev --max-steps 500
+# I think this doesn't work, line above
+
+# Use Megatron for distributed training (optional)
+python core/train_auto.py --use-megatron
 ```
+
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
 
