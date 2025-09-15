@@ -228,9 +228,21 @@ def _training_step(
                 y.view(-1)
             )
             
+            # Check for NaN/inf in main loss
+            if torch.isnan(ce_loss) or torch.isinf(ce_loss):
+                print(f"⚠️  WARNING: Invalid CE loss detected: {ce_loss}")
+                print(f"   Logits range: [{logits.min():.4f}, {logits.max():.4f}]")
+                print(f"   Logits contains NaN: {torch.isnan(logits).any()}")
+                print(f"   Logits contains Inf: {torch.isinf(logits).any()}")
+                # Set loss to a safe value to continue training
+                ce_loss = torch.tensor(10.0, device=ce_loss.device, dtype=ce_loss.dtype)
+            
             # Combine losses
             total_loss = ce_loss
             if aux_loss is not None:
+                if torch.isnan(aux_loss) or torch.isinf(aux_loss):
+                    print(f"⚠️  WARNING: Invalid aux loss detected: {aux_loss}")
+                    aux_loss = torch.tensor(0.0, device=aux_loss.device, dtype=aux_loss.dtype)
                 total_loss = total_loss + aux_loss
             
             # Scale for gradient accumulation
@@ -251,8 +263,20 @@ def _training_step(
             y.view(-1)
         )
         
+        # Check for NaN/inf in main loss
+        if torch.isnan(ce_loss) or torch.isinf(ce_loss):
+            print(f"⚠️  WARNING: Invalid CE loss detected: {ce_loss}")
+            print(f"   Logits range: [{logits.min():.4f}, {logits.max():.4f}]")
+            print(f"   Logits contains NaN: {torch.isnan(logits).any()}")
+            print(f"   Logits contains Inf: {torch.isinf(logits).any()}")
+            # Set loss to a safe value to continue training
+            ce_loss = torch.tensor(10.0, device=ce_loss.device, dtype=ce_loss.dtype)
+        
         total_loss = ce_loss
         if aux_loss is not None:
+            if torch.isnan(aux_loss) or torch.isinf(aux_loss):
+                print(f"⚠️  WARNING: Invalid aux loss detected: {aux_loss}")
+                aux_loss = torch.tensor(0.0, device=aux_loss.device, dtype=aux_loss.dtype)
             total_loss = total_loss + aux_loss
         
         loss = total_loss / state.config.gradient_accumulation_steps
@@ -276,6 +300,26 @@ def _optimizer_step(state: TrainingState):
         # Unscale gradients for clipping
         for optimizer in state.optimizers:
             state.scaler.unscale_(optimizer)
+        
+        # Check for NaN/inf gradients before clipping
+        total_norm = 0.0
+        param_count = 0
+        for param in state.model.parameters():
+            if param.grad is not None:
+                param_count += 1
+                param_norm = param.grad.data.norm(2)
+                total_norm += param_norm.item() ** 2
+                if torch.isnan(param.grad).any() or torch.isinf(param.grad).any():
+                    print(f"⚠️  WARNING: Invalid gradient detected in parameter")
+                    print(f"   Param shape: {param.shape}")
+                    print(f"   Grad contains NaN: {torch.isnan(param.grad).any()}")
+                    print(f"   Grad contains Inf: {torch.isinf(param.grad).any()}")
+                    # Zero out invalid gradients
+                    param.grad.data.zero_()
+        
+        total_norm = total_norm ** (1. / 2)
+        if total_norm > 1000.0:  # Very large gradient norm
+            print(f"⚠️  WARNING: Very large gradient norm: {total_norm:.2f}")
         
         # Clip gradients
         torch.nn.utils.clip_grad_norm_(state.model.parameters(), state.config.grad_clip)
