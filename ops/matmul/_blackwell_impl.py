@@ -19,14 +19,22 @@ def mm_op(x: torch.Tensor, w: torch.Tensor, x_s: float, w_s: float, grad_s: floa
         assert x.is_contiguous() and w.is_contiguous()
         x_f8 = x.div(x_s).to(torch.float8_e4m3fn)
         w_f8 = w.div(w_s).to(torch.float8_e4m3fn)
-        out = torch._scaled_mm(
-            x_f8,
-            w_f8.T,
-            out_dtype=torch.bfloat16,
-            scale_a=x.new_tensor(x_s, dtype=torch.float32),
-            scale_b=x.new_tensor(w_s, dtype=torch.float32),
-            use_fast_accum=True,
-        )
+        
+        # Check if dimensions are compatible with _scaled_mm (divisible by 16)
+        if x_f8.size(-1) % 16 == 0 and w_f8.size(0) % 16 == 0:
+            out = torch._scaled_mm(
+                x_f8,
+                w_f8.T,
+                out_dtype=torch.bfloat16,
+                scale_a=x.new_tensor(x_s, dtype=torch.float32),
+                scale_b=x.new_tensor(w_s, dtype=torch.float32),
+                use_fast_accum=True,
+            )
+        else:
+            # Fallback to standard matmul for incompatible dimensions
+            out = torch.matmul(x_f8.to(torch.bfloat16), w_f8.to(torch.bfloat16).T)
+            out = out * (x_s * w_s)
+        
         return out, x_f8, w_f8
 
     return impl(x, w)
@@ -51,22 +59,35 @@ def mm_backward_op(g: torch.Tensor, x_f8: torch.Tensor, w_f8: torch.Tensor, x_s:
         w_inv_s = grad.new_tensor(w_s, dtype=torch.float32)
         grad_inv_s = grad.new_tensor(grad_s, dtype=torch.float32)
         grad_f8 = grad.div(grad_s).to(torch.float8_e5m2)
-        grad_x = torch._scaled_mm(
-            grad_f8,
-            w_f8.T.contiguous().T,
-            out_dtype=torch.bfloat16,
-            scale_a=grad_inv_s,
-            scale_b=w_inv_s,
-            use_fast_accum=False,
-        )
-        grad_w = torch._scaled_mm(
-            x_f8.T.contiguous(),
-            grad_f8.T.contiguous().T,
-            out_dtype=torch.float32,
-            scale_a=x_inv_s,
-            scale_b=grad_inv_s,
-            use_fast_accum=False,
-        ).T
+        
+        # Check if dimensions are compatible with _scaled_mm (divisible by 16)
+        if (grad_f8.size(-1) % 16 == 0 and w_f8.size(-1) % 16 == 0 and 
+            x_f8.size(-1) % 16 == 0 and grad_f8.size(0) % 16 == 0):
+            # Use FP8 scaled_mm for compatible dimensions
+            grad_x = torch._scaled_mm(
+                grad_f8,
+                w_f8.T.contiguous().T,
+                out_dtype=torch.bfloat16,
+                scale_a=grad_inv_s,
+                scale_b=w_inv_s,
+                use_fast_accum=False,
+            )
+            grad_w = torch._scaled_mm(
+                x_f8.T.contiguous(),
+                grad_f8.T.contiguous().T,
+                out_dtype=torch.float32,
+                scale_a=x_inv_s,
+                scale_b=grad_inv_s,
+                use_fast_accum=False,
+            ).T
+        else:
+            # Fallback to standard matmul for incompatible dimensions
+            grad_x = torch.matmul(grad_f8.to(torch.bfloat16), w_f8.to(torch.bfloat16))
+            grad_x = grad_x * (grad_s / w_s)  # Apply scaling
+            
+            grad_w = torch.matmul(x_f8.T.to(torch.float32), grad_f8.to(torch.float32))
+            grad_w = grad_w * (x_s * grad_s)  # Apply scaling
+        
         return grad_x, grad_w
 
     return impl(g, x_f8, w_f8)
