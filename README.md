@@ -11,10 +11,69 @@ git clone https://github.com/Open-Superintelligence-Lab/blueberry-llm
 cd blueberry-llm
 chmod +x setup.sh
 ./setup.sh
-python train_auto.py
+python train.py
+```
+
+```bash
+# Quick test with 500 steps (fast validation)
+python core/train.py --config dev --max-steps 500
 ```
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
+
+## 📁 Project Structure
+
+```
+blueberry-llm/
+├── 📁 core/                    # Main functionality
+│   ├── train.py               # Main training script
+│   ├── train_auto.py          # Auto-configuration training
+│   ├── inference.py           # Model inference
+│   └── auto_config.py         # Auto-configuration logic
+├── 📁 models/                 # Neural network components
+├── 📁 data/                   # Data pipeline
+├── 📁 optimizers/             # Advanced optimizers
+├── 📁 training/               # Training infrastructure
+├── 📁 ops/                    # GPU-adaptive operations
+├── 📁 system/                 # Hardware detection
+├── 📁 configs/                # Configuration management
+├── 📁 tests/                  # Testing and examples
+├── 📁 docs/                   # Documentation
+└── 📁 legacy/                 # Legacy files for reference
+```
+
+## 🚀 Usage
+
+### Training
+```bash
+# Auto-configured training (recommended)
+python train.py
+
+# Quick test with 500 steps (fast validation)
+python core/train.py --config dev --max-steps 500
+
+# Manual configuration
+python core/train.py --config dev
+python core/train.py --d-model 768 --n-layers 12
+```
+
+### Inference
+```bash
+# Generate text from trained model
+python inference.py "Your prompt here"
+
+# Interactive mode
+python inference.py --interactive
+```
+
+### Testing
+```bash
+# Run GPU-adaptive system tests
+python test.py
+
+# Run integration examples
+python tests/example_integration.py
+```
 
 ## Research Questions
 

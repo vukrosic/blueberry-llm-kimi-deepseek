@@ -5,12 +5,19 @@ Just run: python train_auto.py
 """
 
 import os
+import sys
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+# Add parent directory to path for imports when running directly
+if __name__ == "__main__":
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.insert(0, parent_dir)
 
 import torch
 from torch.utils.data import DataLoader, random_split
-from auto_config import auto_configure
-from llm import train_moe_model, load_and_cache_data, TextTokenDataset
+from core.auto_config import auto_configure
+from legacy.llm import train_moe_model, load_and_cache_data, TextTokenDataset
 
 def auto_launch_distributed():
     """Auto-launch with torchrun if multi-GPU detected and not already in distributed mode"""
@@ -53,6 +60,13 @@ def main():
     # Auto-configure everything
     configurator = auto_configure()
     configurator.print_config()
+    
+    # Print detailed GPU system information
+    print("\n🔍 Detailed GPU System Information:")
+    print("=" * 50)
+    from system import print_system_info
+    print_system_info()
+    print("=" * 50)
     
     # Setup distributed training if needed
     if configurator.config.use_distributed:
