@@ -9,8 +9,8 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import torch
 from torch.utils.data import DataLoader, random_split
-from auto_config import auto_configure
-from llm import train_moe_model, load_and_cache_data, TextTokenDataset
+from .auto_config import auto_configure
+from ..legacy.llm import train_moe_model, load_and_cache_data, TextTokenDataset
 
 def auto_launch_distributed():
     """Auto-launch with torchrun if multi-GPU detected and not already in distributed mode"""
