@@ -87,6 +87,27 @@ def train_model(
     print(f"\n🎯 Training completed!")
     print(f"📊 Final metrics: {final_metrics}")
     
+    # Display cumulative NaN gradient statistics
+    if training_state.total_gradient_steps > 0:
+        print(f"\n🔍 Cumulative NaN Gradient Statistics:")
+        print(f"   Total gradient steps: {training_state.total_gradient_steps}")
+        print(f"   Total parameters with NaN: {training_state.total_nan_params}")
+        print(f"   Total parameters with Inf: {training_state.total_inf_params}")
+        print(f"   Total gradient elements NaN: {training_state.total_nan_elements:,}")
+        print(f"   Total gradient elements Inf: {training_state.total_inf_elements:,}")
+        
+        avg_nan_params_per_step = training_state.total_nan_params / training_state.total_gradient_steps
+        avg_inf_params_per_step = training_state.total_inf_params / training_state.total_gradient_steps
+        avg_nan_elements_per_step = training_state.total_nan_elements / training_state.total_gradient_steps
+        avg_inf_elements_per_step = training_state.total_inf_elements / training_state.total_gradient_steps
+        
+        print(f"   Average NaN params per step: {avg_nan_params_per_step:.2f}")
+        print(f"   Average Inf params per step: {avg_inf_params_per_step:.2f}")
+        print(f"   Average NaN elements per step: {avg_nan_elements_per_step:.0f}")
+        print(f"   Average Inf elements per step: {avg_inf_elements_per_step:.0f}")
+    else:
+        print(f"\n🔍 No gradient statistics available (no gradient steps performed)")
+    
     return model, final_metrics
 
 
@@ -112,6 +133,13 @@ class TrainingState:
         self.step = start_step
         self.best_val_loss = float('inf')
         self.training_start_time = time.time()
+        
+        # NaN gradient tracking
+        self.total_nan_params = 0
+        self.total_inf_params = 0
+        self.total_nan_elements = 0
+        self.total_inf_elements = 0
+        self.total_gradient_steps = 0
 
 
 def _training_loop(
@@ -307,18 +335,74 @@ def _optimizer_step(state: TrainingState):
         # Check for NaN/inf gradients before clipping
         total_norm = 0.0
         param_count = 0
+        nan_count = 0
+        inf_count = 0
+        total_grad_elements = 0
+        nan_grad_elements = 0
+        inf_grad_elements = 0
+        
         for param in state.model.parameters():
             if param.grad is not None:
                 param_count += 1
                 param_norm = param.grad.data.norm(2)
                 total_norm += param_norm.item() ** 2
-                if torch.isnan(param.grad).any() or torch.isinf(param.grad).any():
+                
+                # Count gradient elements
+                total_grad_elements += param.grad.numel()
+                
+                # Check for NaN/inf gradients
+                has_nan = torch.isnan(param.grad).any()
+                has_inf = torch.isinf(param.grad).any()
+                
+                if has_nan:
+                    nan_count += 1
+                    nan_grad_elements += torch.isnan(param.grad).sum().item()
                     print(f"⚠️  WARNING: Invalid gradient detected in parameter")
                     print(f"   Param shape: {param.shape}")
-                    print(f"   Grad contains NaN: {torch.isnan(param.grad).any()}")
-                    print(f"   Grad contains Inf: {torch.isinf(param.grad).any()}")
+                    print(f"   Grad contains NaN: {has_nan}")
+                    print(f"   Grad contains Inf: {has_inf}")
                     # Zero out invalid gradients
                     param.grad.data.zero_()
+                elif has_inf:
+                    inf_count += 1
+                    inf_grad_elements += torch.isinf(param.grad).sum().item()
+                    print(f"⚠️  WARNING: Invalid gradient detected in parameter")
+                    print(f"   Param shape: {param.shape}")
+                    print(f"   Grad contains NaN: {has_nan}")
+                    print(f"   Grad contains Inf: {has_inf}")
+                    # Zero out invalid gradients
+                    param.grad.data.zero_()
+        
+        # Calculate and display NaN/Inf statistics
+        if param_count > 0:
+            nan_param_percentage = (nan_count / param_count) * 100
+            inf_param_percentage = (inf_count / param_count) * 100
+            
+            if total_grad_elements > 0:
+                nan_element_percentage = (nan_grad_elements / total_grad_elements) * 100
+                inf_element_percentage = (inf_grad_elements / total_grad_elements) * 100
+                
+                print(f"📊 Gradient Statistics:")
+                print(f"   Parameters with NaN: {nan_count}/{param_count} ({nan_param_percentage:.2f}%)")
+                print(f"   Parameters with Inf: {inf_count}/{param_count} ({inf_param_percentage:.2f}%)")
+                print(f"   Gradient elements NaN: {nan_grad_elements:,}/{total_grad_elements:,} ({nan_element_percentage:.4f}%)")
+                print(f"   Gradient elements Inf: {inf_grad_elements:,}/{total_grad_elements:,} ({inf_element_percentage:.4f}%)")
+                
+                # Accumulate statistics
+                state.total_nan_params += nan_count
+                state.total_inf_params += inf_count
+                state.total_nan_elements += nan_grad_elements
+                state.total_inf_elements += inf_grad_elements
+                state.total_gradient_steps += 1
+            else:
+                print(f"📊 Gradient Statistics:")
+                print(f"   Parameters with NaN: {nan_count}/{param_count} ({nan_param_percentage:.2f}%)")
+                print(f"   Parameters with Inf: {inf_count}/{param_count} ({inf_param_percentage:.2f}%)")
+                
+                # Accumulate statistics
+                state.total_nan_params += nan_count
+                state.total_inf_params += inf_count
+                state.total_gradient_steps += 1
         
         total_norm = total_norm ** (1. / 2)
         if total_norm > 1000.0:  # Very large gradient norm
@@ -339,6 +423,82 @@ def _optimizer_step(state: TrainingState):
         for scheduler in state.schedulers:
             scheduler.step()
     else:
+        # Check for NaN/inf gradients before clipping (non-AMP case)
+        total_norm = 0.0
+        param_count = 0
+        nan_count = 0
+        inf_count = 0
+        total_grad_elements = 0
+        nan_grad_elements = 0
+        inf_grad_elements = 0
+        
+        for param in state.model.parameters():
+            if param.grad is not None:
+                param_count += 1
+                param_norm = param.grad.data.norm(2)
+                total_norm += param_norm.item() ** 2
+                
+                # Count gradient elements
+                total_grad_elements += param.grad.numel()
+                
+                # Check for NaN/inf gradients
+                has_nan = torch.isnan(param.grad).any()
+                has_inf = torch.isinf(param.grad).any()
+                
+                if has_nan:
+                    nan_count += 1
+                    nan_grad_elements += torch.isnan(param.grad).sum().item()
+                    print(f"⚠️  WARNING: Invalid gradient detected in parameter")
+                    print(f"   Param shape: {param.shape}")
+                    print(f"   Grad contains NaN: {has_nan}")
+                    print(f"   Grad contains Inf: {has_inf}")
+                    # Zero out invalid gradients
+                    param.grad.data.zero_()
+                elif has_inf:
+                    inf_count += 1
+                    inf_grad_elements += torch.isinf(param.grad).sum().item()
+                    print(f"⚠️  WARNING: Invalid gradient detected in parameter")
+                    print(f"   Param shape: {param.shape}")
+                    print(f"   Grad contains NaN: {has_nan}")
+                    print(f"   Grad contains Inf: {has_inf}")
+                    # Zero out invalid gradients
+                    param.grad.data.zero_()
+        
+        # Calculate and display NaN/Inf statistics
+        if param_count > 0:
+            nan_param_percentage = (nan_count / param_count) * 100
+            inf_param_percentage = (inf_count / param_count) * 100
+            
+            if total_grad_elements > 0:
+                nan_element_percentage = (nan_grad_elements / total_grad_elements) * 100
+                inf_element_percentage = (inf_grad_elements / total_grad_elements) * 100
+                
+                print(f"📊 Gradient Statistics:")
+                print(f"   Parameters with NaN: {nan_count}/{param_count} ({nan_param_percentage:.2f}%)")
+                print(f"   Parameters with Inf: {inf_count}/{param_count} ({inf_param_percentage:.2f}%)")
+                print(f"   Gradient elements NaN: {nan_grad_elements:,}/{total_grad_elements:,} ({nan_element_percentage:.4f}%)")
+                print(f"   Gradient elements Inf: {inf_grad_elements:,}/{total_grad_elements:,} ({inf_element_percentage:.4f}%)")
+                
+                # Accumulate statistics
+                state.total_nan_params += nan_count
+                state.total_inf_params += inf_count
+                state.total_nan_elements += nan_grad_elements
+                state.total_inf_elements += inf_grad_elements
+                state.total_gradient_steps += 1
+            else:
+                print(f"📊 Gradient Statistics:")
+                print(f"   Parameters with NaN: {nan_count}/{param_count} ({nan_param_percentage:.2f}%)")
+                print(f"   Parameters with Inf: {inf_count}/{param_count} ({inf_param_percentage:.2f}%)")
+                
+                # Accumulate statistics
+                state.total_nan_params += nan_count
+                state.total_inf_params += inf_count
+                state.total_gradient_steps += 1
+        
+        total_norm = total_norm ** (1. / 2)
+        if total_norm > 1000.0:  # Very large gradient norm
+            print(f"⚠️  WARNING: Very large gradient norm: {total_norm:.2f}")
+        
         # Clip gradients
         torch.nn.utils.clip_grad_norm_(state.model.parameters(), state.config.grad_clip)
         
