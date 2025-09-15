@@ -41,15 +41,22 @@ def matmul_fp8(x: torch.Tensor, w: torch.Tensor, x_s: float = 1.0, w_s: float = 
     x_f8 = x_flat.div(x_s).to(torch.float8_e4m3fn)
     w_f8 = w.div(w_s).to(torch.float8_e4m3fn)
     
-    # Use Blackwell's native FP8 matmul
-    out = torch._scaled_mm(
-        x_f8,
-        w_f8.T,
-        out_dtype=torch.bfloat16,
-        scale_a=x.new_tensor(x_s, dtype=torch.float32),
-        scale_b=x.new_tensor(w_s, dtype=torch.float32),
-        use_fast_accum=True,
-    )
+    # Check if dimensions are compatible with torch._scaled_mm
+    # torch._scaled_mm requires dimensions to be divisible by 16
+    if x_f8.size(-1) % 16 == 0 and w_f8.size(0) % 16 == 0:
+        # Use Blackwell's native FP8 matmul
+        out = torch._scaled_mm(
+            x_f8,
+            w_f8.T,
+            out_dtype=torch.bfloat16,
+            scale_a=x.new_tensor(x_s, dtype=torch.float32),
+            scale_b=x.new_tensor(w_s, dtype=torch.float32),
+            use_fast_accum=True,
+        )
+    else:
+        # Fallback to standard FP8 matmul for incompatible dimensions
+        out = torch.matmul(x_f8.to(torch.bfloat16), w_f8.to(torch.bfloat16).T)
+        out = out * (x_s * w_s)
     
     # Reshape back to original batch dimensions
     return out.reshape(*original_shape[:-1], -1)

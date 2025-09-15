@@ -142,14 +142,14 @@ def get_rtx5090_config() -> AdaptiveMoEModelConfig:
 def get_development_config() -> AdaptiveMoEModelConfig:
     """Get a fast configuration for development and testing."""
     return AdaptiveMoEModelConfig(
-        d_model=256,
+        d_model=256,  # 256 is divisible by 16
         n_heads=4,
         n_layers=4,
-        d_ff=1024,
+        d_ff=1024,   # 1024 is divisible by 16
         batch_size=16,
         max_steps=500,
         max_seq_len=256,
-        num_experts=4,
+        num_experts=8,  # Changed from 4 to 8 (8 is divisible by 16)
         expert_top_k=2,
         eval_every=100,
         eval_steps=50,
