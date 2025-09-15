@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from torch.cuda.amp import autocast
+from torch.amp import autocast
 import math
 from typing import Dict, Any, Optional
 from configs import AdaptiveMoEModelConfig
@@ -50,7 +50,7 @@ def evaluate_model(
             x, y = x.to(device), y.to(device)
             num_steps += 1
 
-            with autocast(enabled=config.use_amp):
+            with autocast('cuda', enabled=config.use_amp):
                 # Handle MoE models that return aux loss
                 if hasattr(model, 'forward') and 'return_aux_loss' in model.forward.__code__.co_varnames:
                     logits = model(x, return_aux_loss=False)

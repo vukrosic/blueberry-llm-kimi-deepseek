@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 import math
 import time
 from tqdm import tqdm
@@ -62,7 +62,7 @@ def train_model(
     schedulers = [get_lr_scheduler(opt, config, "cosine_warmup") for opt in optimizers]
     
     # Setup gradient scaler for mixed precision
-    scaler = GradScaler() if config.use_amp else None
+    scaler = GradScaler('cuda') if config.use_amp else None
     
     # Resume from checkpoint if specified
     start_step = 0
@@ -214,7 +214,7 @@ def _training_step(
         Dictionary with loss values
     """
     if state.config.use_amp:
-        with autocast():
+        with autocast('cuda'):
             # Handle models with auxiliary loss (MoE)
             if hasattr(state.model, 'forward') and 'return_aux_loss' in state.model.forward.__code__.co_varnames:
                 logits, aux_loss = state.model(x, return_aux_loss=True)
@@ -285,12 +285,12 @@ def _optimizer_step(state: TrainingState):
             state.scaler.step(optimizer)
             optimizer.zero_grad(set_to_none=True)
         
-        # Update learning rate
-        for scheduler in state.schedulers:
-            scheduler.step()
-        
         # Update scaler
         state.scaler.update()
+        
+        # Update learning rate (after optimizer step)
+        for scheduler in state.schedulers:
+            scheduler.step()
     else:
         # Clip gradients
         torch.nn.utils.clip_grad_norm_(state.model.parameters(), state.config.grad_clip)
