@@ -93,7 +93,7 @@ class BlueberryAutoConfigurator:
             gpu_memory_gb=gpu_memory_gb,
             **config,
             gradient_accumulation_steps=gradient_accumulation_steps,
-            max_steps=5000,
+            max_steps=1000,
             learning_rate=0.01,
             use_distributed=(num_gpus > 1),
             use_amp=True

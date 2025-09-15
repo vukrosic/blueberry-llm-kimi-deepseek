@@ -62,7 +62,7 @@ class MoEModelConfig:
     # Technical
     use_amp: bool = True
     vocab_size: Optional[int] = None
-    log_milestones: Tuple[int, ...] = (2000, 5000, 10000)
+    log_milestones: Tuple[int, ...] = (250, 500, 1000)
 
     # MoE specific parameters
     num_experts: int = 8
