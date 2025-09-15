@@ -56,6 +56,10 @@ class MegatronWrapper(nn.Module):
                     pipeline_model_parallel_size=self.config.pipeline_parallel_size
                 )
                 print("✅ Megatron model parallelism initialized")
+                print(f"   Tensor parallel size: {self.config.tensor_parallel_size}")
+                print(f"   Pipeline parallel size: {self.config.pipeline_parallel_size}")
+                print(f"   Model parallel rank: {mpu.get_tensor_model_parallel_rank()}")
+                print(f"   Model parallel world size: {mpu.get_tensor_model_parallel_world_size()}")
             
             # Wrap model layers with Megatron parallel layers if needed
             self._wrap_parallel_layers()
@@ -87,6 +91,8 @@ class MegatronWrapper(nn.Module):
             from megatron.core.tensor_parallel import ColumnParallelLinear, RowParallelLinear
             from megatron.core import mpu
             
+            print("🔧 Wrapping layers with tensor parallelism...")
+            
             # Wrap the language modeling head for tensor parallelism
             if hasattr(self.model, 'lm_head'):
                 original_lm_head = self.model.lm_head
@@ -110,45 +116,44 @@ class MegatronWrapper(nn.Module):
                 self.model.lm_head = parallel_lm_head
                 print("✅ Wrapped lm_head with tensor parallelism")
             
-            # Wrap expert layers in MoE blocks
+            # Wrap attention layers for better parallelism
             if hasattr(self.model, 'transformer_blocks'):
                 for i, block in enumerate(self.model.transformer_blocks):
-                    if hasattr(block, 'experts'):
-                        # Wrap expert layers
-                        for j, expert in enumerate(block.experts):
-                            if hasattr(expert, 'linear1'):
-                                # Wrap first linear layer
-                                original_linear1 = expert.linear1
-                                parallel_linear1 = ColumnParallelLinear(
-                                    input_size=original_linear1.in_features,
-                                    output_size=original_linear1.out_features,
-                                    bias=original_linear1.bias is not None,
-                                    gather_output=False,
-                                    init_method=lambda x: x
-                                )
-                                with torch.no_grad():
-                                    parallel_linear1.weight.copy_(original_linear1.weight)
-                                    if original_linear1.bias is not None:
-                                        parallel_linear1.bias.copy_(original_linear1.bias)
-                                expert.linear1 = parallel_linear1
-                            
-                            if hasattr(expert, 'linear2'):
-                                # Wrap second linear layer
-                                original_linear2 = expert.linear2
-                                parallel_linear2 = RowParallelLinear(
-                                    input_size=original_linear2.in_features,
-                                    output_size=original_linear2.out_features,
-                                    bias=original_linear2.bias is not None,
-                                    input_is_parallel=True,
-                                    init_method=lambda x: x
-                                )
-                                with torch.no_grad():
-                                    parallel_linear2.weight.copy_(original_linear2.weight)
-                                    if original_linear2.bias is not None:
-                                        parallel_linear2.bias.copy_(original_linear2.bias)
-                                expert.linear2 = parallel_linear2
+                    if hasattr(block, 'attention'):
+                        # Wrap attention projection layers
+                        if hasattr(block.attention, 'qkv_proj'):
+                            original_qkv = block.attention.qkv_proj
+                            parallel_qkv = ColumnParallelLinear(
+                                input_size=original_qkv.in_features,
+                                output_size=original_qkv.out_features,
+                                bias=original_qkv.bias is not None,
+                                gather_output=False,
+                                init_method=lambda x: x
+                            )
+                            with torch.no_grad():
+                                parallel_qkv.weight.copy_(original_qkv.weight)
+                                if original_qkv.bias is not None:
+                                    parallel_qkv.bias.copy_(original_qkv.bias)
+                            block.attention.qkv_proj = parallel_qkv
+                            print(f"✅ Wrapped attention qkv_proj in block {i}")
                         
-                        print(f"✅ Wrapped expert layers in block {i}")
+                        if hasattr(block.attention, 'out_proj'):
+                            original_out = block.attention.out_proj
+                            parallel_out = RowParallelLinear(
+                                input_size=original_out.in_features,
+                                output_size=original_out.out_features,
+                                bias=original_out.bias is not None,
+                                input_is_parallel=True,
+                                init_method=lambda x: x
+                            )
+                            with torch.no_grad():
+                                parallel_out.weight.copy_(original_out.weight)
+                                if original_out.bias is not None:
+                                    parallel_out.bias.copy_(original_out.bias)
+                            block.attention.out_proj = parallel_out
+                            print(f"✅ Wrapped attention out_proj in block {i}")
+            
+            print("✅ Layer wrapping completed")
             
         except Exception as e:
             print(f"⚠️ Layer wrapping failed: {e}")
