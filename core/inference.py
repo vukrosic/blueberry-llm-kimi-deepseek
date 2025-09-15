@@ -9,8 +9,8 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import torch
 import torch.nn.functional as F
-from ..legacy.llm import MoEMinimalLLM, MoEModelConfig
-from .auto_config import AutoConfig
+from legacy.llm import MoEMinimalLLM, MoEModelConfig
+from core.auto_config import AutoConfig
 from transformers import AutoTokenizer
 import argparse
 

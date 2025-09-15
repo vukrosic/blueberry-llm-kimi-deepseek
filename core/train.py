@@ -18,11 +18,11 @@ from torch.utils.data import DataLoader, random_split
 import time
 
 # Import our modular components
-from ..configs import AdaptiveMoEModelConfig, get_rtx5090_config, get_development_config
-from ..data import load_and_cache_data, TextTokenDataset
-from ..models import AdaptiveMoEMinimalLLM, create_model
-from ..training import train_model, validate_training_setup
-from ..system import print_system_info, SYSTEM_CONFIG
+from configs import AdaptiveMoEModelConfig, get_rtx5090_config, get_development_config
+from data import load_and_cache_data, TextTokenDataset
+from models import AdaptiveMoEMinimalLLM, create_model
+from training import train_model, validate_training_setup
+from system import print_system_info, SYSTEM_CONFIG
 
 
 def parse_arguments():

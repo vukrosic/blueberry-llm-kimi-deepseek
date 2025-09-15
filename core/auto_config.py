@@ -126,7 +126,7 @@ class BlueberryAutoConfigurator:
     
     def get_model_config(self):
         """Convert to MoEModelConfig format"""
-        from ..legacy.llm import MoEModelConfig
+        from legacy.llm import MoEModelConfig
         
         return MoEModelConfig(
             d_model=self.config.d_model,

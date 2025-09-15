@@ -8,8 +8,8 @@ adaptive system while maintaining the same interface.
 
 import torch
 import torch.nn as nn
-from ..system import SYSTEM_CONFIG, print_system_info
-from ..ops.matmul import matmul
+from system import SYSTEM_CONFIG, print_system_info
+from ops.matmul import matmul
 
 
 class AdaptiveLinear(nn.Module):

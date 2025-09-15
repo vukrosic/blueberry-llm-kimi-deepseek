@@ -9,8 +9,8 @@ to ensure everything works correctly across different hardware configurations.
 import torch
 import time
 import numpy as np
-from ..system import SYSTEM_CONFIG, print_system_info
-from ..ops.matmul import matmul, matmul_with_info, get_available_kernels, print_kernel_info
+from system import SYSTEM_CONFIG, print_system_info
+from ops.matmul import matmul, matmul_with_info, get_available_kernels, print_kernel_info
 
 
 def test_system_detection():
