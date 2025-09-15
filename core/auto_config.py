@@ -40,6 +40,7 @@ class AutoConfig:
     # Performance
     use_distributed: bool
     use_amp: bool
+    use_megatron: bool
 
 class BlueberryAutoConfigurator:
     """One class that does everything"""
@@ -96,7 +97,8 @@ class BlueberryAutoConfigurator:
             max_steps=1000,
             learning_rate=0.01,
             use_distributed=(num_gpus > 1),
-            use_amp=True
+            use_amp=True,
+            use_megatron=False  # Default to False, can be overridden by flags
         )
     
     def _cpu_config(self) -> AutoConfig:
@@ -106,7 +108,7 @@ class BlueberryAutoConfigurator:
             d_model=128, n_layers=2, n_heads=4, d_ff=512, num_experts=2,
             batch_size=4, gradient_accumulation_steps=8, max_steps=1000,
             learning_rate=0.001, max_seq_len=256,
-            use_distributed=False, use_amp=False
+            use_distributed=False, use_amp=False, use_megatron=False
         )
     
     def print_config(self):

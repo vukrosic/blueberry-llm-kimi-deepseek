@@ -15,6 +15,7 @@ if __name__ == "__main__":
     sys.path.insert(0, parent_dir)
 
 import torch
+import argparse
 from torch.utils.data import DataLoader, random_split
 from core.auto_config import auto_configure
 from legacy.llm import train_moe_model, load_and_cache_data, TextTokenDataset
@@ -51,14 +52,39 @@ def auto_launch_distributed():
     
     return False
 
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Auto-configured training for Blueberry LLM",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    
+    # Megatron options
+    parser.add_argument("--use-megatron", action="store_true", help="Force Megatron backend (enable Megatron)")
+    parser.add_argument("--no-megatron", action="store_true", help="Force native backend (disable Megatron)")
+    
+    return parser.parse_args()
+
 def main():
     print("🫐 Starting Blueberry LLM Auto-Training")
+    
+    # Parse arguments
+    args = parse_arguments()
     
     # Auto-launch with torchrun if needed
     auto_launch_distributed()
     
     # Auto-configure everything
     configurator = auto_configure()
+    
+    # Override Megatron settings if specified
+    if args.use_megatron:
+        configurator.config.use_megatron = True
+        print("🚀 Megatron forced enabled via --use-megatron flag")
+    elif args.no_megatron:
+        configurator.config.use_megatron = False
+        print("🚀 Megatron forced disabled via --no-megatron flag")
+    
     configurator.print_config()
     
     # Print detailed GPU system information
@@ -138,7 +164,50 @@ def main():
     
     # Train the model
     print("\n🚀 Starting training...")
-    model, final_metrics = train_moe_model(model_config, train_loader, val_loader)
+    
+    # Use Megatron-enabled training if requested
+    if configurator.config.use_megatron:
+        print("🚀 Using Megatron-enabled training pipeline...")
+        from models import create_model
+        from training import train_model
+        from configs import AdaptiveMoEModelConfig
+        
+        # Convert legacy config to new config format
+        adaptive_config = AdaptiveMoEModelConfig(
+            d_model=model_config.d_model,
+            n_heads=model_config.n_heads,
+            n_layers=model_config.n_layers,
+            d_ff=model_config.d_ff,
+            batch_size=model_config.batch_size,
+            max_steps=model_config.max_steps,
+            gradient_accumulation_steps=model_config.gradient_accumulation_steps,
+            muon_lr=model_config.muon_lr,
+            max_seq_len=model_config.max_seq_len,
+            num_experts=model_config.num_experts,
+            use_amp=model_config.use_amp,
+            use_megatron=True,
+            tensor_parallel_size=min(configurator.config.num_gpus, 8),
+            pipeline_parallel_size=1
+        )
+        
+        # Create model with Megatron support
+        model = create_model(adaptive_config, "moe")
+        
+        # Move to device
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model = model.to(device)
+        
+        # Train with new pipeline
+        model, final_metrics = train_model(
+            model=model,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            config=adaptive_config,
+            device=device
+        )
+    else:
+        # Use legacy training pipeline
+        model, final_metrics = train_moe_model(model_config, train_loader, val_loader)
     
     # Save results
     print("\n💾 Saving model...")
