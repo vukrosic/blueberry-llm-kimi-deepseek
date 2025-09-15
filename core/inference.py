@@ -19,10 +19,11 @@ def load_model(checkpoint_path="blueberry_model.pt"):
     print(f"📦 Loading model from {checkpoint_path}...")
     
     # Add safe globals for custom classes
-    torch.serialization.add_safe_globals([MoEModelConfig, AutoConfig])
+    from transformers.models.gpt2.tokenization_gpt2_fast import GPT2TokenizerFast
+    torch.serialization.add_safe_globals([MoEModelConfig, AutoConfig, GPT2TokenizerFast])
     
     # Load checkpoint
-    checkpoint = torch.load(checkpoint_path, map_location='cpu')
+    checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
     config = checkpoint['config']
     
     # Handle tokenizer - create if not in checkpoint
