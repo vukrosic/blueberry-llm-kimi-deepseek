@@ -16,8 +16,8 @@ def run_quick_test():
     print()
     
     experiments = [
-        ("Tiny", "Native", ["--config", "dev", "--no-megatron"]),
-        ("Tiny", "Megatron", ["--config", "dev", "--use-megatron"]),
+        ("Tiny", "Native", ["--no-megatron"]),
+        ("Tiny", "Megatron", ["--use-megatron"]),
         ("Default", "Native", ["--no-megatron"]),
         ("Default", "Megatron", ["--use-megatron"])
     ]
