@@ -43,6 +43,7 @@ class MegatronWrapper(nn.Module):
         try:
             # Import Megatron components
             from megatron.core import mpu
+            from megatron.core.model_parallel_config import ModelParallelConfig
             
             # Check if distributed training is initialized
             if not torch.distributed.is_initialized():
@@ -60,6 +61,9 @@ class MegatronWrapper(nn.Module):
                 print(f"   Pipeline parallel size: {self.config.pipeline_parallel_size}")
                 print(f"   Model parallel rank: {mpu.get_tensor_model_parallel_rank()}")
                 print(f"   Model parallel world size: {mpu.get_tensor_model_parallel_world_size()}")
+            
+            # Store the config for use in layer wrapping
+            self.megatron_config = ModelParallelConfig()
             
             # Wrap model layers with Megatron parallel layers if needed
             self._wrap_parallel_layers()
@@ -90,20 +94,28 @@ class MegatronWrapper(nn.Module):
         try:
             from megatron.core.tensor_parallel import ColumnParallelLinear, RowParallelLinear
             from megatron.core import mpu
+            from megatron.core.model_parallel_config import ModelParallelConfig
             
             print("🔧 Wrapping layers with tensor parallelism...")
+            
+            # Use the stored Megatron config
+            megatron_config = getattr(self, 'megatron_config', ModelParallelConfig())
             
             # Wrap the language modeling head for tensor parallelism
             if hasattr(self.model, 'lm_head'):
                 original_lm_head = self.model.lm_head
                 
-                # Create parallel linear layer
+                # Create parallel linear layer with proper config
+                def identity_init(tensor):
+                    return tensor
+                
                 parallel_lm_head = ColumnParallelLinear(
                     input_size=original_lm_head.in_features,
                     output_size=original_lm_head.out_features,
+                    config=megatron_config,
+                    init_method=identity_init,
                     bias=original_lm_head.bias is not None,
-                    gather_output=True,  # Gather output from all ranks
-                    init_method=lambda x: x  # Identity init
+                    gather_output=True  # Gather output from all ranks
                 )
                 
                 # Copy weights
@@ -126,9 +138,10 @@ class MegatronWrapper(nn.Module):
                             parallel_qkv = ColumnParallelLinear(
                                 input_size=original_qkv.in_features,
                                 output_size=original_qkv.out_features,
+                                config=megatron_config,
+                                init_method=identity_init,
                                 bias=original_qkv.bias is not None,
-                                gather_output=False,
-                                init_method=lambda x: x
+                                gather_output=False
                             )
                             with torch.no_grad():
                                 parallel_qkv.weight.copy_(original_qkv.weight)
@@ -142,9 +155,10 @@ class MegatronWrapper(nn.Module):
                             parallel_out = RowParallelLinear(
                                 input_size=original_out.in_features,
                                 output_size=original_out.out_features,
+                                config=megatron_config,
+                                init_method=identity_init,
                                 bias=original_out.bias is not None,
-                                input_is_parallel=True,
-                                init_method=lambda x: x
+                                input_is_parallel=True
                             )
                             with torch.no_grad():
                                 parallel_out.weight.copy_(original_out.weight)
