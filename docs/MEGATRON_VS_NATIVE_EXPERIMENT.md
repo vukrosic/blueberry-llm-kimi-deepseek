@@ -233,13 +233,25 @@ python quick_compare.py
 - **Precision**: BF16 mixed precision
 - **Optimizer**: Muon + AdamW hybrid
 
-## 🔮 Future Experiments
+## 🔮 Scale Experiment
 
-### Planned Studies
-1. **Scalability Analysis**: 100M → 5B parameter models
-2. **Memory Efficiency**: Constrained GPU memory scenarios
-3. **Multi-GPU Scaling**: 2 → 16 GPU configurations
-4. **Advanced Features**: Full tensor/pipeline parallelism
+### Comprehensive Scale Testing
+We've created automated experiments to test different model scales on 2x RTX 4090:
+
+#### Available Experiments
+- **Quick Test**: `python quick_scale_test.py` - Tests Tiny and Default models only
+- **Full Scale**: `python scale_experiment.py` - Tests Tiny, Default, and RTX5090 configs
+- **Comprehensive**: `python comprehensive_scale_experiment.py` - Tests 5 different model sizes
+
+#### Model Configurations Tested
+1. **Tiny** (~50M params): Dev config for rapid testing
+2. **Default** (~79M params): Current default configuration  
+3. **RTX5090** (~150M params): Optimized for RTX 5090 hardware
+
+#### Expected Results
+- **Tiny Models**: Native PyTorch should be faster
+- **Medium Models**: Performance should be similar
+- **Large Models**: Megatron may start showing advantages
 
 ### Research Questions
 - What's the exact crossover point for Megatron advantage?
@@ -253,6 +265,11 @@ python quick_compare.py
 - `compare_megatron.py`: Detailed performance analysis
 - `core/train_auto.py`: Main training script with backend selection
 
+### Scale Experiment Tools
+- `quick_scale_test.py`: Quick test with Tiny and Default models
+- `scale_experiment.py`: Full scale experiment (3 model sizes)
+- `comprehensive_scale_experiment.py`: Comprehensive test (5 model sizes)
+
 ### Usage Examples
 ```bash
 # Quick comparison
@@ -260,6 +277,11 @@ python quick_compare.py
 
 # Detailed analysis
 python compare_megatron.py
+
+# Scale experiments
+python quick_scale_test.py        # Quick test (2 models)
+python scale_experiment.py        # Full scale test (3 models)
+python comprehensive_scale_experiment.py  # Comprehensive (5 models)
 
 # Manual testing
 python core/train_auto.py --no-megatron  # Native
