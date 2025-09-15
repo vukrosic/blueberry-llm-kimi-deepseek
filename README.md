@@ -2,7 +2,7 @@
 
 A Mixture of Experts (MoE) language model implementation.
 
-**Goal: Make LLM training accessible to anyone** - clone, install dependencies, and train your own language model with a single command.
+**Goal: Make LLM training accessible to everyone** - anyone, regardless of technical background, can train SOTA language models on any GPU setup (1-1M GPUs) with automatic best settings and hardware optimization to create state of the art LLM.
 
 ## Quick Start
 
