@@ -7,7 +7,7 @@ to avoid reprocessing on subsequent runs.
 
 import os
 import pickle
-from typing import List, Tuple
+from typing import List, Tuple, Any
 from configs import AdaptiveMoEModelConfig
 
 # Optional imports - will be imported when needed
@@ -27,6 +27,7 @@ try:
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     TRANSFORMERS_AVAILABLE = False
+    AutoTokenizer = Any  # Fallback for type hints
 
 
 def load_and_cache_data(

@@ -12,10 +12,17 @@ Usage:
 """
 
 import os
+import sys
 import argparse
 import torch
 from torch.utils.data import DataLoader, random_split
 import time
+
+# Add parent directory to path for imports when running directly
+if __name__ == "__main__":
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.insert(0, parent_dir)
 
 # Import our modular components
 from configs import AdaptiveMoEModelConfig, get_rtx5090_config, get_development_config

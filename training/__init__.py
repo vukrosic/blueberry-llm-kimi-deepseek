@@ -5,11 +5,12 @@ This module provides training loops, evaluation functions, and utilities
 for training large language models with GPU-adaptive optimizations.
 """
 
-from .trainer import train_model
+from .trainer import train_model, validate_training_setup
 from .evaluation import evaluate_model, compute_perplexity
 
 __all__ = [
     'train_model',
+    'validate_training_setup',
     'evaluate_model', 
     'compute_perplexity',
 ]

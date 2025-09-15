@@ -7,7 +7,7 @@ composed to create different LLM architectures.
 
 from .layers import AdaptiveLinear, Rotary
 from .components import MultiHeadAttention, Expert, TopKRouter, MixtureOfExperts, MoETransformerBlock
-from .adaptive_llm import AdaptiveMoEMinimalLLM
+from .adaptive_llm import AdaptiveMoEMinimalLLM, create_model
 
 __all__ = [
     # Basic layers
@@ -23,4 +23,5 @@ __all__ = [
     
     # Full models
     'AdaptiveMoEMinimalLLM',
+    'create_model',
 ]

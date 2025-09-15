@@ -4,9 +4,17 @@ Auto-configuration for Blueberry LLM
 Detects hardware and automatically configures optimal training setup
 """
 
+import os
+import sys
 import torch
 from dataclasses import dataclass
 from typing import Optional
+
+# Add parent directory to path for imports when running directly
+if __name__ == "__main__":
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.insert(0, parent_dir)
 
 @dataclass
 class AutoConfig:
