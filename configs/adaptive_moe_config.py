@@ -83,15 +83,16 @@ class AdaptiveMoEModelConfig:
             # Disable FP8 if not supported
             self.use_fp8 = False
         
+        # Note: Megatron is disabled by default. Use --use-megatron flag to enable.
         # Auto-detect Megatron usage based on GPU count
-        if SYSTEM_CONFIG.device_count > 1 and not hasattr(self, '_megatron_auto_detected'):
-            self._megatron_auto_detected = True
-            if not self.use_megatron:  # Only auto-enable if not explicitly set
-                self.use_megatron = True
-                # Auto-detect optimal parallelism sizes
-                self.tensor_parallel_size = min(SYSTEM_CONFIG.device_count, 8)  # Max 8 for tensor parallel
-                print(f"🚀 Megatron-LM auto-enabled for {SYSTEM_CONFIG.device_count} GPUs")
-                print(f"   📊 Tensor parallel size: {self.tensor_parallel_size}")
+        # if SYSTEM_CONFIG.device_count > 1 and not hasattr(self, '_megatron_auto_detected'):
+        #     self._megatron_auto_detected = True
+        #     if not self.use_megatron:  # Only auto-enable if not explicitly set
+        #         self.use_megatron = True
+        #         # Auto-detect optimal parallelism sizes
+        #         self.tensor_parallel_size = min(SYSTEM_CONFIG.device_count, 8)  # Max 8 for tensor parallel
+        #         print(f"🚀 Megatron-LM auto-enabled for {SYSTEM_CONFIG.device_count} GPUs")
+        #         print(f"   📊 Tensor parallel size: {self.tensor_parallel_size}")
     
     def get_optimal_dtype(self):
         """Get the optimal data type for this configuration."""
