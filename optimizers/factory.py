@@ -209,7 +209,13 @@ def get_cosine_warmup_scheduler(
             progress = (step - warmup_steps) / (config.max_steps - warmup_steps)
             return 0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * progress))
     
-    return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    # Use LambdaLR but ensure it doesn't step until optimizer has stepped
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    
+    # Reset the scheduler's internal step counter to prevent premature stepping
+    scheduler._step_count = 0
+    
+    return scheduler
 
 
 def get_linear_warmup_scheduler(
@@ -237,7 +243,13 @@ def get_linear_warmup_scheduler(
             progress = (step - warmup_steps) / (config.max_steps - warmup_steps)
             return 1.0 - 0.9 * progress  # Decay to 10% of original LR
     
-    return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    # Use LambdaLR but ensure it doesn't step until optimizer has stepped
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    
+    # Reset the scheduler's internal step counter to prevent premature stepping
+    scheduler._step_count = 0
+    
+    return scheduler
 
 
 def get_optimizer_info(optimizers: List[torch.optim.Optimizer]) -> Dict[str, Any]:
