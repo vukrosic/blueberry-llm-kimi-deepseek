@@ -380,6 +380,33 @@ class AdaptiveStandardLLM(nn.Module):
         return logits
 
 
+def should_use_megatron(config: AdaptiveMoEModelConfig) -> bool:
+    """
+    Determine if Megatron-LM should be used based on configuration and hardware.
+    
+    Args:
+        config: Model configuration
+        
+    Returns:
+        True if Megatron should be used, False for native backend
+    """
+    # Don't use Megatron if explicitly disabled
+    if not config.use_megatron:
+        return False
+    
+    # Only use Megatron with multiple GPUs
+    if torch.cuda.device_count() <= 1:
+        return False
+    
+    # Check if Megatron dependencies are available
+    try:
+        import megatron.core
+        return True
+    except ImportError:
+        print("⚠️ Megatron-LM not available, falling back to native backend")
+        return False
+
+
 def create_model(config: AdaptiveMoEModelConfig, model_type: str = "moe") -> nn.Module:
     """
     Factory function to create different model types.
@@ -391,6 +418,12 @@ def create_model(config: AdaptiveMoEModelConfig, model_type: str = "moe") -> nn.
     Returns:
         Model instance
     """
+    # Check if we should use Megatron backend
+    if should_use_megatron(config):
+        from .megatron_wrapper import create_megatron_model
+        return create_megatron_model(config, model_type)
+    
+    # Use native backend
     if model_type == "moe":
         return AdaptiveMoEMinimalLLM(config)
     elif model_type == "standard":
