@@ -44,6 +44,11 @@ class MegatronWrapper(nn.Module):
             # Import Megatron components
             from megatron.core import mpu
             
+            # Check if distributed training is initialized
+            if not torch.distributed.is_initialized():
+                print("⚠️ Distributed training not initialized, skipping Megatron parallelism")
+                return
+            
             # Initialize model parallel groups if not already initialized
             if not mpu.model_parallel_is_initialized():
                 mpu.initialize_model_parallel(

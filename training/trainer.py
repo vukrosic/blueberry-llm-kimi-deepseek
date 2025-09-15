@@ -47,8 +47,14 @@ def train_with_megatron(
     
     # Initialize distributed training if not already done
     if not torch.distributed.is_initialized():
-        torch.distributed.init_process_group(backend='nccl')
-        print("✅ Distributed training initialized")
+        try:
+            # Try to initialize with environment variables (for torchrun)
+            torch.distributed.init_process_group(backend='nccl')
+            print("✅ Distributed training initialized")
+        except Exception as e:
+            print(f"⚠️ Distributed initialization failed: {e}")
+            print("   Falling back to native training")
+            return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
     
     # Use the existing training logic but with Megatron optimizations
     # For minimal implementation, we'll use the same training loop
