@@ -54,6 +54,13 @@ def main():
     configurator = auto_configure()
     configurator.print_config()
     
+    # Print detailed GPU system information
+    print("\n🔍 Detailed GPU System Information:")
+    print("=" * 50)
+    from system import print_system_info
+    print_system_info()
+    print("=" * 50)
+    
     # Setup distributed training if needed
     if configurator.config.use_distributed:
         import torch.distributed as dist
