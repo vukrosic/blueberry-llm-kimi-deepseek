@@ -5,5 +5,5 @@ torchao
 
 # Megatron
 megatron-core
-tensorstore
-zarr
+# tensorstore
+# zarr
