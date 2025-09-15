@@ -185,6 +185,7 @@ def main():
             max_seq_len=model_config.max_seq_len,
             num_experts=model_config.num_experts,
             use_amp=model_config.use_amp,
+            vocab_size=model_config.vocab_size,  # Add vocab_size from tokenizer
             use_megatron=True,
             tensor_parallel_size=min(configurator.config.num_gpus, 8),
             pipeline_parallel_size=1
