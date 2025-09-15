@@ -16,10 +16,7 @@ def run_training(backend_name, megatron_flag, max_steps=50):
     
     cmd = [
         sys.executable, "train.py",
-        megatron_flag,
-        "--max-steps", str(max_steps),
-        "--batch-size", "8",  # Smaller batch for faster testing
-        "--num-documents", "500"  # Smaller dataset for faster testing
+        megatron_flag
     ]
     
     print(f"Command: {' '.join(cmd)}")
