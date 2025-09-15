@@ -2,3 +2,8 @@ datasets
 transformers
 torchtune
 torchao
+
+# Megatron
+megatron-core
+tensorstore
+zarr
