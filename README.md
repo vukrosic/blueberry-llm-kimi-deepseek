@@ -23,6 +23,8 @@ python train.py
 python core/train_auto.py --use-megatron
 ```
 
+Integrates **NVIDIA's Megatron-LM** for massive GPU cluster training, native PyTorch used for smaller setups. Manual choice still needed, more testing needed.
+
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
 
