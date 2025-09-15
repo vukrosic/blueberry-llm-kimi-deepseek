@@ -72,15 +72,87 @@ class MegatronWrapper(nn.Module):
         """
         try:
             from megatron.core.tensor_parallel import ColumnParallelLinear, RowParallelLinear
+            from megatron.core import mpu
             
-            # For now, we keep it simple and don't modify the underlying model
-            # The existing model will work with standard PyTorch distributed training
-            # Future enhancement: wrap specific layers for optimal Megatron performance
-            pass
+            # Wrap key layers for tensor parallelism
+            self._wrap_linear_layers()
             
         except ImportError:
             # Megatron not available, use standard training
             pass
+    
+    def _wrap_linear_layers(self):
+        """Wrap linear layers with Megatron parallel layers."""
+        try:
+            from megatron.core.tensor_parallel import ColumnParallelLinear, RowParallelLinear
+            from megatron.core import mpu
+            
+            # Wrap the language modeling head for tensor parallelism
+            if hasattr(self.model, 'lm_head'):
+                original_lm_head = self.model.lm_head
+                
+                # Create parallel linear layer
+                parallel_lm_head = ColumnParallelLinear(
+                    input_size=original_lm_head.in_features,
+                    output_size=original_lm_head.out_features,
+                    bias=original_lm_head.bias is not None,
+                    gather_output=True,  # Gather output from all ranks
+                    init_method=lambda x: x  # Identity init
+                )
+                
+                # Copy weights
+                with torch.no_grad():
+                    parallel_lm_head.weight.copy_(original_lm_head.weight)
+                    if original_lm_head.bias is not None:
+                        parallel_lm_head.bias.copy_(original_lm_head.bias)
+                
+                # Replace the layer
+                self.model.lm_head = parallel_lm_head
+                print("✅ Wrapped lm_head with tensor parallelism")
+            
+            # Wrap expert layers in MoE blocks
+            if hasattr(self.model, 'transformer_blocks'):
+                for i, block in enumerate(self.model.transformer_blocks):
+                    if hasattr(block, 'experts'):
+                        # Wrap expert layers
+                        for j, expert in enumerate(block.experts):
+                            if hasattr(expert, 'linear1'):
+                                # Wrap first linear layer
+                                original_linear1 = expert.linear1
+                                parallel_linear1 = ColumnParallelLinear(
+                                    input_size=original_linear1.in_features,
+                                    output_size=original_linear1.out_features,
+                                    bias=original_linear1.bias is not None,
+                                    gather_output=False,
+                                    init_method=lambda x: x
+                                )
+                                with torch.no_grad():
+                                    parallel_linear1.weight.copy_(original_linear1.weight)
+                                    if original_linear1.bias is not None:
+                                        parallel_linear1.bias.copy_(original_linear1.bias)
+                                expert.linear1 = parallel_linear1
+                            
+                            if hasattr(expert, 'linear2'):
+                                # Wrap second linear layer
+                                original_linear2 = expert.linear2
+                                parallel_linear2 = RowParallelLinear(
+                                    input_size=original_linear2.in_features,
+                                    output_size=original_linear2.out_features,
+                                    bias=original_linear2.bias is not None,
+                                    input_is_parallel=True,
+                                    init_method=lambda x: x
+                                )
+                                with torch.no_grad():
+                                    parallel_linear2.weight.copy_(original_linear2.weight)
+                                    if original_linear2.bias is not None:
+                                        parallel_linear2.bias.copy_(original_linear2.bias)
+                                expert.linear2 = parallel_linear2
+                        
+                        print(f"✅ Wrapped expert layers in block {i}")
+            
+        except Exception as e:
+            print(f"⚠️ Layer wrapping failed: {e}")
+            print("   Continuing with standard distributed training")
     
     def forward(
         self, 

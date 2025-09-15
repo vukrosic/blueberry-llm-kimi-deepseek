@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
 import math
 import time
+import os
 from tqdm import tqdm
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -51,6 +52,13 @@ def train_with_megatron(
             # Try to initialize with environment variables (for torchrun)
             torch.distributed.init_process_group(backend='nccl')
             print("✅ Distributed training initialized")
+            
+            # Move model to appropriate GPU rank
+            local_rank = int(os.environ.get('LOCAL_RANK', 0))
+            device = torch.device(f'cuda:{local_rank}')
+            model = model.to(device)
+            print(f"✅ Model moved to GPU {local_rank}")
+            
         except Exception as e:
             print(f"⚠️ Distributed initialization failed: {e}")
             print("   Falling back to native training")
