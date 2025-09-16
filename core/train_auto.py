@@ -110,13 +110,11 @@ def main():
     # Get model configuration
     model_config = configurator.get_model_config()
     
-    # Auto-size dataset based on hardware
-    device_name = torch.cuda.get_device_name(0).lower() if torch.cuda.is_available() else ""
+    # Auto-size dataset based on hardware (use already-detected config)
     if configurator.config.num_gpus == 0:
         model_config.num_documents = 500
         model_config.max_tokens = 50000
-    elif "tesla t4" in device_name or "t4" in device_name:
-        # T4 optimized dataset size
+    elif configurator.config.gpu_memory_gb >= 14:  # T4 and similar high-memory GPUs
         model_config.num_documents = 2000
         model_config.max_tokens = 200000
     elif configurator.config.gpu_memory_gb < 16:
