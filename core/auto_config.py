@@ -65,7 +65,7 @@ class BlueberryAutoConfigurator:
         if 'rtx 4090' in gpu_name or 'geforce rtx 4090' in gpu_name:
             # RTX 4090 optimized configuration
             config = {
-                'd_model': 768, 'n_layers': 12, 'n_heads': 12, 'd_ff': 3072,
+                'd_model': 768, 'n_layers': 16, 'n_heads': 16, 'd_ff': 3072,
                 'num_experts': 16, 'batch_size': 24, 'max_seq_len': 2048
             }
         # Scale model based on total available memory
