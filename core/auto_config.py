@@ -64,39 +64,20 @@ class BlueberryAutoConfigurator:
         print(f"🔍 Debug: GPU name = '{gpu_name}'")
         print(f"🔍 Debug: Total memory = {total_memory:.1f} GB")
         
-        # Check for RTX 4090 specifically for optimal configuration
+        # RTX 4090 optimized configuration (primary configuration)
         if 'rtx 4090' in gpu_name or 'geforce rtx 4090' in gpu_name:
             print("🚀 RTX 4090 detected! Using optimized configuration")
-            # RTX 4090 optimized configuration
             config = {
                 'd_model': 768, 'n_layers': 16, 'n_heads': 16, 'd_ff': 3072,
                 'num_experts': 16, 'batch_size': 24, 'max_seq_len': 2048
             }
-        # Scale model based on total available memory
-        elif total_memory < 16:  # Small setup
-            config = {
-                'd_model': 256, 'n_layers': 4, 'n_heads': 4, 'd_ff': 1024,
-                'num_experts': 4, 'batch_size': 8, 'max_seq_len': 512
-            }
-        elif total_memory < 64:  # Medium setup
+        else:
+            # Default configuration for other GPUs
+            print("📋 Using default GPU configuration")
             config = {
                 'd_model': 384, 'n_layers': 6, 'n_heads': 8, 'd_ff': 1536,
                 'num_experts': 8, 'batch_size': 16, 'max_seq_len': 1024
             }
-        elif total_memory < 256:  # Large setup
-            config = {
-                'd_model': 768, 'n_layers': 12, 'n_heads': 12, 'd_ff': 3072,
-                'num_experts': 16, 'batch_size': 32, 'max_seq_len': 2048
-            }
-        else:  # Massive setup
-            config = {
-                'd_model': 1536, 'n_layers': 24, 'n_heads': 24, 'd_ff': 6144,
-                'num_experts': 32, 'batch_size': 64, 'max_seq_len': 4096
-            }
-        
-        # Adjust for limited memory per GPU
-        if gpu_memory_gb < 12:
-            config['batch_size'] = max(1, config['batch_size'] // 2)
         
         # Set training parameters
         if 'rtx 4090' in gpu_name or 'geforce rtx 4090' in gpu_name:
