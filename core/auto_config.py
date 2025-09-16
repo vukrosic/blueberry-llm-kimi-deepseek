@@ -108,20 +108,20 @@ class BlueberryAutoConfigurator:
         )
     
     def _t4_optimized_config(self, num_gpus: int, gpu_memory_gb: float) -> AutoConfig:
-        """Maximized config for Tesla T4 GPU - using ~13-14GB memory"""
+        """Optimized config for Tesla T4 GPU - balanced for memory efficiency"""
         return AutoConfig(
             num_gpus=num_gpus,
             gpu_memory_gb=gpu_memory_gb,
-            d_model=512,  # Large increase from 256
-            n_layers=8,   # Large increase from 4
+            d_model=384,  # Moderate increase from 256 (was 512)
+            n_layers=6,   # Moderate increase from 4 (was 8)
             n_heads=8,    # Increased from 4
-            d_ff=2048,    # Large increase from 1024
-            num_experts=12,  # Large increase from 4
-            batch_size=16,  # Large increase from 8
-            gradient_accumulation_steps=2,  # Reduced to allow larger batch
+            d_ff=1536,    # Moderate increase from 1024 (was 2048)
+            num_experts=8,  # Increased from 4
+            batch_size=12,  # Moderate increase from 8 (was 16)
+            gradient_accumulation_steps=3,  # Balanced
             max_steps=2000,  # Increased from 1000
             learning_rate=0.01,
-            max_seq_len=1024,  # Large increase from 512
+            max_seq_len=1024,  # Moderate increase from 512 (was 1024)
             use_distributed=(num_gpus > 1),
             use_amp=True,
             use_megatron=False
