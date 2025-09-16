@@ -25,37 +25,13 @@ python core/train_auto.py --use-megatron
 
 Integrates **NVIDIA's Megatron-LM** for massive GPU cluster training, native PyTorch used for smaller setups. Manual choice still needed, more testing needed.
 
-## 🖥️ Supported GPU Setups
+## 🖥️ Autotuned GPU Setups
 
 Blueberry LLM automatically detects your hardware and optimizes configuration for maximum performance:
 
 | GPU | Memory | Status | Auto-Optimization | Notes |
 |-----|--------|--------|------------------|-------|
 | **Tesla T4** (Google Colab) | 16GB | ✅ **Fully Supported** | ✅ Optimized | Max memory utilization (~13-14GB) |
-| RTX 4090 | 24GB | ✅ Supported | ✅ Optimized | High-end consumer GPU |
-| RTX 3090 | 24GB | ✅ Supported | ✅ Optimized | Previous gen flagship |
-| RTX 3080 | 10GB | ✅ Supported | ✅ Optimized | Mid-range consumer |
-| V100 | 32GB | ✅ Supported | ✅ Optimized | Data center GPU |
-| A100 | 40GB/80GB | ✅ Supported | ✅ Optimized | Latest data center |
-| H100 | 80GB | ✅ Supported | ✅ Optimized | Latest flagship |
-| CPU Only | System RAM | ✅ Supported | ✅ Optimized | Minimal config for testing |
-
-### 🚀 Auto-Detection Features
-
-- **Hardware Detection**: Automatically identifies GPU type, memory, and capabilities
-- **Memory Optimization**: Maximizes GPU memory utilization (90-95% for T4)
-- **Architecture Adaptation**: Enables Tensor Cores, FP16/BF16 based on GPU support
-- **Batch Size Scaling**: Automatically adjusts batch size for optimal throughput
-- **Model Scaling**: Scales model size based on available memory
-
-### 📊 T4 (Google Colab) Optimization
-
-When running on Tesla T4 in Google Colab, Blueberry LLM automatically:
-- **Model**: 512d × 8L × 8H (vs default 256d × 4L × 4H)
-- **Experts**: 12 MoE experts (vs default 4)
-- **Batch Size**: 16 (vs default 8)
-- **Sequence Length**: 1024 tokens (vs default 512)
-- **Memory Usage**: ~13-14GB out of 16GB (90%+ utilization)
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
 
