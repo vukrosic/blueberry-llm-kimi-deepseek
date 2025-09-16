@@ -111,4 +111,4 @@ We welcome contributions! Fork the repo, experiment with different architectures
 
 ## Vision
 
-Any company or person (even with no technical experience) should be able to download this repository and run it on their GPU setup - from 1 GPU to 1 million GPUs. The system will be able to automatically detects your hardware configuration, tunes hyperparameters for optimal performance, and runs the best possible training with or without manual configuration from your side.
+Any company or person (even with no technical experience) should be able to download this repository and run it on their GPU setup - from 1 GPU to 1 million GPUs. The system will be able to automatically detect your hardware configuration, tune hyperparameters for optimal performance, and run the best possible training with or without manual configuration from your side.
