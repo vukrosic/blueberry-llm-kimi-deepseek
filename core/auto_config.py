@@ -61,11 +61,11 @@ class BlueberryAutoConfigurator:
         total_memory = gpu_memory_gb * num_gpus
         gpu_name = torch.cuda.get_device_name(0).lower()
         
-        # RTX 4090 optimized configuration (primary configuration)
+        # RTX 4090 optimized configuration (reduced for memory)
         if 'rtx 4090' in gpu_name or 'geforce rtx 4090' in gpu_name:
             config = {
-                'd_model': 768, 'n_layers': 16, 'n_heads': 16, 'd_ff': 3072,
-                'num_experts': 16, 'batch_size': 24, 'max_seq_len': 2048
+                'd_model': 384, 'n_layers': 8, 'n_heads': 8, 'd_ff': 1536,
+                'num_experts': 8, 'batch_size': 12, 'max_seq_len': 1024
             }
         else:
             # Default configuration for other GPUs
@@ -76,9 +76,9 @@ class BlueberryAutoConfigurator:
         
         # Set training parameters
         if 'rtx 4090' in gpu_name or 'geforce rtx 4090' in gpu_name:
-            # RTX 4090 optimized training parameters
-            gradient_accumulation_steps = 2  # Reduced for larger batch size
-            max_steps = 2000  # More training steps
+            # RTX 4090 optimized training parameters (reduced for memory)
+            gradient_accumulation_steps = 4  # Increased for smaller batch size
+            max_steps = 1000  # Standard training steps
         else:
             gradient_accumulation_steps = max(1, 32 // config['batch_size'])
             max_steps = 1000
