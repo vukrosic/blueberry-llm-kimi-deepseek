@@ -61,8 +61,12 @@ class BlueberryAutoConfigurator:
         total_memory = gpu_memory_gb * num_gpus
         gpu_name = torch.cuda.get_device_name(0).lower()
         
+        print(f"🔍 Debug: GPU name = '{gpu_name}'")
+        print(f"🔍 Debug: Total memory = {total_memory:.1f} GB")
+        
         # Check for RTX 4090 specifically for optimal configuration
         if 'rtx 4090' in gpu_name or 'geforce rtx 4090' in gpu_name:
+            print("🚀 RTX 4090 detected! Using optimized configuration")
             # RTX 4090 optimized configuration
             config = {
                 'd_model': 768, 'n_layers': 16, 'n_heads': 16, 'd_ff': 3072,
