@@ -60,6 +60,12 @@ class BlueberryAutoConfigurator:
         gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
         total_memory = gpu_memory_gb * num_gpus
         
+        # Check for T4 GPU optimization
+        device_name = torch.cuda.get_device_name(0).lower()
+        if "tesla t4" in device_name or "t4" in device_name:
+            print("🚀 Tesla T4 detected - using optimized configuration")
+            return self._t4_optimized_config(num_gpus, gpu_memory_gb)
+        
         # Scale model based on total available memory
         if total_memory < 16:  # Small setup
             config = {
@@ -99,6 +105,26 @@ class BlueberryAutoConfigurator:
             use_distributed=(num_gpus > 1),
             use_amp=True,
             use_megatron=False  # Default to False, can be overridden by flags
+        )
+    
+    def _t4_optimized_config(self, num_gpus: int, gpu_memory_gb: float) -> AutoConfig:
+        """Optimized config for Tesla T4 GPU - balanced for memory efficiency"""
+        return AutoConfig(
+            num_gpus=num_gpus,
+            gpu_memory_gb=gpu_memory_gb,
+            d_model=384,  # Moderate increase from 256 (was 512)
+            n_layers=6,   # Moderate increase from 4 (was 8)
+            n_heads=8,    # Increased from 4
+            d_ff=1536,    # Moderate increase from 1024 (was 2048)
+            num_experts=8,  # Increased from 4
+            batch_size=12,  # Moderate increase from 8 (was 16)
+            gradient_accumulation_steps=3,  # Balanced
+            max_steps=2000,  # Increased from 1000
+            learning_rate=0.01,
+            max_seq_len=1024,  # Moderate increase from 512 (was 1024)
+            use_distributed=(num_gpus > 1),
+            use_amp=True,
+            use_megatron=False
         )
     
     def _cpu_config(self) -> AutoConfig:

@@ -110,10 +110,13 @@ def main():
     # Get model configuration
     model_config = configurator.get_model_config()
     
-    # Auto-size dataset based on hardware
+    # Auto-size dataset based on hardware (use already-detected config)
     if configurator.config.num_gpus == 0:
         model_config.num_documents = 500
         model_config.max_tokens = 50000
+    elif configurator.config.gpu_memory_gb >= 14:  # T4 and similar high-memory GPUs
+        model_config.num_documents = 2000
+        model_config.max_tokens = 200000
     elif configurator.config.gpu_memory_gb < 16:
         model_config.num_documents = 1000
         model_config.max_tokens = 100000

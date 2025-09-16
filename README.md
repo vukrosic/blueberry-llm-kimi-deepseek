@@ -25,6 +25,13 @@ python core/train_auto.py --use-megatron
 
 Integrates **NVIDIA's Megatron-LM** for massive GPU cluster training, native PyTorch used for smaller setups. Manual choice still needed, more testing needed.
 
+## 🖥️ Autotuned GPU Setups
+
+Blueberry LLM automatically detects your hardware and optimizes configuration for maximum performance:
+
+| GPU | Memory | Status | Auto-Optimization | Notes |
+|-----|--------|--------|------------------|-------|
+| **Tesla T4** (Google Colab) | 16GB | ✅ **Fully Supported** | ✅ Optimized | Max memory utilization (~13-14GB) |
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
 
