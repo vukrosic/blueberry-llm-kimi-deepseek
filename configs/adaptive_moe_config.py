@@ -138,6 +138,27 @@ class AdaptiveMoEModelConfig:
         print(f"   Optimal Dtype: {info['optimal_dtype']}")
 
 
+def get_rtx4090_config() -> AdaptiveMoEModelConfig:
+    """Get an optimized configuration for RTX 4090."""
+    return AdaptiveMoEModelConfig(
+        d_model=768,  # Increased from 384
+        n_heads=12,   # Increased from 8
+        n_layers=12,  # Increased from 6
+        d_ff=3072,    # Increased from 1536
+        batch_size=24,  # Increased from 16
+        max_steps=2000,  # Increased from 1000
+        max_seq_len=2048,  # Increased from 1024
+        num_experts=16,  # Increased from 8
+        expert_top_k=2,
+        gradient_accumulation_steps=2,  # Reduced for larger batch
+        use_fp8=False,  # RTX 4090 doesn't support FP8
+        use_adaptive_matmul=True,
+        muon_lr=0.01,
+        eval_every=250,
+        eval_steps=50,
+    )
+
+
 def get_rtx5090_config() -> AdaptiveMoEModelConfig:
     """Get an optimized configuration for RTX 5090."""
     return AdaptiveMoEModelConfig(
