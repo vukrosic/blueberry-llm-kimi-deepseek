@@ -14,6 +14,8 @@ chmod +x setup.sh
 python train.py
 ```
 
+Try it on [Google Colab](https://colab.research.google.com/drive/1UE82keuNStPPaeCF50zSgXVHWiywo_pm?usp=sharing)
+
 ```bash
 # Quick test with 500 steps (fast validation)
 # python core/train.py --config dev --max-steps 500
@@ -32,6 +34,8 @@ Blueberry LLM automatically detects your hardware and optimizes configuration fo
 | GPU | Memory | Status | Auto-Optimization | Notes |
 |-----|--------|--------|------------------|-------|
 | **Tesla T4** (Google Colab) | 16GB | ✅ **Fully Supported** | ✅ Optimized | Max memory utilization (~13-14GB) |
+
+---
 
 This is an **open research project** - we encourage everyone to fork the project, run experiments, and submit pull requests with improvements.
 
