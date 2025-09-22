@@ -13,7 +13,7 @@ sys.path.insert(0, current_dir)
 
 # Import and run the main training script
 if __name__ == "__main__":
-    # Import the train_auto module and run it directly
+    # Import the core training module and run it directly
     # This ensures command line arguments are properly parsed
-    import core.train_auto
-    core.train_auto.main()
+    import core.train
+    core.train.main()

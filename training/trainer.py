@@ -16,7 +16,7 @@ import os
 from tqdm import tqdm
 from typing import List, Dict, Any, Optional, Tuple
 
-from configs import AdaptiveMoEModelConfig
+from configs import T4MoEModelConfig
 from optimizers import setup_optimizers, get_lr_scheduler
 from .evaluation import evaluate_model, compute_model_metrics
 from system import print_system_info
@@ -26,15 +26,15 @@ def train_with_megatron(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
-    config: AdaptiveMoEModelConfig,
+    config: T4MoEModelConfig,
     device: Optional[torch.device] = None,
     resume_from_checkpoint: Optional[str] = None
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
-    Training function optimized for Megatron-LM distributed training.
+    Single T4 GPU training - Megatron disabled.
     
     Args:
-        model: Megatron-wrapped model
+        model: Model to train
         train_loader: Training data loader
         val_loader: Validation data loader
         config: Model configuration
@@ -44,29 +44,9 @@ def train_with_megatron(
     Returns:
         Tuple of (trained_model, final_metrics)
     """
-    print("🚀 Starting Megatron-LM distributed training...")
+    print("🚀 Single T4 GPU training - Megatron disabled")
     
-    # Initialize distributed training if not already done
-    if not torch.distributed.is_initialized():
-        try:
-            # Try to initialize with environment variables (for torchrun)
-            torch.distributed.init_process_group(backend='nccl')
-            print("✅ Distributed training initialized")
-            
-            # Move model to appropriate GPU rank
-            local_rank = int(os.environ.get('LOCAL_RANK', 0))
-            device = torch.device(f'cuda:{local_rank}')
-            model = model.to(device)
-            print(f"✅ Model moved to GPU {local_rank}")
-            
-        except Exception as e:
-            print(f"⚠️ Distributed initialization failed: {e}")
-            print("   Falling back to native training")
-            return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
-    
-    # Use the existing training logic but with Megatron optimizations
-    # For minimal implementation, we'll use the same training loop
-    # Future enhancement: integrate Megatron's training utilities
+    # Use native training for single T4 GPU
     return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
 
 
@@ -74,7 +54,7 @@ def train_model(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
-    config: AdaptiveMoEModelConfig,
+    config: T4MoEModelConfig,
     device: Optional[torch.device] = None,
     resume_from_checkpoint: Optional[str] = None
 ) -> Tuple[nn.Module, Dict[str, Any]]:
@@ -107,7 +87,7 @@ def train_model_native(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
-    config: AdaptiveMoEModelConfig,
+    config: T4MoEModelConfig,
     device: Optional[torch.device] = None,
     resume_from_checkpoint: Optional[str] = None
 ) -> Tuple[nn.Module, Dict[str, Any]]:
@@ -181,7 +161,7 @@ class TrainingState:
         optimizers: List[torch.optim.Optimizer],
         schedulers: List,
         scaler: Optional[GradScaler],
-        config: AdaptiveMoEModelConfig,
+        config: T4MoEModelConfig,
         device: torch.device,
         start_step: int = 0
     ):
@@ -620,7 +600,7 @@ def validate_training_setup(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
-    config: AdaptiveMoEModelConfig
+    config: T4MoEModelConfig
 ) -> bool:
     """
     Validate training setup before starting training.

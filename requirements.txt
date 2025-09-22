@@ -3,7 +3,6 @@ transformers
 torchtune
 torchao
 
-# Megatron
-megatron-core
+# Single T4 GPU - no Megatron needed
 # tensorstore
 # zarr

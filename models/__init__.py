@@ -5,13 +5,13 @@ This module provides modular neural network components that can be
 composed to create different LLM architectures.
 """
 
-from .layers import AdaptiveLinear, Rotary
+from .layers import T4Linear, Rotary
 from .components import MultiHeadAttention, Expert, TopKRouter, MixtureOfExperts, MoETransformerBlock
-from .adaptive_llm import AdaptiveMoEMinimalLLM, create_model
+from .t4_llm import T4MoEMinimalLLM, create_model
 
 __all__ = [
     # Basic layers
-    'AdaptiveLinear',
+    'T4Linear',
     'Rotary',
     
     # Complex components
@@ -22,6 +22,6 @@ __all__ = [
     'MoETransformerBlock',
     
     # Full models
-    'AdaptiveMoEMinimalLLM',
+    'T4MoEMinimalLLM',
     'create_model',
 ]
