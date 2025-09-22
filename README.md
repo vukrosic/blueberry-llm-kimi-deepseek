@@ -153,3 +153,17 @@ Any company or person (even with no technical experience) should be able to down
 ### Sep 22 2025
 - **Repository Launch**: Initial T4-optimized MoE implementation
 - *Your experiment results will appear here when you submit them*
+
+## 📚 Citation
+
+If you use this repository in your research, please cite:
+
+```bibtex
+@software{blueberry_llm_t4,
+  title={Blueberry LLM: Pretrain LLM On A Single T4 GPU,
+  author={Vuk Rosić},
+  year={2025},
+  url={https://github.com/Open-Superintelligence-Lab/blueberry-llm-t4-gpu},
+  note={Tesla T4 GPU-optimized LLM for accessible LLM training}
+}
+```
