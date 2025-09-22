@@ -7,8 +7,8 @@ A Tesla T4 GPU-optimized Mixture of Experts (MoE) language model implementation.
 ## Quick Start
 
 ```bash
-git clone https://github.com/Open-Superintelligence-Lab/blueberry-llm
-cd blueberry-llm
+git clone https://github.com/Open-Superintelligence-Lab/blueberry-llm-t4-gpu
+cd blueberry-llm-t4-gpu
 chmod +x setup.sh
 ./setup.sh
 python train.py
@@ -26,6 +26,37 @@ python train.py
 ```
 
 Optimized for **single Tesla T4 GPU** training with native PyTorch implementation. Megatron-LM disabled as it's designed for multi-GPU distributed training.
+
+## 🧪 Running Experiments
+
+**Fork this repo** or use Google Colab to run your experiments:
+
+### Option 1: Fork & Local Setup
+```bash
+# Fork this repo on GitHub, then:
+git clone https://github.com/YOUR_USERNAME/blueberry-llm-t4-gpu
+cd blueberry-llm-t4-gpu
+chmod +x setup.sh
+./setup.sh
+python train.py
+```
+
+### Option 2: Google Colab
+Use the [Colab notebook](https://colab.research.google.com/drive/1UE82keuNStPPaeCF50zSgXVHWiywo_pm?usp=sharing) for immediate experimentation.
+
+### Experiment Documentation
+When sharing results, include:
+- **Clear hypothesis**: What you're testing
+- **Setup**: Hardware for this repo will be 1xT4 GPU (Google Colab, Kaggle,...)
+- **Results**: Metrics, performance, findings
+- **Reproducibility**: How can others reproduce your results?
+- **Conclusion**: What you learned
+
+**Good experiment example:**
+- Hypothesis: "FP16 vs FP32 training on T4 GPU memory usage"
+- Setup: Google Colab T4, 1000 steps, default config
+- Results: FP16 used 12GB vs FP32 15GB, 2x faster training
+- Reproduce: `python train.py --precision fp16`
 
 ## 🖥️ T4 GPU Optimization
 
@@ -114,3 +145,11 @@ We welcome contributions! Fork the repo, experiment with different architectures
 ## Vision
 
 Any company or person (even with no technical experience) should be able to download this repository and run it on their Tesla T4 GPU setup. The system will automatically detect your T4 GPU configuration, tune hyperparameters for optimal T4 performance, and run the best possible training with or without manual configuration from your side.
+
+## 📅 TIMELINE
+
+*Community experiments and findings will be documented here*
+
+### Sep 22 2025
+- **Repository Launch**: Initial T4-optimized MoE implementation
+- *Your experiment results will appear here when you submit them*
