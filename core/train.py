@@ -27,7 +27,7 @@ def parse_arguments():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     
-    # Single T4 GPU - no Megatron options needed
+    # Single T4 GPU training
     
     return parser.parse_args()
 
@@ -40,8 +40,8 @@ def main():
     # T4-configure everything
     configurator = t4_configure()
     
-    # Single T4 GPU - no Megatron support
-    print("🚀 Single T4 GPU training - Megatron disabled")
+    # Single T4 GPU training
+    print("🚀 Single T4 GPU training")
     
     configurator.print_config()
     
@@ -95,47 +95,8 @@ def main():
     # Train the model
     print("\n🚀 Starting training...")
     
-    # Use Megatron-enabled training if requested
-    if configurator.config.use_megatron:
-        print("🚀 Using Megatron-enabled training pipeline...")
-        from models import create_model
-        from training import train_model
-        from configs import T4MoEModelConfig
-        
-        # Convert legacy config to new config format
-        t4_config = T4MoEModelConfig(
-            d_model=model_config.d_model,
-            n_heads=model_config.n_heads,
-            n_layers=model_config.n_layers,
-            d_ff=model_config.d_ff,
-            batch_size=model_config.batch_size,
-            max_steps=model_config.max_steps,
-            gradient_accumulation_steps=model_config.gradient_accumulation_steps,
-            muon_lr=model_config.muon_lr,
-            max_seq_len=model_config.max_seq_len,
-            num_experts=model_config.num_experts,
-            use_amp=model_config.use_amp,
-            vocab_size=model_config.vocab_size  # Add vocab_size from tokenizer
-        )
-        
-        # Create model optimized for T4
-        model = create_model(t4_config, "moe")
-        
-        # Move to device
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        model = model.to(device)
-        
-        # Train with new pipeline
-        model, final_metrics = train_model(
-            model=model,
-            train_loader=train_loader,
-            val_loader=val_loader,
-            config=t4_config,
-            device=device
-        )
-    else:
-        # Use legacy training pipeline
-        model, final_metrics = train_moe_model(model_config, train_loader, val_loader)
+    # Use legacy training pipeline for T4-optimized training
+    model, final_metrics = train_moe_model(model_config, train_loader, val_loader)
     
     # Save results
     print("\n💾 Saving model...")

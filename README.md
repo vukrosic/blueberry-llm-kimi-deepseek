@@ -25,7 +25,7 @@ Try it on [Google Colab](https://colab.research.google.com/drive/1mkiTnK_KaFPX92
 python train.py
 ```
 
-Optimized for **single Tesla T4 GPU** training with native PyTorch implementation. Megatron-LM disabled as it's designed for multi-GPU distributed training.
+Optimized for **single Tesla T4 GPU** training with native PyTorch implementation.
 
 ## 🧪 Running Experiments
 

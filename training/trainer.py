@@ -22,34 +22,6 @@ from .evaluation import evaluate_model, compute_model_metrics
 from system import print_system_info
 
 
-def train_with_megatron(
-    model: nn.Module,
-    train_loader: DataLoader,
-    val_loader: DataLoader,
-    config: T4MoEModelConfig,
-    device: Optional[torch.device] = None,
-    resume_from_checkpoint: Optional[str] = None
-) -> Tuple[nn.Module, Dict[str, Any]]:
-    """
-    Single T4 GPU training - Megatron disabled.
-    
-    Args:
-        model: Model to train
-        train_loader: Training data loader
-        val_loader: Validation data loader
-        config: Model configuration
-        device: Device to train on (auto-detected if None)
-        resume_from_checkpoint: Path to checkpoint to resume from
-        
-    Returns:
-        Tuple of (trained_model, final_metrics)
-    """
-    print("🚀 Single T4 GPU training - Megatron disabled")
-    
-    # Use native training for single T4 GPU
-    return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
-
-
 def train_model(
     model: nn.Module,
     train_loader: DataLoader,
@@ -59,9 +31,9 @@ def train_model(
     resume_from_checkpoint: Optional[str] = None
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
-    Main training function dispatcher for adaptive LLM models.
+    Main training function for T4-optimized LLM models.
     
-    Automatically selects the appropriate training backend based on model type.
+    Uses native PyTorch training optimized for single T4 GPU.
     
     Args:
         model: Model to train
@@ -74,13 +46,7 @@ def train_model(
     Returns:
         Tuple of (trained_model, final_metrics)
     """
-    # Check if this is a Megatron-wrapped model
-    from models.megatron_wrapper import is_megatron_model
-    
-    if is_megatron_model(model):
-        return train_with_megatron(model, train_loader, val_loader, config, device, resume_from_checkpoint)
-    else:
-        return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
+    return train_model_native(model, train_loader, val_loader, config, device, resume_from_checkpoint)
 
 
 def train_model_native(
