@@ -74,7 +74,7 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
         schedulers.append(scheduler)
 
-    scaler = GradScaler('cuda') if config.use_amp else None
+    scaler = GradScaler('cuda', dtype=torch.float16) if config.use_amp else None
 
     # Training loop
     model.train()
@@ -90,7 +90,7 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
 
             # Forward pass
             if config.use_amp:
-                with autocast('cuda'):
+                with autocast('cuda', dtype=torch.float16):
                     logits, aux_loss = model(x, return_aux_loss=True)
                     ce_loss = F.cross_entropy(logits.view(-1, config.vocab_size), y.view(-1))
 

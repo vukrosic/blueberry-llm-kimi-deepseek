@@ -22,7 +22,7 @@ def evaluate_model(model: nn.Module, val_loader: DataLoader, config: MoEModelCon
                 break
             x, y = x.to(device), y.to(device)
 
-            with autocast('cuda', enabled=config.use_amp):
+            with autocast('cuda', dtype=torch.float16, enabled=config.use_amp):
                 # MoE model evaluation
                 logits = model(x, return_aux_loss=False)  # Don't return aux loss during eval
                 loss = F.cross_entropy(logits.view(-1, config.vocab_size), y.view(-1))
