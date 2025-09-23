@@ -10,7 +10,7 @@ class MoEModelConfig:
     n_layers: int = 6
     d_ff: int = 1536
     batch_size: int = 24
-    max_steps: int = 1000
+    max_steps: int = 20
 
     # Training parameters
     gradient_accumulation_steps: int = 4
@@ -22,7 +22,7 @@ class MoEModelConfig:
     max_tokens: int = 500000
 
     # Evaluation
-    eval_every: int = 500
+    eval_every: int = 10
     eval_steps: int = 100
 
     # Regularization

@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 import time
+import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
 from tqdm import tqdm
@@ -80,6 +81,11 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
     model.train()
     step = 0
     pbar = tqdm(total=config.max_steps, desc="Training MoE")
+    
+    # Track evaluation metrics over time
+    eval_steps = []
+    eval_losses = []
+    eval_times = []
 
     while step < config.max_steps:
         for batch_idx, (x, y) in enumerate(train_loader):
@@ -150,7 +156,15 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
 
             # Evaluation
             if step % config.eval_every == 0 and step > 0:
+                eval_start_time = time.time()
                 eval_metrics = evaluate_model(model, val_loader, config)
+                eval_time = time.time() - eval_start_time
+                
+                # Track evaluation metrics
+                eval_steps.append(step)
+                eval_losses.append(eval_metrics['val_loss'])
+                eval_times.append(time.time())
+                
                 print(f"\nStep {step}: Val Loss: {eval_metrics['val_loss']:.4f}, "
                       f"Val Acc: {eval_metrics['val_accuracy']:.4f}, "
                       f"Val PPL: {eval_metrics['val_perplexity']:.2f}")
@@ -168,9 +182,28 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
 
     # Final evaluation
     final_eval = evaluate_model(model, val_loader, config)
+    
+    # Add final evaluation to tracking
+    eval_steps.append(config.max_steps)
+    eval_losses.append(final_eval['val_loss'])
+    eval_times.append(time.time())
+    
     print(f"\n📊 Final Results:")
     print(f"   Val Loss: {final_eval['val_loss']:.4f}")
     print(f"   Val Accuracy: {final_eval['val_accuracy']:.4f}")
     print(f"   Val Perplexity: {final_eval['val_perplexity']:.2f}")
+    
+    # Plot evaluation loss over time
+    if len(eval_steps) > 1:
+        plt.figure(figsize=(10, 6))
+        plt.plot(eval_steps, eval_losses, 'b-o', linewidth=2, markersize=6)
+        plt.xlabel('Training Step')
+        plt.ylabel('Validation Loss')
+        plt.title('Validation Loss vs Training Step')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig('eval_loss_vs_time.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        print(f"\n📈 Evaluation loss plot saved as 'eval_loss_vs_time.png'")
 
     return model, final_eval

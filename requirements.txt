@@ -2,6 +2,7 @@ datasets
 transformers
 torchtune
 torchao
+matplotlib
 
 # Single T4 GPU training
 # tensorstore
