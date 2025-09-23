@@ -194,12 +194,16 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
     print(f"   Val Perplexity: {final_eval['val_perplexity']:.2f}")
     
     # Plot evaluation loss over time
-    if len(eval_steps) > 1:
+    if len(eval_times) > 1:
+        # Convert timestamps to elapsed time in minutes
+        start_time = eval_times[0]
+        elapsed_times = [(t - start_time) / 60 for t in eval_times]
+        
         plt.figure(figsize=(10, 6))
-        plt.plot(eval_steps, eval_losses, 'b-o', linewidth=2, markersize=6)
-        plt.xlabel('Training Step')
+        plt.plot(elapsed_times, eval_losses, 'b-o', linewidth=2, markersize=6)
+        plt.xlabel('Time (minutes)')
         plt.ylabel('Validation Loss')
-        plt.title('Validation Loss vs Training Step')
+        plt.title('Validation Loss vs Time')
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         plt.savefig('eval_loss_vs_time.png', dpi=300, bbox_inches='tight')
