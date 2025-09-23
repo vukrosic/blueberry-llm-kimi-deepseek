@@ -14,7 +14,7 @@ chmod +x setup.sh
 python train.py
 ```
 
-Try it on [Google Colab](https://colab.research.google.com/drive/1UE82keuNStPPaeCF50zSgXVHWiywo_pm?usp=sharing)
+Try it on [Google Colab](https://colab.research.google.com/drive/1mkiTnK_KaFPX92W5WYCsGq1HaqX7IN4u?usp=sharing)
 
 ```bash
 # Quick test with 500 steps (fast validation)
