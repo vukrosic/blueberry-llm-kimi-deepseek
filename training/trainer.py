@@ -75,7 +75,7 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
         schedulers.append(scheduler)
 
-    scaler = GradScaler('cuda', dtype=torch.float16) if config.use_amp else None
+    scaler = GradScaler() if config.use_amp else None
 
     # Training loop
     model.train()
