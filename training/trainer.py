@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import math
 import time
 from torch.utils.data import DataLoader
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 from tqdm import tqdm
 from configs.moe_config import MoEModelConfig
 from models.moe_llm import MoEMinimalLLM
@@ -74,7 +74,7 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
         schedulers.append(scheduler)
 
-    scaler = GradScaler() if config.use_amp else None
+    scaler = GradScaler('cuda') if config.use_amp else None
 
     # Training loop
     model.train()
@@ -90,7 +90,7 @@ def train_moe_model(config: MoEModelConfig, train_loader: DataLoader, val_loader
 
             # Forward pass
             if config.use_amp:
-                with autocast():
+                with autocast('cuda'):
                     logits, aux_loss = model(x, return_aux_loss=True)
                     ce_loss = F.cross_entropy(logits.view(-1, config.vocab_size), y.view(-1))
 
