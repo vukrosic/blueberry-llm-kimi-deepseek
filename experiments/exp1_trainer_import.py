@@ -10,9 +10,11 @@ import time
 import json
 import os
 import psutil
+import numpy as np
 from torch.utils.data import DataLoader
 from typing import Dict, Any, List
 from pathlib import Path
+from scipy import stats
 
 from configs.moe_config import MoEModelConfig
 from data.loader import load_and_cache_data
@@ -57,6 +59,10 @@ class Experiment1ImportTrainer:
             # Use DeepSeek MoE model for other variants
             return DeepSeekMoEModel(config, num_experts=8, top_k=2)
     
+    def count_parameters(self, model):
+        """Count trainable parameters in model"""
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    
     def train_configuration(self, config, variant_name: str) -> Dict[str, Any]:
         """Train a single configuration and return results"""
         print(f"\n{'='*60}")
@@ -82,6 +88,11 @@ class Experiment1ImportTrainer:
         
         # Print configuration details
         self._print_config_details(config, variant_name)
+        
+        # Count parameters
+        model = self.create_model(config, variant_name)
+        param_count = self.count_parameters(model)
+        print(f"   Parameters: {param_count:,} ({param_count/1e6:.2f}M)")
         
         # Measure memory before training
         if torch.cuda.is_available():
@@ -114,6 +125,8 @@ class Experiment1ImportTrainer:
         final_metrics['memory_used_gb'] = memory_used
         final_metrics['experiment_name'] = variant_name
         final_metrics['uses_deepseek'] = variant_name != "baseline"
+        final_metrics['parameter_count'] = param_count
+        final_metrics['parameters_millions'] = param_count / 1e6
         
         # Print results
         print(f"\n🎯 Results for {variant_name}:")
@@ -127,6 +140,7 @@ class Experiment1ImportTrainer:
         print(f"   Validation Loss: {final_metrics['val_loss']:.4f}")
         print(f"   Validation Accuracy: {final_metrics['val_accuracy']:.4f}")
         print(f"   Validation Perplexity: {final_metrics['val_perplexity']:.2f}")
+        print(f"   Parameters: {param_count:,} ({param_count/1e6:.2f}M)")
         
         return final_metrics
     
@@ -215,8 +229,8 @@ class Experiment1ImportTrainer:
         print(f"{'='*80}")
         
         # Create comparison table
-        print(f"{'Configuration':<15} {'Val Loss':<10} {'Val Acc':<10} {'Val Perp':<10} {'Time (min)':<12} {'Peak Mem (GB)':<15} {'DeepSeek':<10}")
-        print(f"{'-'*100}")
+        print(f"{'Configuration':<15} {'Val Loss':<10} {'Val Acc':<10} {'Val Perp':<10} {'Time (min)':<12} {'Peak Mem (GB)':<15} {'Params (M)':<12} {'DeepSeek':<10}")
+        print(f"{'-'*120}")
         
         for name, result in results.items():
             if "error" not in result:
@@ -225,13 +239,17 @@ class Experiment1ImportTrainer:
                 val_perp = result.get('val_perplexity', 0)
                 time_min = result.get('training_time_minutes', 0)
                 peak_mem = result.get('peak_memory_gb', 0)
+                params_m = result.get('parameters_millions', 0)
                 uses_deepseek = "✅" if result.get('uses_deepseek', False) else "❌"
                 
-                print(f"{name:<15} {val_loss:<10.4f} {val_acc:<10.4f} {val_perp:<10.2f} {time_min:<12.1f} {peak_mem:<15.2f} {uses_deepseek:<10}")
+                print(f"{name:<15} {val_loss:<10.4f} {val_acc:<10.4f} {val_perp:<10.2f} {time_min:<12.1f} {peak_mem:<15.2f} {params_m:<12.2f} {uses_deepseek:<10}")
             else:
-                print(f"{name:<15} {'ERROR':<10} {'ERROR':<10} {'ERROR':<10} {'ERROR':<12} {'ERROR':<15} {'ERROR':<10}")
+                print(f"{name:<15} {'ERROR':<10} {'ERROR':<10} {'ERROR':<10} {'ERROR':<12} {'ERROR':<15} {'ERROR':<12} {'ERROR':<10}")
         
-        print(f"{'-'*80}")
+        print(f"{'-'*120}")
+        
+        # Statistical analysis
+        self._print_statistical_analysis(results)
         
         # Find best configuration
         valid_results = {name: result for name, result in results.items() 
@@ -251,7 +269,57 @@ class Experiment1ImportTrainer:
             print(f"   Fastest Training: {fastest[0]} ({fastest[1]['training_time_minutes']:.1f} min)")
             print(f"   Most Memory Efficient: {most_efficient[0]} ({most_efficient[1]['peak_memory_gb']:.2f} GB)")
         
-        print(f"{'='*80}")
+        print(f"{'='*120}")
+    
+    def _print_statistical_analysis(self, results: Dict[str, Any]):
+        """Print statistical analysis of results"""
+        valid_results = {name: result for name, result in results.items() 
+                        if "error" not in result}
+        
+        if len(valid_results) < 2:
+            return
+        
+        print(f"\n📈 Statistical Analysis:")
+        
+        # Extract metrics
+        losses = [result['val_loss'] for result in valid_results.values()]
+        times = [result['training_time_minutes'] for result in valid_results.values()]
+        params = [result['parameters_millions'] for result in valid_results.values()]
+        
+        # Calculate effect sizes (Cohen's d)
+        baseline_loss = losses[0] if 'baseline' in valid_results else losses[0]
+        baseline_time = times[0] if 'baseline' in valid_results else times[0]
+        
+        print(f"   Loss Statistics:")
+        print(f"     Mean: {np.mean(losses):.4f} ± {np.std(losses):.4f}")
+        print(f"     Range: {np.min(losses):.4f} - {np.max(losses):.4f}")
+        
+        # Effect size for best vs baseline
+        if 'baseline' in valid_results and len(valid_results) > 1:
+            best_loss = min(losses)
+            effect_size = abs(best_loss - baseline_loss) / np.std(losses)
+            print(f"     Effect Size (best vs baseline): {effect_size:.3f}")
+            if effect_size < 0.2:
+                print(f"     Interpretation: Negligible effect")
+            elif effect_size < 0.5:
+                print(f"     Interpretation: Small effect")
+            elif effect_size < 0.8:
+                print(f"     Interpretation: Medium effect")
+            else:
+                print(f"     Interpretation: Large effect")
+        
+        print(f"   Efficiency Analysis:")
+        print(f"     Parameter Range: {np.min(params):.2f}M - {np.max(params):.2f}M")
+        print(f"     Time Range: {np.min(times):.1f} - {np.max(times):.1f} min")
+        
+        # Parameter efficiency (loss per million parameters)
+        param_efficiency = [(loss, params[i], name) for i, (name, result) in enumerate(valid_results.items())]
+        param_efficiency.sort(key=lambda x: x[0] / x[1])  # Sort by loss/param ratio
+        
+        print(f"   Parameter Efficiency (loss per M params):")
+        for loss, param, name in param_efficiency:
+            efficiency = loss / param
+            print(f"     {name}: {efficiency:.4f}")
 
 
 def main():
