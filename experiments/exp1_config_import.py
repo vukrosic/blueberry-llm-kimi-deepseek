@@ -11,12 +11,12 @@ from configuration_deepseek import DeepseekV3Config
 def get_experiment_configs():
     """Get different configuration variants for the experiment using original DeepSeek components"""
     
-    # Baseline config (standard attention, no DeepSeek features)
+    # Baseline config (standard attention, no DeepSeek features) - reduced size
     baseline_config = DeepseekV3Config(
-        hidden_size=768,  # Increased from 512 to 768
-        num_attention_heads=12,  # Increased from 8 to 12
-        num_hidden_layers=10,  # Reduced from 12 to 10 for memory
-        intermediate_size=3072,  # Doubled from 1536 to 3072
+        hidden_size=512,  # Reduced to match base config
+        num_attention_heads=8,  # Reduced to match base config
+        num_hidden_layers=6,  # Reduced to match base config
+        intermediate_size=2048,  # Reduced to match base config
         vocab_size=1000,  # Will be set during training
         q_lora_rank=None,
         kv_lora_rank=None,
@@ -27,15 +27,15 @@ def get_experiment_configs():
         rope_scaling=None
     )
     
-    # DeepSeek config with LoRA projections
+    # DeepSeek config with LoRA projections - reduced size
     deepseek_lora_config = DeepseekV3Config(
-        hidden_size=768,  # Increased from 512 to 768
-        num_attention_heads=12,  # Increased from 8 to 12
-        num_hidden_layers=10,  # Reduced from 12 to 10 for memory
-        intermediate_size=3072,  # Doubled from 1536 to 3072
+        hidden_size=512,  # Reduced to match base config
+        num_attention_heads=8,  # Reduced to match base config
+        num_hidden_layers=6,  # Reduced to match base config
+        intermediate_size=2048,  # Reduced to match base config
         vocab_size=1000,  # Will be set during training
-        q_lora_rank=128,  # Doubled from 64
-        kv_lora_rank=256,  # Doubled from 128
+        q_lora_rank=64,  # Reduced from 128
+        kv_lora_rank=128,  # Reduced from 256
         qk_rope_head_dim=None,  # Will use default
         v_head_dim=None,  # Will use default
         attention_bias=False,
@@ -43,17 +43,17 @@ def get_experiment_configs():
         rope_scaling=None
     )
     
-    # DeepSeek config with enhanced features (no flash attention for now)
+    # DeepSeek config with enhanced features - reduced size
     deepseek_enhanced_config = DeepseekV3Config(
-        hidden_size=768,  # Increased from 512 to 768
-        num_attention_heads=12,  # Increased from 8 to 12
-        num_hidden_layers=10,  # Reduced from 12 to 10 for memory
-        intermediate_size=3072,  # Doubled from 1536 to 3072
+        hidden_size=512,  # Reduced to match base config
+        num_attention_heads=8,  # Reduced to match base config
+        num_hidden_layers=6,  # Reduced to match base config
+        intermediate_size=2048,  # Reduced to match base config
         vocab_size=1000,  # Will be set during training
-        q_lora_rank=128,  # Doubled from 64
-        kv_lora_rank=256,  # Doubled from 128
-        qk_rope_head_dim=128,  # Doubled from 64
-        v_head_dim=192,        # Doubled from 96
+        q_lora_rank=64,  # Reduced from 128
+        kv_lora_rank=128,  # Reduced from 256
+        qk_rope_head_dim=64,  # Reduced from 128
+        v_head_dim=96,        # Reduced from 192
         attention_bias=True,
         _attn_implementation="eager",
         rope_scaling={

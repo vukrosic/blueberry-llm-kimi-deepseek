@@ -466,10 +466,19 @@ class EnhancedExperiment1Trainer:
         results = {}
         for name, config in configs_to_run.items():
             try:
+                # Clear GPU memory before each experiment
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    torch.cuda.reset_peak_memory_stats()
+                
                 results[name] = self.train_configuration(config, name)
             except Exception as e:
                 print(f"❌ Error training {name}: {e}")
                 results[name] = {"error": str(e)}
+                
+                # Clear memory after error
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
         
         # Store results
         self.all_results = results
