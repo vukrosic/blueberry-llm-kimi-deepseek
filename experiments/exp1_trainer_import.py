@@ -9,6 +9,7 @@ import torch
 import time
 import json
 import os
+import psutil
 from torch.utils.data import DataLoader
 from typing import Dict, Any, List
 from pathlib import Path
@@ -82,19 +83,46 @@ class Experiment1ImportTrainer:
         # Print configuration details
         self._print_config_details(config, variant_name)
         
+        # Measure memory before training
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats()
+            initial_memory = torch.cuda.memory_allocated() / 1e9  # GB
+        else:
+            initial_memory = psutil.Process().memory_info().rss / 1e9  # GB
+        
         # Train model
         start_time = time.time()
         model, final_metrics = train_moe_model(self.base_config, train_loader, val_loader)
         total_time = time.time() - start_time
         
-        # Add timing information
+        # Measure memory after training
+        if torch.cuda.is_available():
+            peak_memory = torch.cuda.max_memory_allocated() / 1e9  # GB
+            final_memory = torch.cuda.memory_allocated() / 1e9  # GB
+            memory_used = peak_memory - initial_memory
+        else:
+            final_memory = psutil.Process().memory_info().rss / 1e9  # GB
+            memory_used = final_memory - initial_memory
+            peak_memory = final_memory
+        
+        # Add timing and memory information
         final_metrics['training_time_minutes'] = total_time / 60
+        final_metrics['initial_memory_gb'] = initial_memory
+        final_metrics['peak_memory_gb'] = peak_memory
+        final_metrics['final_memory_gb'] = final_memory
+        final_metrics['memory_used_gb'] = memory_used
         final_metrics['experiment_name'] = variant_name
         final_metrics['uses_deepseek'] = variant_name != "baseline"
         
         # Print results
         print(f"\n🎯 Results for {variant_name}:")
         print(f"⏱️ Training time: {total_time/60:.1f} minutes")
+        print(f"💾 Memory usage:")
+        print(f"   Initial: {initial_memory:.2f} GB")
+        print(f"   Peak: {peak_memory:.2f} GB")
+        print(f"   Final: {final_memory:.2f} GB")
+        print(f"   Used: {memory_used:.2f} GB")
         print(f"🏆 Final Results:")
         print(f"   Validation Loss: {final_metrics['val_loss']:.4f}")
         print(f"   Validation Accuracy: {final_metrics['val_accuracy']:.4f}")
@@ -187,8 +215,8 @@ class Experiment1ImportTrainer:
         print(f"{'='*80}")
         
         # Create comparison table
-        print(f"{'Configuration':<20} {'Val Loss':<10} {'Val Acc':<10} {'Val Perp':<10} {'Time (min)':<12} {'DeepSeek':<10}")
-        print(f"{'-'*80}")
+        print(f"{'Configuration':<15} {'Val Loss':<10} {'Val Acc':<10} {'Val Perp':<10} {'Time (min)':<12} {'Peak Mem (GB)':<15} {'DeepSeek':<10}")
+        print(f"{'-'*100}")
         
         for name, result in results.items():
             if "error" not in result:
@@ -196,11 +224,12 @@ class Experiment1ImportTrainer:
                 val_acc = result.get('val_accuracy', 0)
                 val_perp = result.get('val_perplexity', 0)
                 time_min = result.get('training_time_minutes', 0)
+                peak_mem = result.get('peak_memory_gb', 0)
                 uses_deepseek = "✅" if result.get('uses_deepseek', False) else "❌"
                 
-                print(f"{name:<20} {val_loss:<10.4f} {val_acc:<10.4f} {val_perp:<10.2f} {time_min:<12.1f} {uses_deepseek:<10}")
+                print(f"{name:<15} {val_loss:<10.4f} {val_acc:<10.4f} {val_perp:<10.2f} {time_min:<12.1f} {peak_mem:<15.2f} {uses_deepseek:<10}")
             else:
-                print(f"{name:<20} {'ERROR':<10} {'ERROR':<10} {'ERROR':<10} {'ERROR':<12} {'ERROR':<10}")
+                print(f"{name:<15} {'ERROR':<10} {'ERROR':<10} {'ERROR':<10} {'ERROR':<12} {'ERROR':<15} {'ERROR':<10}")
         
         print(f"{'-'*80}")
         
@@ -212,11 +241,15 @@ class Experiment1ImportTrainer:
             best_loss = min(valid_results.items(), key=lambda x: x[1].get('val_loss', float('inf')))
             best_acc = max(valid_results.items(), key=lambda x: x[1].get('val_accuracy', 0))
             best_perp = min(valid_results.items(), key=lambda x: x[1].get('val_perplexity', float('inf')))
+            fastest = min(valid_results.items(), key=lambda x: x[1].get('training_time_minutes', float('inf')))
+            most_efficient = min(valid_results.items(), key=lambda x: x[1].get('peak_memory_gb', float('inf')))
             
             print(f"\n🏆 Best Results:")
             print(f"   Lowest Loss: {best_loss[0]} ({best_loss[1]['val_loss']:.4f})")
             print(f"   Highest Accuracy: {best_acc[0]} ({best_acc[1]['val_accuracy']:.4f})")
             print(f"   Lowest Perplexity: {best_perp[0]} ({best_perp[1]['val_perplexity']:.2f})")
+            print(f"   Fastest Training: {fastest[0]} ({fastest[1]['training_time_minutes']:.1f} min)")
+            print(f"   Most Memory Efficient: {most_efficient[0]} ({most_efficient[1]['peak_memory_gb']:.2f} GB)")
         
         print(f"{'='*80}")
 

@@ -99,12 +99,20 @@ results = trainer.run_experiment(['baseline', 'lora', 'enhanced'])
 - **Validation Loss**: Lower is better
 - **Validation Accuracy**: Higher is better
 - **Validation Perplexity**: Lower is better
-- **Training Time**: Efficiency measure
+- **Training Time**: Efficiency measure (minutes)
+- **Peak Memory Usage**: Memory efficiency (GB)
+- **Memory Used**: Actual memory consumption (GB)
 
 ### Success Criteria
 - **LoRA**: Should maintain or improve performance with fewer parameters
 - **Enhanced**: Should show best overall performance
 - **Baseline**: Establishes performance floor
+
+### Efficiency Analysis
+- **Memory Efficiency**: Compare peak memory usage across configurations
+- **Training Speed**: Compare training time per epoch
+- **Parameter Efficiency**: Compare model size vs performance
+- **Resource Utilization**: GPU/CPU usage patterns
 
 ## Files Structure
 
