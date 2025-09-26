@@ -5,7 +5,6 @@ from torchtune.modules import RotaryPositionalEmbeddings
 from .components import MixtureOfExperts
 
 
-
 class Rotary(nn.Module):
     def __init__(self, dim: int, max_seq_len: int):
         super().__init__()

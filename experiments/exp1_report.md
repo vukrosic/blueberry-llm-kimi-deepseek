@@ -24,48 +24,48 @@
 
 ## Findings
 
-1. **Performance**: LoRA shows +0.017% loss improvement over baseline (6.4020 vs 6.4031)
-2. **Speed**: DeepSeek variants are 7% faster than baseline (1.21 vs 1.30 min)
-3. **Memory**: Identical usage across all configurations (~16.51 GB)
-4. **Enhanced Features**: Slightly worse than LoRA-only (6.4024 vs 6.4020 loss)
+1. **Performance**: Baseline shows +0.08% loss improvement over LoRA (6.3980 vs 6.4031)
+2. **Speed**: All configurations have identical training time (1.20 min)
+3. **Memory**: Nearly identical usage across all configurations (~16.51-16.53 GB)
+4. **Enhanced Features**: Slightly worse than LoRA-only (6.4035 vs 6.4031 loss)
 5. **Parameter Efficiency**: LoRA has 2.6% fewer parameters than baseline (427.61M vs 438.91M)
-6. **Statistical Significance**: Effect size = 2.414 (Large effect) - differences are highly meaningful
+6. **Statistical Significance**: Effect size = 0.000 (Negligible effect) - differences are not meaningful
 7. **Scale**: 4x larger model (438M vs 107M parameters) with 2x more training data
 
 ## Statistical Analysis
 
-- **Effect Size**: Cohen's d = 2.414 (Large effect) - differences are highly statistically meaningful
-- **Loss Statistics**: Mean = 6.4025 ± 0.0005, Range = 6.4020 - 6.4031
+- **Effect Size**: Cohen's d = 0.000 (Negligible effect) - differences are not statistically meaningful
+- **Loss Statistics**: Mean = 6.4015 ± 0.0025, Range = 6.3980 - 6.4035
 - **Parameter Efficiency**: 
   - Enhanced: 0.0144 loss per M params (best)
   - Baseline: 0.0146 loss per M params
   - LoRA: 0.0150 loss per M params
-- **Time Efficiency**: 1.2-1.3 min training time across configurations
-- **Memory Efficiency**: 16.51 GB peak usage (65% of RTX 4090 capacity)
+- **Time Efficiency**: 1.2 min training time across all configurations
+- **Memory Efficiency**: 16.51-16.53 GB peak usage (65% of RTX 4090 capacity)
 
 ## Conclusion
 
-DeepSeek attention integration provides **highly statistically significant** performance improvements with faster training and fewer parameters. The LoRA-only configuration is the clear winner, achieving:
+DeepSeek attention integration shows **no statistically significant** performance differences when using a proper baseline with torchtune's RoPE. The baseline configuration actually performs best, achieving:
 
-- **Best Performance**: Lowest validation loss (6.4020)
-- **Best Efficiency**: 2.6% fewer parameters than baseline
-- **Fastest Training**: 7% faster than baseline
-- **Large Effect Size**: Cohen's d = 2.414 indicates highly meaningful differences
+- **Best Performance**: Lowest validation loss (6.3980)
+- **Best Accuracy**: Highest validation accuracy (0.1662)
+- **Best Perplexity**: Lowest validation perplexity (600.66)
+- **Negligible Effect Size**: Cohen's d = 0.000 indicates no meaningful differences
 
-The enhanced configuration performs slightly worse than LoRA-only, suggesting that additional features (RoPE scaling, attention bias) may be unnecessary for this setup.
+The LoRA and enhanced configurations perform slightly worse than the baseline, suggesting that DeepSeek attention features may not provide benefits for this setup.
 
 **Key Insights**:
-1. **LoRA projections are effective**: Reduce parameters while improving performance
-2. **Enhanced features are counterproductive**: Additional complexity hurts performance
-3. **Statistical significance confirmed**: Effect size analysis validates the improvements
-4. **Parameter efficiency matters**: LoRA achieves better performance with fewer parameters
-5. **Scale matters**: Larger models show more pronounced differences
+1. **Baseline is competitive**: torchtune's RoPE provides excellent performance
+2. **LoRA projections show no benefit**: No performance improvement despite fewer parameters
+3. **Enhanced features are unnecessary**: Additional complexity provides no benefit
+4. **Statistical significance confirmed**: Effect size analysis shows no meaningful differences
+5. **Scale matters**: Larger models show consistent performance across configurations
 
 **Scale Improvements**:
 - **4x larger model**: 438M vs 107M parameters
 - **2x more training data**: 2M vs 800K tokens
 - **2x more training steps**: 100 vs 50 steps
 - **65% GPU utilization**: 16.51 GB of 25.3 GB RTX 4090
-- **Enhanced statistical analysis**: Effect size = 2.414 (highly meaningful)
+- **Proper baseline**: Using torchtune's RoPE for fair comparison
 
 **Files**: `experiments/exp1_import_results/experiment1_import_results.json`
