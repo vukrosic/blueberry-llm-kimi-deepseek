@@ -153,8 +153,11 @@ class EnhancedExperiment1Trainer:
         else:
             initial_memory = psutil.Process().memory_info().rss / 1e9  # GB
         
-        # Track training metrics
+        # Track training metrics with precise timing
+        training_start_time = time.time()
         training_metrics = self._train_with_metrics(model, train_loader, val_loader, variant_name)
+        training_end_time = time.time()
+        total_training_time = training_end_time - training_start_time
         
         # Measure memory after training
         if torch.cuda.is_available():
@@ -166,7 +169,7 @@ class EnhancedExperiment1Trainer:
             memory_used = final_memory - initial_memory
             peak_memory = final_memory
         
-        # Compile results
+        # Compile results with precise timing
         results = {
             **training_metrics,
             'initial_memory_gb': initial_memory,
@@ -178,7 +181,9 @@ class EnhancedExperiment1Trainer:
             'parameter_count': param_count,
             'parameters_millions': param_count / 1e6,
             'flops_per_forward_gflops': flops_per_forward / 1e9,
-            'enhanced_batch_size': enhanced_batch_size
+            'enhanced_batch_size': enhanced_batch_size,
+            'total_training_time_seconds': total_training_time,
+            'total_training_time_minutes': total_training_time / 60
         }
         
         # Print results
@@ -291,10 +296,15 @@ class EnhancedExperiment1Trainer:
                 if torch.cuda.is_available():
                     step_memory.append(torch.cuda.memory_allocated() / 1e9)
                 
-                # Progress logging every 10 steps
-                if step % 10 == 0:
+                # Progress logging every 50 steps for longer training
+                if step % 50 == 0:
+                    elapsed_time = time.time() - start_time
+                    steps_per_sec = step / elapsed_time if elapsed_time > 0 else 0
+                    eta_seconds = (self.base_config.max_steps - step) / steps_per_sec if steps_per_sec > 0 else 0
+                    eta_minutes = eta_seconds / 60
                     print(f"Step {step}/{self.base_config.max_steps}: Loss={ce_loss.item():.4f}, "
-                          f"Time={step_time*1000:.1f}ms, Memory={torch.cuda.memory_allocated()/1e9:.2f}GB")
+                          f"Time={step_time*1000:.1f}ms, Memory={torch.cuda.memory_allocated()/1e9:.2f}GB, "
+                          f"ETA={eta_minutes:.1f}min")
                 
                 # Evaluation
                 if step % self.base_config.eval_every == 0 and step > 0:
@@ -425,7 +435,7 @@ class EnhancedExperiment1Trainer:
     def _print_results(self, results: Dict[str, Any]):
         """Print detailed results"""
         print(f"\n🎯 Results for {results['experiment_name']}:")
-        print(f"⏱️ Training time: {results['training_time_minutes']:.1f} minutes")
+        print(f"⏱️ Training time: {results['total_training_time_minutes']:.2f} minutes ({results['total_training_time_seconds']:.1f} seconds)")
         print(f"💾 Memory usage:")
         print(f"   Initial: {results['initial_memory_gb']:.2f} GB")
         print(f"   Peak: {results['peak_memory_gb']:.2f} GB")
@@ -457,7 +467,7 @@ class EnhancedExperiment1Trainer:
         
         print(f"\n🚀 Starting Enhanced Experiment 1: DeepSeek Attention Integration")
         print(f"📋 Running {len(configs_to_run)} configurations: {list(configs_to_run.keys())}")
-        print(f"💪 Using reduced model size with larger batch for faster training")
+        print(f"💪 10x longer training with precise timing measurements")
         
         # Set seed for reproducibility
         set_seed(42)
@@ -517,7 +527,7 @@ class EnhancedExperiment1Trainer:
     def _print_comparison(self, results: Dict[str, Any]):
         """Print comprehensive comparison of all configurations"""
         print(f"\n{'='*100}")
-        print(f"📊 ENHANCED EXPERIMENT 1 COMPARISON: DeepSeek Attention Integration (Reduced Model, Larger Batch)")
+        print(f"📊 ENHANCED EXPERIMENT 1 COMPARISON: DeepSeek Attention Integration (10x Longer Training)")
         print(f"{'='*100}")
         
         # Create comparison table
@@ -529,13 +539,13 @@ class EnhancedExperiment1Trainer:
                 val_loss = result.get('val_loss', 0)
                 val_acc = result.get('val_accuracy', 0)
                 val_perp = result.get('val_perplexity', 0)
-                time_min = result.get('training_time_minutes', 0)
+                time_min = result.get('total_training_time_minutes', 0)  # Use precise timing
                 peak_mem = result.get('peak_memory_gb', 0)
                 params_m = result.get('parameters_millions', 0)
                 flops_g = result.get('flops_per_forward_gflops', 0)
                 uses_deepseek = "✅" if result.get('uses_deepseek', False) else "❌"
                 
-                print(f"{name:<15} {val_loss:<10.4f} {val_acc:<10.4f} {val_perp:<10.2f} {time_min:<12.1f} {peak_mem:<15.2f} {params_m:<12.2f} {flops_g:<12.2f} {uses_deepseek:<10}")
+                print(f"{name:<15} {val_loss:<10.4f} {val_acc:<10.4f} {val_perp:<10.2f} {time_min:<12.2f} {peak_mem:<15.2f} {params_m:<12.2f} {flops_g:<12.2f} {uses_deepseek:<10}")
             else:
                 print(f"{name:<15} {'ERROR':<10} {'ERROR':<10} {'ERROR':<10} {'ERROR':<12} {'ERROR':<15} {'ERROR':<12} {'ERROR':<12} {'ERROR':<10}")
         
@@ -552,14 +562,14 @@ class EnhancedExperiment1Trainer:
             best_loss = min(valid_results.items(), key=lambda x: x[1].get('val_loss', float('inf')))
             best_acc = max(valid_results.items(), key=lambda x: x[1].get('val_accuracy', 0))
             best_perp = min(valid_results.items(), key=lambda x: x[1].get('val_perplexity', float('inf')))
-            fastest = min(valid_results.items(), key=lambda x: x[1].get('training_time_minutes', float('inf')))
+            fastest = min(valid_results.items(), key=lambda x: x[1].get('total_training_time_minutes', float('inf')))
             most_efficient = min(valid_results.items(), key=lambda x: x[1].get('peak_memory_gb', float('inf')))
             
             print(f"\n🏆 Best Results:")
             print(f"   Lowest Loss: {best_loss[0]} ({best_loss[1]['val_loss']:.4f})")
             print(f"   Highest Accuracy: {best_acc[0]} ({best_acc[1]['val_accuracy']:.4f})")
             print(f"   Lowest Perplexity: {best_perp[0]} ({best_perp[1]['val_perplexity']:.2f})")
-            print(f"   Fastest Training: {fastest[0]} ({fastest[1]['training_time_minutes']:.1f} min)")
+            print(f"   Fastest Training: {fastest[0]} ({fastest[1]['total_training_time_minutes']:.2f} min)")
             print(f"   Most Memory Efficient: {most_efficient[0]} ({most_efficient[1]['peak_memory_gb']:.2f} GB)")
         
         print(f"{'='*130}")
@@ -576,7 +586,7 @@ class EnhancedExperiment1Trainer:
         
         # Extract metrics
         losses = [result['val_loss'] for result in valid_results.values()]
-        times = [result['training_time_minutes'] for result in valid_results.values()]
+        times = [result['total_training_time_minutes'] for result in valid_results.values()]  # Use precise timing
         params = [result['parameters_millions'] for result in valid_results.values()]
         flops = [result['flops_per_forward_gflops'] for result in valid_results.values()]
         
@@ -638,7 +648,7 @@ class EnhancedExperiment1Trainer:
         
         plt.xlabel('Time (minutes)', fontsize=12)
         plt.ylabel('Validation Loss', fontsize=12)
-        plt.title('Validation Loss vs Time - Enhanced Experiment 1\n(Reduced Model, Larger Batch)', fontsize=14)
+        plt.title('Validation Loss vs Time - Enhanced Experiment 1\n(10x Longer Training)', fontsize=14)
         plt.legend(fontsize=10)
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
@@ -659,12 +669,12 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Create enhanced base configuration with reduced model size but larger batch
+    # Create enhanced base configuration with 10x longer training
     base_config = MoEModelConfig(
-        max_steps=100,  # Keep reasonable number of steps
+        max_steps=1000,  # 10x longer training
         batch_size=32,  # Larger batch size for faster training
         max_tokens=2000000,  # Keep reasonable data size
-        eval_every=20,
+        eval_every=100,  # Evaluate every 100 steps for longer training
         num_documents=8000,  # Keep reasonable data size
         max_seq_len=512,
         d_model=512,  # Reduced from 768
@@ -673,13 +683,15 @@ def main():
         d_ff=2048,    # Reduced from 3072
     )
     
-    print(f"🚀 ENHANCED Experiment Configuration (Reduced Model, Larger Batch):")
-    print(f"   Steps: {base_config.max_steps}")
+    print(f"🚀 ENHANCED Experiment Configuration (10x Longer Training):")
+    print(f"   Steps: {base_config.max_steps} (10x longer training)")
     print(f"   Batch Size: {base_config.batch_size} (larger for faster training)")
     print(f"   Tokens: {base_config.max_tokens:,}")
     print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H, {base_config.d_ff}ff")
     print(f"   Sequence Length: {base_config.max_seq_len}")
+    print(f"   Evaluation: Every {base_config.eval_every} steps")
     print(f"   Expected Memory Usage: ~8-12 GB (reduced model size)")
+    print(f"   Expected Training Time: ~4-5 minutes per configuration")
     
     # Create trainer
     trainer = EnhancedExperiment1Trainer(base_config)
