@@ -43,43 +43,8 @@ def get_experiment_configs():
         rope_scaling=None
     )
     
-    # DeepSeek config with Flash Attention
-    deepseek_flash_config = DeepseekV3Config(
-        hidden_size=384,
-        num_attention_heads=8,
-        num_hidden_layers=6,
-        intermediate_size=1536,
-        vocab_size=1000,  # Will be set during training
-        q_lora_rank=32,
-        kv_lora_rank=64,
-        qk_rope_head_dim=None,  # Will use default
-        v_head_dim=None,  # Will use default
-        attention_bias=False,
-        _attn_implementation="flash_attention_2",
-        rope_scaling=None
-    )
-    
-    # DeepSeek config with RoPE scaling
-    deepseek_rope_config = DeepseekV3Config(
-        hidden_size=384,
-        num_attention_heads=8,
-        num_hidden_layers=6,
-        intermediate_size=1536,
-        vocab_size=1000,  # Will be set during training
-        q_lora_rank=32,
-        kv_lora_rank=64,
-        qk_rope_head_dim=None,  # Will use default
-        v_head_dim=None,  # Will use default
-        attention_bias=False,
-        _attn_implementation="flash_attention_2",
-        rope_scaling={
-            "type": "linear",
-            "factor": 2.0
-        }
-    )
-    
-    # Full DeepSeek config (all features)
-    deepseek_full_config = DeepseekV3Config(
+    # DeepSeek config with enhanced features (no flash attention for now)
+    deepseek_enhanced_config = DeepseekV3Config(
         hidden_size=384,
         num_attention_heads=8,
         num_hidden_layers=6,
@@ -90,19 +55,17 @@ def get_experiment_configs():
         qk_rope_head_dim=32,  # Smaller RoPE head dim
         v_head_dim=48,        # Larger V head dim
         attention_bias=True,
-        _attn_implementation="flash_attention_2",
+        _attn_implementation="eager",
         rope_scaling={
-            "type": "dynamic",
-            "factor": 1.5
+            "type": "linear",
+            "factor": 2.0
         }
     )
     
     return {
         "baseline": baseline_config,
         "lora": deepseek_lora_config,
-        "flash": deepseek_flash_config,
-        "rope": deepseek_rope_config,
-        "full": deepseek_full_config
+        "enhanced": deepseek_enhanced_config
     }
 
 
