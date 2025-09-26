@@ -2,58 +2,96 @@
 
 ## Overview
 
-This experiment integrates DeepSeek's advanced attention mechanisms into our MoE model to evaluate their impact on performance and efficiency.
+This experiment integrates DeepSeek's advanced attention mechanisms into our MoE model using the **original DeepSeek implementation** from `deepseek_modeling.py`. This ensures correctness and minimizes custom code that could introduce bugs.
 
-## DeepSeek Attention Features
+## Research Design & Fairness
 
-### 1. LoRA-style Q/K/V Projections
+### What We're Testing
+We're comparing three configurations to evaluate the impact of DeepSeek's attention innovations:
+
+1. **Baseline**: Standard multi-head attention (our original MoE model)
+2. **LoRA**: DeepSeek attention with LoRA-style Q/K/V projections
+3. **Enhanced**: DeepSeek attention with LoRA + separate head dimensions + RoPE scaling + attention bias
+
+### Why This is Fair Research
+- **Same Architecture**: All models use identical MoE structure, only attention differs
+- **Same Training**: Identical training procedure, data, and hyperparameters
+- **Same Evaluation**: Same metrics and evaluation protocol
+- **Original Implementation**: Uses DeepSeek's actual code, not custom reimplementation
+- **Controlled Variables**: Only attention mechanism varies between experiments
+
+### DeepSeek Attention Features Being Tested
+
+#### 1. LoRA-style Q/K/V Projections
 - **Q Projection**: Optional LoRA-style projection with configurable rank
 - **KV Projection**: LoRA-style projection with MQA (Multi-Query Attention) support
-- **Benefits**: Reduced parameters, improved efficiency
+- **Hypothesis**: Reduced parameters without performance loss
 
-### 2. Separate Head Dimensions
+#### 2. Separate Head Dimensions
 - **QK Head Dim**: Configurable dimension for query/key projections
 - **V Head Dim**: Configurable dimension for value projections
-- **Benefits**: Allows optimization of different attention components
+- **Hypothesis**: Better optimization of different attention components
 
-### 3. Advanced RoPE Scaling
+#### 3. Advanced RoPE Scaling
 - **Linear Scaling**: Simple linear scaling of RoPE frequencies
-- **Dynamic NTK Scaling**: Dynamic scaling based on sequence length
-- **YARN Scaling**: Advanced scaling with multiple parameters
-- **Benefits**: Better handling of long sequences
+- **Hypothesis**: Better handling of longer sequences
 
-### 4. Flash Attention 2 Support
-- **Flash Attention**: Memory-efficient attention implementation
-- **Benefits**: Reduced memory usage, faster training
-
-### 5. Enhanced Attention Bias
+#### 4. Enhanced Attention Bias
 - **Configurable Bias**: Optional bias in attention projections
-- **Benefits**: Improved model flexibility
+- **Hypothesis**: Improved model flexibility
 
 ## Experiment Configurations
 
 ### Baseline Configuration
-- Standard multi-head attention
-- No DeepSeek features
-- Serves as control group
+- **Model**: Original MoE model with standard attention
+- **Purpose**: Control group to establish baseline performance
+- **Features**: None (standard multi-head attention)
 
 ### LoRA Configuration
-- LoRA-style Q/K/V projections
-- Reduced parameter count
-- Tests efficiency gains
+- **Model**: DeepSeek MoE model with LoRA projections
+- **Purpose**: Test efficiency gains from LoRA-style projections
+- **Features**: Q LoRA rank=32, KV LoRA rank=64
 
-### Flash Attention Configuration
-- LoRA projections + Flash Attention 2
-- Tests memory efficiency
+### Enhanced Configuration
+- **Model**: DeepSeek MoE model with all available features
+- **Purpose**: Test combined benefits of all DeepSeek innovations
+- **Features**: LoRA + separate head dims + RoPE scaling + attention bias
 
-### RoPE Scaling Configuration
-- LoRA + Flash Attention + RoPE scaling
-- Tests long sequence handling
+## Research Questions
 
-### Full DeepSeek Configuration
-- All DeepSeek features enabled
-- Maximum feature integration
-- Tests combined benefits
+1. **Efficiency**: Do LoRA projections reduce parameters without hurting performance?
+2. **Optimization**: Do separate head dimensions improve attention quality?
+3. **Scaling**: Does RoPE scaling help with sequence length handling?
+4. **Combined Effect**: What's the cumulative benefit of all features?
+
+## Implementation Details
+
+### Using Original DeepSeek Code
+- **Attention**: `DeepseekV3Attention` from `deepseek_modeling.py`
+- **Normalization**: `DeepseekV3RMSNorm` from `deepseek_modeling.py`
+- **Configuration**: `DeepseekV3Config` from `configuration_deepseek.py`
+- **MoE**: Our existing `MixtureOfExperts` implementation
+
+### Architecture
+- **Transformer Blocks**: DeepSeek attention + our MoE feed-forward
+- **Embeddings**: Standard token embeddings
+- **Output**: Standard language modeling head
+- **Training**: Identical procedure for all configurations
+
+## Running the Experiment
+
+```bash
+# Run full experiment
+python experiments/exp1_trainer_import.py
+
+# Run specific configurations
+python -c "
+from experiments.exp1_trainer_import import Experiment1ImportTrainer
+from configs.moe_config import MoEModelConfig
+trainer = Experiment1ImportTrainer(MoEModelConfig())
+results = trainer.run_experiment(['baseline', 'lora', 'enhanced'])
+"
+```
 
 ## Expected Outcomes
 
@@ -63,58 +101,10 @@ This experiment integrates DeepSeek's advanced attention mechanisms into our MoE
 - **Validation Perplexity**: Lower is better
 - **Training Time**: Efficiency measure
 
-### Key Questions
-1. Do LoRA projections improve efficiency without hurting performance?
-2. Does Flash Attention provide memory benefits?
-3. Does RoPE scaling help with longer sequences?
-4. What's the combined effect of all features?
-
-## Implementation Details
-
-### Architecture Changes
-- Enhanced attention mechanism with DeepSeek features
-- Maintained MoE architecture
-- Backward compatibility with existing code
-
-### Configuration System
-- Extended config with DeepSeek parameters
-- Multiple experiment variants
-- Easy parameter tuning
-
-### Training Pipeline
-- Automated experiment runner
-- Results comparison
-- Performance tracking
-
-## Running the Experiment
-
-```bash
-# Run full experiment
-python experiments/exp1_trainer.py
-
-# Run specific configurations
-python -c "
-from experiments.exp1_trainer import Experiment1Trainer
-from configs.moe_config import MoEModelConfig
-trainer = Experiment1Trainer(MoEModelConfig())
-results = trainer.run_experiment(['baseline', 'lora', 'flash'])
-"
-```
-
-## Results Analysis
-
-The experiment will generate:
-- **JSON Results**: Detailed metrics for each configuration
-- **Comparison Table**: Side-by-side performance comparison
-- **Best Configuration**: Identification of optimal setup
-
-## Next Steps
-
-Based on results:
-1. **If LoRA helps**: Consider implementing in production
-2. **If Flash Attention helps**: Enable for memory-constrained training
-3. **If RoPE scaling helps**: Use for long sequence tasks
-4. **If combined features help**: Integrate full DeepSeek attention
+### Success Criteria
+- **LoRA**: Should maintain or improve performance with fewer parameters
+- **Enhanced**: Should show best overall performance
+- **Baseline**: Establishes performance floor
 
 ## Files Structure
 
@@ -122,23 +112,24 @@ Based on results:
 experiments/
 ├── __init__.py
 ├── exp1_README.md
-├── exp1_deepseek_attention.py    # DeepSeek attention implementation
-├── exp1_config.py                # Experiment configurations
-├── exp1_trainer.py               # Training and comparison script
-└── exp1_results/                 # Results directory (created during run)
-    └── experiment1_results.json
+├── exp1_deepseek_import.py      # DeepSeek MoE model using original components
+├── exp1_config_import.py        # Experiment configurations
+├── exp1_trainer_import.py       # Training and comparison script
+└── exp1_import_results/         # Results directory (created during run)
+    └── experiment1_import_results.json
 ```
 
 ## Dependencies
 
 - PyTorch
-- Flash Attention 2 (optional, for flash attention support)
+- Transformers (for DeepSeek components)
+- Flash Attention (optional, for future experiments)
 - Existing MoE model components
 - Training utilities
 
 ## Notes
 
-- Experiment is designed to be reproducible
-- Results are automatically saved
-- Configuration is easily extensible
-- Backward compatible with existing models
+- **Reproducible**: Fixed seeds and identical training procedures
+- **Fair Comparison**: Only attention mechanism varies
+- **Original Implementation**: Uses DeepSeek's actual code
+- **Minimal Custom Code**: Maximum reuse of proven implementations
