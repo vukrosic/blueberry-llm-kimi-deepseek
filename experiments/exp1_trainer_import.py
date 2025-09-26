@@ -19,8 +19,8 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import train_moe_model
 from utils.helpers import set_seed
-from .exp1_config_import import get_experiment_configs, create_config_from_moe_config
-from .exp1_deepseek_import import DeepSeekMoEModel
+from experiments.exp1_config_import import get_experiment_configs, create_config_from_moe_config
+from experiments.exp1_deepseek_import import DeepSeekMoEModel
 from models.moe_llm import MoEMinimalLLM
 
 

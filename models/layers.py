@@ -27,8 +27,16 @@ class Rotary(nn.Module):
         cos = emb.cos().to(dtype)
         sin = emb.sin().to(dtype)
         
-        # Apply RoPE
-        x1, x2 = x_BTHD[..., :self.dim//2], x_BTHD[..., self.dim//2:]
+        # Apply RoPE - ensure proper broadcasting
+        head_dim = x_BTHD.shape[-1]
+        half_dim = head_dim // 2
+        
+        # Ensure cos and sin have the right shape for broadcasting
+        cos = cos[..., :half_dim]
+        sin = sin[..., :half_dim]
+        
+        x1, x2 = x_BTHD[..., :half_dim], x_BTHD[..., half_dim:]
+        
         return torch.cat((x1 * cos - x2 * sin, x1 * sin + x2 * cos), dim=-1)
 
 

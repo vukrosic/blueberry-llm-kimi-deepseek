@@ -1,0 +1,38 @@
+{
+  "baseline": {
+    "val_loss": 9.566260404586792,
+    "val_accuracy": 0.015664876302083332,
+    "val_perplexity": 14274.93390779635,
+    "training_time_minutes": 0.27204674084981284,
+    "initial_memory_gb": 0.0,
+    "peak_memory_gb": 10.957319168,
+    "final_memory_gb": 0.335247872,
+    "memory_used_gb": 10.957319168,
+    "experiment_name": "baseline",
+    "uses_deepseek": false
+  },
+  "lora": {
+    "val_loss": 9.565704832077026,
+    "val_accuracy": 0.015664876302083332,
+    "val_perplexity": 14267.005349586878,
+    "training_time_minutes": 0.24259026447931925,
+    "initial_memory_gb": 0.01703936,
+    "peak_memory_gb": 10.957427712,
+    "final_memory_gb": 0.335575552,
+    "memory_used_gb": 10.940388352,
+    "experiment_name": "lora",
+    "uses_deepseek": true
+  },
+  "enhanced": {
+    "val_loss": 9.56614673614502,
+    "val_accuracy": 0.015664876302083332,
+    "val_perplexity": 14273.311390518906,
+    "training_time_minutes": 0.24846969445546468,
+    "initial_memory_gb": 0.01703936,
+    "peak_memory_gb": 10.957427712,
+    "final_memory_gb": 0.335575552,
+    "memory_used_gb": 10.940388352,
+    "experiment_name": "enhanced",
+    "uses_deepseek": true
+  }
+}
