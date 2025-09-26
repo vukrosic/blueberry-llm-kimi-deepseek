@@ -13,7 +13,7 @@
 
 \geometry{margin=1in}
 
-\title{Comparative Analysis of DeepSeek Attention Mechanisms and Normalization Techniques in Transformer-Based Language Models}
+\title{Blueberry LLM Technical Report: Train An LLM On A Single Consumer GPU}
 
 \author{
     Vuk Rosić\textsuperscript{1,2}, [To Be Determined] \\
@@ -28,12 +28,14 @@
 \maketitle
 
 \begin{abstract}
-This paper presents a comprehensive comparative analysis of DeepSeek attention mechanisms and normalization techniques in transformer-based language models. We conduct three distinct experiments to evaluate the effectiveness of DeepSeek components: (1) Enhanced attention mechanisms with LoRA, RoPE scaling, and attention bias, (2) Fair architecture search with fixed model sizes, and (3) RMSNorm comparison between baseline and DeepSeek implementations. Our experiments demonstrate that DeepSeek's enhanced attention mechanisms provide significant performance improvements, with the enhanced configuration achieving 2.2\% better validation loss, 3.8\% better accuracy, and 7.3\% better perplexity compared to baseline models. The architecture search reveals that RoPE scaling is the most effective attention enhancement, while DeepSeek RMSNorm shows 2.4\% improvement over baseline RMSNorm with faster training. These findings provide valuable insights for optimizing transformer architectures and suggest that DeepSeek's innovations offer meaningful performance gains with reasonable computational overhead.
+This technical report presents the Blueberry LLM, a mixture of experts (MoE) language model that integrates DeepSeek attention mechanisms and normalization techniques. We conduct three comprehensive experiments to evaluate the effectiveness of DeepSeek components within our MoE architecture: (1) Enhanced attention mechanisms with LoRA, RoPE scaling, and attention bias in a 512d, 6L, 8H, 2048ff MoE model with 8 experts, (2) Fair architecture search with fixed model sizes to isolate attention component effects, and (3) RMSNorm comparison between baseline and DeepSeek implementations. Our experiments demonstrate that DeepSeek's enhanced attention mechanisms provide significant performance improvements in the MoE context, with the enhanced configuration achieving 2.2\% better validation loss, 3.8\% better accuracy, and 7.3\% better perplexity compared to baseline MoE models. The architecture search reveals that RoPE scaling is the most effective attention enhancement for MoE architectures, while DeepSeek RMSNorm shows 2.4\% improvement over baseline RMSNorm with faster training. These findings provide valuable insights for optimizing MoE transformer architectures and demonstrate the successful integration of DeepSeek innovations into the Blueberry LLM framework.
 \end{abstract}
 
 \section{Introduction}
 
-Transformer-based language models have revolutionized natural language processing, with attention mechanisms being a cornerstone of their success. Recent advances in attention mechanisms, particularly those introduced by DeepSeek, have shown promising improvements in model performance and efficiency. This paper presents a systematic evaluation of DeepSeek's attention mechanisms and normalization techniques through three carefully designed experiments.
+The Blueberry LLM represents our approach to building an efficient mixture of experts (MoE) language model that leverages cutting-edge attention mechanisms and normalization techniques. Mixture of experts architectures have gained significant attention for their ability to scale model capacity while maintaining computational efficiency through sparse activation patterns. This technical report presents our systematic evaluation of DeepSeek's attention mechanisms and normalization techniques within the Blueberry LLM MoE framework through three carefully designed experiments.
+
+Our Blueberry LLM architecture combines the efficiency benefits of MoE with the performance improvements offered by DeepSeek's innovative components. The model employs a top-2 routing strategy across 8 experts, allowing for specialized processing while maintaining computational tractability.
 
 DeepSeek has introduced several innovative components that enhance traditional transformer architectures:
 \begin{itemize}
@@ -43,48 +45,49 @@ DeepSeek has introduced several innovative components that enhance traditional t
     \item \textbf{DeepSeek RMSNorm}: Enhanced root mean square layer normalization
 \end{itemize}
 
-Our research objectives are to:
+Our research objectives for the Blueberry LLM are to:
 \begin{enumerate}
-    \item Evaluate the effectiveness of DeepSeek attention mechanisms compared to standard multi-head attention
-    \item Conduct a fair architecture search to isolate the impact of different attention components
-    \item Compare DeepSeek RMSNorm with standard RMSNorm implementations
-    \item Provide quantitative analysis of performance, efficiency, and parameter usage
+    \item Evaluate the effectiveness of DeepSeek attention mechanisms within MoE architectures compared to standard multi-head attention
+    \item Conduct a fair architecture search to isolate the impact of different attention components in MoE models
+    \item Compare DeepSeek RMSNorm with standard RMSNorm implementations in the MoE context
+    \item Provide quantitative analysis of performance, efficiency, and parameter usage for MoE models with DeepSeek components
+    \item Demonstrate the successful integration of DeepSeek innovations into the Blueberry LLM framework
 \end{enumerate}
 
 \section{Related Work}
 
 Recent work in transformer optimization has focused on improving attention mechanisms and normalization techniques. LoRA (Low-Rank Adaptation) has emerged as an effective method for parameter-efficient fine-tuning \cite{hu2021lora}. RoPE (Rotary Position Embedding) has shown significant improvements in handling positional information \cite{su2021roformer}. RMSNorm has been proposed as an alternative to LayerNorm, offering computational efficiency while maintaining performance \cite{zhang2019root}.
 
-DeepSeek's contributions build upon these foundations while introducing novel enhancements that warrant systematic evaluation.
+DeepSeek's contributions build upon these foundations while introducing novel enhancements that warrant systematic evaluation within MoE architectures. The Blueberry LLM represents our effort to integrate these innovations into a practical MoE framework.
 
 \section{Methodology}
 
-We conduct three distinct experiments to evaluate DeepSeek components comprehensively:
+We conduct three distinct experiments to evaluate DeepSeek components within the Blueberry LLM MoE framework:
 
 \subsection{Experiment 1: Enhanced Attention Mechanisms}
 
-\textbf{Objective}: Compare pure baseline MoE model vs. DeepSeek attention mechanisms with extended training.
+\textbf{Objective}: Compare pure baseline Blueberry LLM MoE model vs. DeepSeek attention mechanisms with extended training.
 
 \textbf{Setup}:
 \begin{itemize}
-    \item Model Architecture: 512d, 6L, 8H, 2048ff, 8 experts (top-2 routing)
+    \item Blueberry LLM Architecture: 512d, 6L, 8H, 2048ff, 8 experts (top-2 routing)
     \item Training: 1000 steps, batch size 32, 2M tokens
     \item Hardware: NVIDIA RTX 4090 (25.3 GB VRAM)
     \item Configurations:
     \begin{itemize}
-        \item \textbf{Pure Baseline}: Standard multi-head attention
-        \item \textbf{LoRA}: DeepSeek attention with LoRA-style Q/K/V projections (rank 64/128)
-        \item \textbf{Enhanced}: LoRA + separate head dimensions + RoPE scaling + attention bias
+        \item \textbf{Pure Baseline}: Blueberry LLM with standard multi-head attention
+        \item \textbf{LoRA}: Blueberry LLM with DeepSeek attention and LoRA-style Q/K/V projections (rank 64/128)
+        \item \textbf{Enhanced}: Blueberry LLM with LoRA + separate head dimensions + RoPE scaling + attention bias
     \end{itemize}
 \end{itemize}
 
 \subsection{Experiment 2: Fair Architecture Search}
 
-\textbf{Objective}: Perform fair architecture search by keeping model size constant and testing different attention mechanisms.
+\textbf{Objective}: Perform fair architecture search by keeping Blueberry LLM model size constant and testing different attention mechanisms.
 
 \textbf{Setup}:
 \begin{itemize}
-    \item Model Size: 512d, 8L, 8H, 2048ff (constant across all configurations)
+    \item Blueberry LLM Size: 512d, 8L, 8H, 2048ff (constant across all configurations)
     \item Training: 50 steps (fast mode), batch size 16
     \item 13 configurations tested, including baseline, LoRA variants, enhanced variants, RoPE-only, and bias-only
     \item Parameters: ~162-178M (varies slightly due to attention mechanism overhead)
@@ -92,16 +95,16 @@ We conduct three distinct experiments to evaluate DeepSeek components comprehens
 
 \subsection{Experiment 3: RMSNorm Comparison}
 
-\textbf{Objective}: Minimal experiment comparing baseline RMSNorm vs. DeepSeek RMSNorm.
+\textbf{Objective}: Minimal experiment comparing baseline RMSNorm vs. DeepSeek RMSNorm in Blueberry LLM.
 
 \textbf{Setup}:
 \begin{itemize}
-    \item Model: Small transformer (256d, 3L, 4H)
+    \item Blueberry LLM: Small transformer (256d, 3L, 4H)
     \item Training: 1000 steps, 100K tokens, 1K documents
     \item Configurations:
     \begin{itemize}
-        \item \textbf{Baseline}: Standard PyTorch RMSNorm
-        \item \textbf{DeepSeek}: DeepseekV3RMSNorm with eps=1e-6
+        \item \textbf{Baseline}: Blueberry LLM with standard PyTorch RMSNorm
+        \item \textbf{DeepSeek}: Blueberry LLM with DeepseekV3RMSNorm (eps=1e-6)
     \end{itemize}
 \end{itemize}
 
@@ -109,11 +112,11 @@ We conduct three distinct experiments to evaluate DeepSeek components comprehens
 
 \subsection{Experiment 1: Enhanced Attention Mechanisms}
 
-Table \ref{tab:exp1_results} shows the results of the enhanced attention mechanisms experiment with 10x longer training.
+Table \ref{tab:exp1_results} shows the results of the enhanced attention mechanisms experiment in Blueberry LLM with 10x longer training.
 
 \begin{table}[H]
 \centering
-\caption{Experiment 1 Results: Enhanced Attention Mechanisms (1000 steps)}
+\caption{Experiment 1 Results: Blueberry LLM Enhanced Attention Mechanisms (1000 steps)}
 \label{tab:exp1_results}
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
@@ -137,28 +140,28 @@ Enhanced & 3.3802 & 0.3839 & 29.38 & 4.13 & 18.92 & 129.80 \\
 
 \subsection{Experiment 2: Fair Architecture Search}
 
-Table \ref{tab:exp2_results} shows the top 5 configurations from the fair architecture search.
+Table \ref{tab:exp2_results} shows the top 5 configurations from the Blueberry LLM fair architecture search.
 
 \begin{table}[H]
 \centering
-\caption{Experiment 2 Results: Top 5 Configurations (Fair Architecture Search)}
+\caption{Experiment 2 Results: Blueberry LLM Top 5 Configurations (Fair Architecture Search)}
 \label{tab:exp2_results}
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
 Configuration & Val Loss & Val Acc & Time (min) & Memory (GB) & Params (M) & Rank \\
 \midrule
-medium\_rope\_small & 7.7571 & 0.1022 & 0.4 & 15.2 & 162.6 & 1 \\
-medium\_enhanced\_medium & 7.7807 & 0.0999 & 0.4 & 15.7 & 164.7 & 2 \\
-medium\_rope\_only & 7.7881 & 0.0993 & 0.4 & 15.6 & 165.6 & 3 \\
-medium\_lora\_small & 7.7888 & 0.1010 & 0.4 & 15.4 & 162.6 & 4 \\
-medium\_bias\_only & 7.7914 & 0.1042 & 0.4 & 15.4 & 164.4 & 5 \\
+medium\textunderscore rope\textunderscore small & 7.7571 & 0.1022 & 0.4 & 15.2 & 162.6 & 1 \\
+medium\textunderscore enhanced\textunderscore medium & 7.7807 & 0.0999 & 0.4 & 15.7 & 164.7 & 2 \\
+medium\textunderscore rope\textunderscore only & 7.7881 & 0.0993 & 0.4 & 15.6 & 165.6 & 3 \\
+medium\textunderscore lora\textunderscore small & 7.7888 & 0.1010 & 0.4 & 15.4 & 162.6 & 4 \\
+medium\textunderscore bias\textunderscore only & 7.7914 & 0.1042 & 0.4 & 15.4 & 164.4 & 5 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Key Findings}:
 \begin{itemize}
-    \item \textbf{RoPE scaling is the winner}: `medium_rope_small` achieved the lowest validation loss (7.7571)
+    \item \textbf{RoPE scaling is the winner}: \texttt{medium\_rope\_small} achieved the lowest validation loss (7.7571)
     \item \textbf{Consistent RoPE performance}: RoPE variants (small, only, large) all performed well
     \item \textbf{LoRA diminishing returns}: Larger LoRA ranks didn't improve performance
     \item \textbf{Surprising bias effectiveness}: Bias-only configuration achieved good results (rank 5)
@@ -167,18 +170,18 @@ medium\_bias\_only & 7.7914 & 0.1042 & 0.4 & 15.4 & 164.4 & 5 \\
 
 \subsection{Experiment 3: RMSNorm Comparison}
 
-Table \ref{tab:exp3_results} shows the RMSNorm comparison results.
+Table \ref{tab:exp3_results} shows the Blueberry LLM RMSNorm comparison results.
 
 \begin{table}[H]
 \centering
-\caption{Experiment 3 Results: RMSNorm Comparison (1000 steps)}
+\caption{Experiment 3 Results: Blueberry LLM RMSNorm Comparison (1000 steps)}
 \label{tab:exp3_results}
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
 Model & Val Loss & Val Acc & Val Perp & Time (min) & Params (M) & Improvement \\
 \midrule
-Baseline RMSNorm & 2.0551 & 58.74\% & 7.81 & 1.21 & 25.96 & - \\
-DeepSeek RMSNorm & 2.0058 & 59.20\% & 7.43 & 1.18 & 25.96 & 2.40\% \\
+Blueberry LLM (Baseline RMSNorm) & 2.0551 & 58.74\% & 7.81 & 1.21 & 25.96 & - \\
+Blueberry LLM (DeepSeek RMSNorm) & 2.0058 & 59.20\% & 7.43 & 1.18 & 25.96 & 2.40\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -240,35 +243,35 @@ The experiments demonstrate statistically significant improvements:
 
 \section{Conclusion}
 
-This comprehensive evaluation of DeepSeek components reveals several important findings:
+This comprehensive evaluation of DeepSeek components within the Blueberry LLM MoE framework reveals several important findings:
 
 \subsection{Key Contributions}
 
 \begin{enumerate}
-    \item \textbf{Enhanced attention mechanisms provide meaningful improvements}: The combination of LoRA, RoPE scaling, and attention bias achieves 2.2\% better validation loss, 3.8\% better accuracy, and 7.3\% better perplexity compared to baseline models.
+    \item \textbf{Enhanced attention mechanisms provide meaningful improvements in Blueberry LLM}: The combination of LoRA, RoPE scaling, and attention bias achieves 2.2\% better validation loss, 3.8\% better accuracy, and 7.3\% better perplexity compared to baseline MoE models.
     
-    \item \textbf{RoPE scaling is the most effective attention enhancement}: In fair architecture search, RoPE variants consistently outperform other attention mechanisms, with `medium_rope_small` achieving the best overall performance.
+    \item \textbf{RoPE scaling is the most effective attention enhancement for Blueberry LLM}: In fair architecture search, RoPE variants consistently outperform other attention mechanisms, with \texttt{medium\_rope\_small} achieving the best overall performance.
     
-    \item \textbf{DeepSeek RMSNorm offers consistent improvements}: DeepSeek RMSNorm provides 2.4\% better performance with faster training and identical parameter counts compared to baseline RMSNorm.
+    \item \textbf{DeepSeek RMSNorm offers consistent improvements in Blueberry LLM}: DeepSeek RMSNorm provides 2.4\% better performance with faster training and identical parameter counts compared to baseline RMSNorm.
     
-    \item \textbf{Simple approaches often work best}: RoPE-only and bias-only configurations outperform complex combinations, suggesting that simpler, well-designed components are more effective than over-engineered solutions.
+    \item \textbf{Simple approaches often work best in Blueberry LLM}: RoPE-only and bias-only configurations outperform complex combinations, suggesting that simpler, well-designed components are more effective than over-engineered solutions in MoE architectures.
 \end{enumerate}
 
 \subsection{Practical Implications}
 
 \begin{itemize}
-    \item \textbf{For production systems}: Use enhanced configuration for best performance with reasonable overhead, or RoPE-only for efficiency
-    \item \textbf{For research}: Focus on RoPE scaling and attention bias as the most promising directions
-    \item \textbf{For optimization}: DeepSeek RMSNorm should be preferred over standard RMSNorm implementations
+    \item \textbf{For Blueberry LLM production systems}: Use enhanced configuration for best performance with reasonable overhead, or RoPE-only for efficiency
+    \item \textbf{For MoE research}: Focus on RoPE scaling and attention bias as the most promising directions
+    \item \textbf{For Blueberry LLM optimization}: DeepSeek RMSNorm should be preferred over standard RMSNorm implementations
 \end{itemize}
 
 \subsection{Future Work}
 
 \begin{itemize}
-    \item Investigate the interaction between RoPE scaling and different model sizes
-    \item Explore the effectiveness of DeepSeek components on larger-scale models
-    \item Analyze the impact of different training durations on component effectiveness
-    \item Study the generalization of these findings across different tasks and domains
+    \item Investigate the interaction between RoPE scaling and different Blueberry LLM model sizes
+    \item Explore the effectiveness of DeepSeek components on larger-scale Blueberry LLM models
+    \item Analyze the impact of different training durations on component effectiveness in MoE architectures
+    \item Study the generalization of these findings across different tasks and domains for Blueberry LLM
 \end{itemize}
 
 \section*{Acknowledgments}
