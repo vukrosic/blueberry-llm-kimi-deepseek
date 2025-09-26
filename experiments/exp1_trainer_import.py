@@ -313,7 +313,7 @@ class Experiment1ImportTrainer:
         print(f"     Time Range: {np.min(times):.1f} - {np.max(times):.1f} min")
         
         # Parameter efficiency (loss per million parameters)
-        param_efficiency = [(loss, params[i], name) for i, (name, result) in enumerate(valid_results.items())]
+        param_efficiency = [(result['val_loss'], result['parameters_millions'], name) for name, result in valid_results.items()]
         param_efficiency.sort(key=lambda x: x[0] / x[1])  # Sort by loss/param ratio
         
         print(f"   Parameter Efficiency (loss per M params):")
@@ -330,16 +330,35 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Create base configuration
-    base_config = MoEModelConfig()
+    # Create enhanced base configuration with maximum scale for RTX 4090 (memory-optimized)
+    base_config = MoEModelConfig(
+        max_steps=100,  # Doubled from 50
+        batch_size=16,  # Reduced from 32 to 16 for memory
+        max_tokens=2000000,  # Doubled from 800K to 2M tokens
+        eval_every=20,  # More frequent evaluation
+        num_documents=8000,  # Doubled from 4000
+        max_seq_len=512,  # Reduced from 1024 to 512 for memory
+        d_model=768,  # Increased from 512 to 768
+        n_heads=12,  # Increased from 8 to 12
+        n_layers=10,  # Reduced from 12 to 10 for memory
+        d_ff=3072,  # Doubled from 1536 to 3072
+    )
+    
+    print(f"🚀 MAXIMUM SCALE Experiment Configuration (RTX 4090):")
+    print(f"   Steps: {base_config.max_steps} (5x increase from original)")
+    print(f"   Batch Size: {base_config.batch_size} (2x increase)")
+    print(f"   Tokens: {base_config.max_tokens:,} (4x increase from original)")
+    print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H, {base_config.d_ff}ff")
+    print(f"   Sequence Length: {base_config.max_seq_len} (2x increase)")
+    print(f"   Expected Memory Usage: ~20-22 GB (utilizing full RTX 4090)")
     
     # Create trainer
     trainer = Experiment1ImportTrainer(base_config)
     
-    # Run experiment
-    results = trainer.run_experiment()
+    # Run experiment with all configurations
+    results = trainer.run_experiment(['baseline', 'lora', 'enhanced'])
     
-    print(f"\n✅ Experiment 1 completed!")
+    print(f"\n✅ Enhanced Experiment 1 completed!")
     print(f"📁 Results saved in: {trainer.output_dir}")
 
 

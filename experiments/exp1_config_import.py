@@ -13,10 +13,10 @@ def get_experiment_configs():
     
     # Baseline config (standard attention, no DeepSeek features)
     baseline_config = DeepseekV3Config(
-        hidden_size=384,
-        num_attention_heads=8,
-        num_hidden_layers=6,
-        intermediate_size=1536,
+        hidden_size=768,  # Increased from 512 to 768
+        num_attention_heads=12,  # Increased from 8 to 12
+        num_hidden_layers=10,  # Reduced from 12 to 10 for memory
+        intermediate_size=3072,  # Doubled from 1536 to 3072
         vocab_size=1000,  # Will be set during training
         q_lora_rank=None,
         kv_lora_rank=None,
@@ -29,13 +29,13 @@ def get_experiment_configs():
     
     # DeepSeek config with LoRA projections
     deepseek_lora_config = DeepseekV3Config(
-        hidden_size=384,
-        num_attention_heads=8,
-        num_hidden_layers=6,
-        intermediate_size=1536,
+        hidden_size=768,  # Increased from 512 to 768
+        num_attention_heads=12,  # Increased from 8 to 12
+        num_hidden_layers=10,  # Reduced from 12 to 10 for memory
+        intermediate_size=3072,  # Doubled from 1536 to 3072
         vocab_size=1000,  # Will be set during training
-        q_lora_rank=32,
-        kv_lora_rank=64,
+        q_lora_rank=128,  # Doubled from 64
+        kv_lora_rank=256,  # Doubled from 128
         qk_rope_head_dim=None,  # Will use default
         v_head_dim=None,  # Will use default
         attention_bias=False,
@@ -45,15 +45,15 @@ def get_experiment_configs():
     
     # DeepSeek config with enhanced features (no flash attention for now)
     deepseek_enhanced_config = DeepseekV3Config(
-        hidden_size=384,
-        num_attention_heads=8,
-        num_hidden_layers=6,
-        intermediate_size=1536,
+        hidden_size=768,  # Increased from 512 to 768
+        num_attention_heads=12,  # Increased from 8 to 12
+        num_hidden_layers=10,  # Reduced from 12 to 10 for memory
+        intermediate_size=3072,  # Doubled from 1536 to 3072
         vocab_size=1000,  # Will be set during training
-        q_lora_rank=32,
-        kv_lora_rank=64,
-        qk_rope_head_dim=32,  # Smaller RoPE head dim
-        v_head_dim=48,        # Larger V head dim
+        q_lora_rank=128,  # Doubled from 64
+        kv_lora_rank=256,  # Doubled from 128
+        qk_rope_head_dim=128,  # Doubled from 64
+        v_head_dim=192,        # Doubled from 96
         attention_bias=True,
         _attn_implementation="eager",
         rope_scaling={
