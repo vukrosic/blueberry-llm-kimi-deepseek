@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "val_loss": 2.0551387548446653,
+    "val_accuracy": 0.587353515625,
+    "val_perplexity": 7.807921184367882,
+    "model_name": "Baseline RMSNorm",
+    "training_time_minutes": 1.2143513202667235,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192
+  },
+  "deepseek": {
+    "val_loss": 2.0057520151138304,
+    "val_accuracy": 0.5919921875,
+    "val_perplexity": 7.431680531958681,
+    "model_name": "DeepSeek RMSNorm",
+    "training_time_minutes": 1.1805786609649658,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192
+  }
+}
