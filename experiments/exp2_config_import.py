@@ -1,8 +1,8 @@
 """
-Configuration for Experiment 2: Comprehensive Architecture Search
+Configuration for Experiment 2: Fair Architecture Search (Fixed Model Size)
 
-This configuration creates a wide variety of architecture configurations to test
-different combinations of model dimensions, attention mechanisms, and training parameters.
+This configuration creates attention mechanism configurations with fixed model size
+to test architectural differences in a fair comparison.
 """
 
 from typing import Dict, Any, List, Tuple
@@ -152,31 +152,19 @@ def get_architecture_search_configs():
 
 
 def get_training_configs():
-    """Get different training configurations for architecture search"""
+    """Get training configurations for fair architecture search"""
     
     return {
         "fast": {
             "max_steps": 50,
             "batch_size": 16,
             "eval_every": 10,
-            "description": "Fast iteration for bug checking"
-        },
-        "medium": {
-            "max_steps": 200,
-            "batch_size": 32,
-            "eval_every": 50,
-            "description": "Medium training for architecture comparison"
-        },
-        "thorough": {
-            "max_steps": 500,
-            "batch_size": 64,
-            "eval_every": 100,
-            "description": "Thorough training for final evaluation"
+            "description": "Fast training for architecture comparison"
         }
     }
 
 
-def create_moe_config_from_architecture(size_name: str, training_mode: str = "medium") -> MoEModelConfig:
+def create_moe_config_from_architecture(size_name: str, training_mode: str = "fast") -> MoEModelConfig:
     """Create MoE config with fixed model size for fair comparison"""
     
     # Fixed model size for all configurations (fair comparison)

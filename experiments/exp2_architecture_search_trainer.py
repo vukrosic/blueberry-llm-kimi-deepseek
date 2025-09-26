@@ -1,15 +1,13 @@
 """
-Experiment 2: Comprehensive Architecture Search with Fast Iteration
+Experiment 2: Fair Architecture Search (Fixed Model Size)
 
-This script performs a wide architecture search across different model sizes,
-attention mechanisms, and configurations with shorter training periods for
-rapid iteration and comprehensive comparison.
+This script performs a fair architecture search by keeping model size constant
+and testing different attention mechanisms to isolate architectural differences.
 
 Features:
-- 4 model sizes: tiny, small, medium, large
-- 9 attention mechanisms: baseline, lora variants, enhanced variants, rope_only, bias_only
-- 36 total configurations (4x9)
-- Fast training with 5-200 steps depending on mode
+- Fixed model size: 512d, 8L, 8H, 2048ff (fair comparison)
+- 13 attention mechanisms: baseline, lora variants, enhanced variants, rope variants, bias_only
+- Fast training with 50 steps for rapid comparison
 - Comprehensive metrics tracking
 - Single comprehensive visualization
 - Fair comparison with memory/time tracking
@@ -52,7 +50,7 @@ from models.moe_llm import MoEMinimalLLM
 
 
 class ArchitectureSearchTrainer:
-    """Comprehensive architecture search trainer with fast iteration"""
+    """Fair architecture search trainer with fixed model size"""
     
     def __init__(self, output_dir: str = "experiments/exp2_architecture_search_results"):
         self.output_dir = Path(output_dir)
@@ -374,7 +372,7 @@ class ArchitectureSearchTrainer:
     
     def run_architecture_search(self, training_mode: str = "fast", 
                               selected_configs: Optional[List[str]] = None) -> Dict[str, Any]:
-        """Run comprehensive architecture search"""
+        """Run fair architecture search with fixed model size"""
         
         print(f"\n🚀 Starting Architecture Search (Mode: {training_mode})")
         
@@ -606,7 +604,7 @@ class ArchitectureSearchTrainer:
 
 
 def main():
-    """Main function to run Architecture Search Experiment 2"""
+    """Main function to run Fair Architecture Search Experiment 2"""
     
     # Check system
     print(f"🔍 Device: {'CUDA' if torch.cuda.is_available() else 'CPU'}")
@@ -637,26 +635,12 @@ def main():
         print(f"   {mode}: {config['max_steps']} steps, batch size {config['batch_size']} - {config['description']}")
     
     # Run experiment
-    print(f"\n🚀 Starting Architecture Search Experiment 2")
+    print(f"\n🚀 Starting Fair Architecture Search Experiment 2")
     
-    # First run with 5 steps to check for bugs
-    print(f"\n🔧 Phase 1: Bug checking with 5 steps")
+    # Run fast training for all configurations
     results_fast = trainer.run_architecture_search("fast")
     
-    # Check for errors
-    errors = [name for name, result in results_fast.items() if "error" in result]
-    if errors:
-        print(f"❌ Found errors in {len(errors)} configurations: {errors}")
-        print("Please fix errors before proceeding to full experiment")
-        return
-    
-    print(f"✅ All configurations passed bug check!")
-    
-    # Run full experiment with medium training
-    print(f"\n🚀 Phase 2: Full architecture search")
-    results_medium = trainer.run_architecture_search("medium")
-    
-    print(f"\n✅ Architecture Search Experiment 2 completed!")
+    print(f"\n✅ Fair Architecture Search Experiment 2 completed!")
     print(f"📁 Results saved in: {trainer.output_dir}")
 
 
