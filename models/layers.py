@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .components import MixtureOfExperts
+from torchtune.modules import RotaryPositionalEmbeddings
 
 
 class Rotary(nn.Module):
@@ -11,33 +12,14 @@ class Rotary(nn.Module):
         self.max_seq_len = max_seq_len
         self.base = base
         
-        # Create RoPE frequencies
-        inv_freq = 1.0 / (base ** (torch.arange(0, dim, 2).float() / dim))
-        self.register_buffer("inv_freq", inv_freq, persistent=False)
+        # Use torchtune's RoPE for baseline
+        self.rope = RotaryPositionalEmbeddings(dim=dim, max_seq_len=max_seq_len, base=base)
 
     def forward(self, x_BTHD: torch.Tensor):
-        # x_BTHD shape: [B, T, H, D]
-        seq_len = x_BTHD.shape[-2]
-        device = x_BTHD.device
-        dtype = x_BTHD.dtype
-        
-        t = torch.arange(seq_len, device=device, dtype=self.inv_freq.dtype)
-        freqs = torch.outer(t, self.inv_freq)
-        emb = torch.cat((freqs, freqs), dim=-1)
-        cos = emb.cos().to(dtype)
-        sin = emb.sin().to(dtype)
-        
-        # Apply RoPE - ensure proper broadcasting
-        head_dim = x_BTHD.shape[-1]
-        half_dim = head_dim // 2
-        
-        # Ensure cos and sin have the right shape for broadcasting
-        cos = cos[..., :half_dim]
-        sin = sin[..., :half_dim]
-        
-        x1, x2 = x_BTHD[..., :half_dim], x_BTHD[..., half_dim:]
-        
-        return torch.cat((x1 * cos - x2 * sin, x1 * sin + x2 * cos), dim=-1)
+        # x_BTHD shape: [B, T, H, D] - need to convert to [B, T, H, D] for torchtune
+        # torchtune expects [batch, seq_len, num_heads, head_dim]
+        # Our input is already [B, T, H, D] which matches torchtune's expectation
+        return self.rope(x_BTHD)
 
 
 class MultiHeadAttention(nn.Module):
