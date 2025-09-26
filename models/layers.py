@@ -1,19 +1,15 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .components import MixtureOfExperts
 from torchtune.modules import RotaryPositionalEmbeddings
+from .components import MixtureOfExperts
+
 
 
 class Rotary(nn.Module):
-    def __init__(self, dim: int, max_seq_len: int, base: int = 10000):
+    def __init__(self, dim: int, max_seq_len: int):
         super().__init__()
-        self.dim = dim
-        self.max_seq_len = max_seq_len
-        self.base = base
-        
-        # Use torchtune's RoPE for baseline
-        self.rope = RotaryPositionalEmbeddings(dim=dim, max_seq_len=max_seq_len, base=base)
+        self.rope = RotaryPositionalEmbeddings(dim=dim, max_seq_len=max_seq_len, base=10000)
 
     def forward(self, x_BTHD: torch.Tensor):
         # x_BTHD shape: [B, T, H, D] - need to convert to [B, T, H, D] for torchtune
