@@ -1,0 +1,28 @@
+{
+  "pure_baseline": {
+    "val_loss": 6.663951635360718,
+    "val_accuracy": 0.156951904296875,
+    "val_perplexity": 783.6414921623848,
+    "training_time_minutes": 0.4490729252497355,
+    "avg_step_time_ms": 214.17659282684326,
+    "avg_forward_time_ms": 214.17659282684326,
+    "peak_step_memory_gb": 3.34461952,
+    "avg_step_memory_gb": 3.18520907776,
+    "initial_memory_gb": 0.0,
+    "peak_memory_gb": 15.96974848,
+    "final_memory_gb": 0.552727552,
+    "memory_used_gb": 15.96974848,
+    "experiment_name": "pure_baseline",
+    "uses_deepseek": false,
+    "parameter_count": 132151808,
+    "parameters_millions": 132.151808,
+    "flops_per_forward_gflops": 515.39607552,
+    "enhanced_batch_size": 32
+  },
+  "lora": {
+    "error": "CUDA out of memory. Tried to allocate 3.00 GiB. GPU 0 has a total capacity of 23.52 GiB of which 417.81 MiB is free. Including non-PyTorch memory, this process has 23.10 GiB memory in use. Of the allocated memory 22.06 GiB is allocated by PyTorch, and 592.95 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+  },
+  "enhanced": {
+    "error": "CUDA out of memory. Tried to allocate 1.50 GiB. GPU 0 has a total capacity of 23.52 GiB of which 455.81 MiB is free. Including non-PyTorch memory, this process has 23.06 GiB memory in use. Of the allocated memory 22.12 GiB is allocated by PyTorch, and 498.09 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+  }
+}

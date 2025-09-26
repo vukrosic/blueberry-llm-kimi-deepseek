@@ -351,14 +351,21 @@ class EnhancedExperiment1Trainer:
         }
     
     def _evaluate_model(self, model, val_loader):
-        """Evaluate model on validation set"""
+        """Evaluate model on validation set (limited to first 10 batches for speed)"""
         model.eval()
         total_loss = 0
         total_correct = 0
         total_tokens = 0
         
+        # Limit evaluation to first 10 batches for speed
+        max_eval_batches = 10
+        batch_count = 0
+        
         with torch.no_grad():
             for x, y in val_loader:
+                if batch_count >= max_eval_batches:
+                    break
+                    
                 x, y = x.to(next(model.parameters()).device), y.to(next(model.parameters()).device)
                 
                 if hasattr(model, 'forward') and 'return_aux_loss' in model.forward.__code__.co_varnames:
@@ -374,6 +381,8 @@ class EnhancedExperiment1Trainer:
                 predictions = logits.argmax(dim=-1)
                 total_correct += (predictions == y).sum().item()
                 total_tokens += y.numel()
+                
+                batch_count += 1
         
         model.train()
         
