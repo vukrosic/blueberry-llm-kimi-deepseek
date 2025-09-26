@@ -1,31 +1,34 @@
-# Experiment 3: Mamba State Space Model
+# Experiment 3: Advanced DeepSeek Attention Features
 
 ## Overview
 
-This experiment tests the **Mamba architecture** as an alternative to attention mechanisms in transformer models. Mamba uses Structured State Space Models (SSMs) to process sequences efficiently without relying on attention mechanisms.
+This experiment tests **advanced DeepSeek attention mechanisms** that weren't covered in experiments 1 and 2. Focuses on sophisticated attention configurations and features specific to DeepSeek V3.
 
 ## Key Features
 
-- **No Attention Mechanisms**: Uses state space models instead of self-attention
-- **Efficient Long Sequences**: Better computational complexity for long sequences
-- **MoE Integration**: Combines Mamba blocks with Mixture of Experts
-- **Multiple Configurations**: Tests different model sizes and architectures
+- **Q-LoRA and KV-LoRA**: Low-rank attention projections for efficiency
+- **Flash Attention 2**: Memory-efficient attention implementation
+- **Mixed Head Dimensions**: Different Q, K, V head sizes for specialized processing
+- **Advanced RoPE**: Enhanced rotary position embeddings with scaling
+- **Attention Bias**: Configurable bias in attention projections
+- **MoE Integration**: Advanced MoE patterns with attention features
 
 ## Architecture
 
-### Mamba SSM Block
-- **State Space Modeling**: Uses structured state space models for sequence processing
-- **Convolutional Processing**: 1D convolution for local dependencies
-- **Gating Mechanism**: Data-controlled gating for selective information flow
-- **Efficient Computation**: Linear complexity with respect to sequence length
+### Advanced DeepSeek Attention Features
+- **LoRA Projections**: Low-rank adaptation for query and key-value projections
+- **Flash Attention**: Memory-efficient attention computation
+- **Mixed Head Dimensions**: Specialized head sizes for different attention components
+- **RoPE Scaling**: Advanced rotary position embedding scaling
+- **Bias Configuration**: Optional bias in attention projections
 
 ### Model Variants
 
-1. **Mamba-Small**: 256d, 4L, 4H, 1024ff
-2. **Mamba-Medium**: 512d, 6L, 8H, 2048ff  
-3. **Mamba-Large**: 768d, 8L, 12H, 3072ff
-4. **Mamba-Wide**: 512d, 4L, 16H, 4096ff
-5. **Mamba-Deep**: 384d, 12L, 8H, 1536ff
+1. **DeepSeek-Q-LoRA**: Q-LoRA with KV-LoRA, attention bias enabled
+2. **DeepSeek-Flash-Attention**: Flash Attention 2 with KV-LoRA
+3. **DeepSeek-Mixed-Heads**: Mixed head dimensions with LoRA
+4. **DeepSeek-Advanced-RoPE**: Advanced RoPE scaling with LoRA
+5. **DeepSeek-Hybrid-LoRA**: Hybrid LoRA configuration with Flash Attention
 
 ## Files
 
@@ -43,23 +46,25 @@ python exp3_mamba_trainer.py
 ## Expected Results
 
 The experiment will test:
-- Training efficiency compared to attention-based models
-- Memory usage patterns
-- Convergence speed
-- Final model performance
-- Scalability with different model sizes
+- Advanced attention feature effectiveness
+- LoRA projection efficiency
+- Flash Attention performance benefits
+- Mixed head dimension impact
+- RoPE scaling improvements
+- Memory and computational efficiency
 
-## Key Differences from Attention
+## Key Advanced Features
 
-1. **Computational Complexity**: O(L) vs O(L²) for sequence length L
-2. **Memory Usage**: More efficient for long sequences
-3. **Parallelization**: Different parallelization patterns
-4. **Information Flow**: State-based vs attention-based information flow
+1. **LoRA Projections**: Low-rank adaptation for efficient attention
+2. **Flash Attention**: Memory-efficient attention computation
+3. **Mixed Head Dimensions**: Specialized processing for different components
+4. **Advanced RoPE**: Enhanced position encoding with scaling
+5. **Attention Bias**: Configurable bias for projection layers
 
 ## Comparison with Previous Experiments
 
-- **Exp1**: DeepSeek attention mechanisms
+- **Exp1**: Basic DeepSeek attention mechanisms
 - **Exp2**: Architecture search with attention variants
-- **Exp3**: Mamba SSM without attention (this experiment)
+- **Exp3**: Advanced DeepSeek attention features (this experiment)
 
-This experiment provides a baseline for comparing attention-based and non-attention-based approaches in the same experimental setup.
+This experiment explores the most sophisticated attention features available in DeepSeek V3, providing insights into advanced attention mechanisms.

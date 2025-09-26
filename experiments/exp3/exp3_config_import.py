@@ -1,90 +1,103 @@
 """
-Experiment 3: Mamba Configuration Import
+Experiment 3: Advanced DeepSeek Configuration Import
 
-Configuration management for Mamba State Space Model experiment.
-Defines different Mamba configurations and training parameters.
+Configuration management for Advanced DeepSeek attention features experiment.
+Defines different DeepSeek attention configurations with advanced features.
 """
 
 from typing import Dict, Any, List
 from configs.moe_config import MoEModelConfig
 
 
-def get_mamba_configs() -> List[Dict[str, Any]]:
-    """Get different Mamba configurations to test"""
+def get_advanced_deepseek_configs() -> List[Dict[str, Any]]:
+    """Get different Advanced DeepSeek configurations to test"""
     return [
         {
-            'name': 'Mamba-Small',
-            'params': {
-                'd_model': 256,
-                'n_layers': 4,
-                'd_ff': 1024,
-                'num_experts': 4,
-                'top_k': 2,
-                'd_state': 16,
-                'd_conv': 4,
-                'expand': 2
-            }
-        },
-        {
-            'name': 'Mamba-Medium',
+            'name': 'DeepSeek-Q-LoRA',
             'params': {
                 'd_model': 512,
                 'n_layers': 6,
                 'd_ff': 2048,
                 'num_experts': 8,
                 'top_k': 2,
-                'd_state': 16,
-                'd_conv': 4,
-                'expand': 2
+                'q_lora_rank': 64,
+                'kv_lora_rank': 32,
+                'attention_bias': True,
+                'attn_implementation': 'eager'
             }
         },
         {
-            'name': 'Mamba-Large',
-            'params': {
-                'd_model': 768,
-                'n_layers': 8,
-                'd_ff': 3072,
-                'num_experts': 12,
-                'top_k': 2,
-                'd_state': 16,
-                'd_conv': 4,
-                'expand': 2
-            }
-        },
-        {
-            'name': 'Mamba-Wide',
+            'name': 'DeepSeek-Flash-Attention',
             'params': {
                 'd_model': 512,
-                'n_layers': 4,
-                'd_ff': 4096,
-                'num_experts': 16,
+                'n_layers': 6,
+                'd_ff': 2048,
+                'num_experts': 8,
                 'top_k': 2,
-                'd_state': 32,
-                'd_conv': 8,
-                'expand': 4
+                'q_lora_rank': None,
+                'kv_lora_rank': 64,
+                'attention_bias': False,
+                'attn_implementation': 'flash_attention_2'
             }
         },
         {
-            'name': 'Mamba-Deep',
+            'name': 'DeepSeek-Mixed-Heads',
             'params': {
-                'd_model': 384,
-                'n_layers': 12,
-                'd_ff': 1536,
+                'd_model': 512,
+                'n_layers': 6,
+                'd_ff': 2048,
                 'num_experts': 8,
                 'top_k': 2,
-                'd_state': 16,
-                'd_conv': 4,
-                'expand': 2
+                'q_lora_rank': 32,
+                'kv_lora_rank': 48,
+                'v_head_dim': 64,
+                'qk_rope_head_dim': 32,
+                'qk_nope_head_dim': 16,
+                'attention_bias': True,
+                'attn_implementation': 'eager'
+            }
+        },
+        {
+            'name': 'DeepSeek-Advanced-RoPE',
+            'params': {
+                'd_model': 512,
+                'n_layers': 6,
+                'd_ff': 2048,
+                'num_experts': 8,
+                'top_k': 2,
+                'q_lora_rank': 48,
+                'kv_lora_rank': 64,
+                'rope_theta': 50000.0,
+                'rope_scaling': {'type': 'linear', 'factor': 2.0},
+                'attention_bias': False,
+                'attn_implementation': 'eager'
+            }
+        },
+        {
+            'name': 'DeepSeek-Hybrid-LoRA',
+            'params': {
+                'd_model': 512,
+                'n_layers': 6,
+                'd_ff': 2048,
+                'num_experts': 8,
+                'top_k': 2,
+                'q_lora_rank': 32,
+                'kv_lora_rank': 32,
+                'v_head_dim': 48,
+                'qk_rope_head_dim': 40,
+                'qk_nope_head_dim': 8,
+                'attention_bias': True,
+                'attn_implementation': 'flash_attention_2'
             }
         }
     ]
 
 
 def get_training_configs() -> List[Dict[str, Any]]:
-    """Get training configurations for each Mamba model"""
+    """Get training configurations for each DeepSeek model"""
     return [
         {
-            'batch_size': 8,
+            'batch_size': 4,
             'learning_rate': 1e-4,
             'weight_decay': 0.01,
             'num_epochs': 5
@@ -96,7 +109,7 @@ def get_training_configs() -> List[Dict[str, Any]]:
             'num_epochs': 5
         },
         {
-            'batch_size': 2,
+            'batch_size': 4,
             'learning_rate': 2e-5,
             'weight_decay': 0.01,
             'num_epochs': 5
@@ -108,7 +121,7 @@ def get_training_configs() -> List[Dict[str, Any]]:
             'num_epochs': 5
         },
         {
-            'batch_size': 6,
+            'batch_size': 4,
             'learning_rate': 8e-5,
             'weight_decay': 0.01,
             'num_epochs': 5
@@ -116,9 +129,9 @@ def get_training_configs() -> List[Dict[str, Any]]:
     ]
 
 
-def create_moe_config_from_mamba(mamba_config: Dict[str, Any]) -> MoEModelConfig:
-    """Create MoE config from Mamba configuration"""
-    params = mamba_config['params']
+def create_moe_config_from_deepseek(deepseek_config: Dict[str, Any]) -> MoEModelConfig:
+    """Create MoE config from DeepSeek configuration"""
+    params = deepseek_config['params']
     
     return MoEModelConfig(
         vocab_size=1000,
@@ -129,10 +142,16 @@ def create_moe_config_from_mamba(mamba_config: Dict[str, Any]) -> MoEModelConfig
         top_k=params['top_k'],
         max_seq_len=512,
         dropout=0.1,
-        # Mamba-specific parameters
-        d_state=params.get('d_state', 16),
-        d_conv=params.get('d_conv', 4),
-        expand=params.get('expand', 2)
+        # DeepSeek-specific parameters
+        q_lora_rank=params.get('q_lora_rank'),
+        kv_lora_rank=params.get('kv_lora_rank'),
+        v_head_dim=params.get('v_head_dim'),
+        qk_rope_head_dim=params.get('qk_rope_head_dim'),
+        qk_nope_head_dim=params.get('qk_nope_head_dim'),
+        attention_bias=params.get('attention_bias', False),
+        attn_implementation=params.get('attn_implementation', 'eager'),
+        rope_theta=params.get('rope_theta', 10000.0),
+        rope_scaling=params.get('rope_scaling')
     )
 
 

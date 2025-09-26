@@ -1,16 +1,16 @@
 """
-Experiment 3: Mamba State Space Model (No Attention)
+Experiment 3: Advanced DeepSeek Attention Features
 
-This experiment tests the Mamba architecture as an alternative to attention mechanisms.
-Mamba uses Structured State Space Models (SSMs) to process sequences efficiently
-without relying on attention mechanisms.
+This experiment tests advanced DeepSeek attention mechanisms that weren't covered
+in experiments 1 and 2. Focuses on sophisticated attention configurations.
 
 Features:
-- Mamba SSM blocks instead of attention
-- State space modeling for sequence processing
-- Efficient long sequence handling
-- Comparison with attention-based models
-- MoE integration with Mamba blocks
+- Q-LoRA and KV-LoRA attention projections
+- Advanced RoPE scaling and head dimension variants
+- Flash Attention 2 implementation
+- Mixed head dimensions (different Q, K, V sizes)
+- Attention bias configurations
+- Advanced MoE integration patterns
 """
 
 import torch
@@ -40,245 +40,43 @@ from data.dataset import TextTokenDataset
 from training.trainer import train_moe_model
 from utils.helpers import set_seed
 from experiments.exp3.exp3_config_import import (
-    get_mamba_configs, 
+    get_advanced_deepseek_configs, 
     get_training_configs,
-    create_moe_config_from_mamba,
+    create_moe_config_from_deepseek,
     create_config_from_moe_config
 )
+from experiments.exp1.exp1_deepseek_import import DeepSeekMoEModel
 from models.moe_llm import MoEMinimalLLM
 
 
-class MambaSSM(nn.Module):
-    """
-    Simplified Mamba State Space Model block
-    This is a basic implementation for experimentation
-    """
-    def __init__(self, d_model: int, d_state: int = 16, d_conv: int = 4, expand: int = 2):
-        super().__init__()
-        self.d_model = d_model
-        self.d_state = d_state
-        self.d_conv = d_conv
-        self.d_inner = int(expand * d_model)
-        
-        # Input projection
-        self.in_proj = nn.Linear(d_model, self.d_inner * 2, bias=False)
-        
-        # Convolution
-        self.conv1d = nn.Conv1d(
-            in_channels=self.d_inner,
-            out_channels=self.d_inner,
-            kernel_size=d_conv,
-            bias=True,
-            groups=self.d_inner,
-            padding=d_conv - 1,
-        )
-        
-        # State space parameters
-        self.x_proj = nn.Linear(self.d_inner, d_state * 2, bias=False)
-        self.dt_proj = nn.Linear(self.d_inner, d_state, bias=True)
-        
-        # State space matrices (simplified)
-        A = torch.arange(1, d_state + 1, dtype=torch.float32).repeat(self.d_inner, 1)
-        self.A_log = nn.Parameter(torch.log(A))
-        self.D = nn.Parameter(torch.ones(self.d_inner))
-        
-        # Output projection
-        self.out_proj = nn.Linear(self.d_inner, d_model, bias=False)
-        
-    def forward(self, x):
-        """
-        x: (B, L, D)
-        """
-        B, L, D = x.shape
-        
-        # Input projection
-        xz = self.in_proj(x)  # (B, L, 2*d_inner)
-        x, z = xz.chunk(2, dim=-1)  # (B, L, d_inner)
-        
-        # Convolution
-        x = x.transpose(1, 2)  # (B, d_inner, L)
-        x = self.conv1d(x)[:, :, :L]  # (B, d_inner, L)
-        x = x.transpose(1, 2)  # (B, L, d_inner)
-        
-        # State space parameters
-        x_dbl = self.x_proj(x)  # (B, L, 2*d_state)
-        delta, B_param = x_dbl.chunk(2, dim=-1)  # (B, L, d_state)
-        delta = F.softplus(self.dt_proj(x))  # (B, L, d_state)
-        
-        # Simplified state space computation
-        A = -torch.exp(self.A_log.float())  # (d_inner, d_state)
-        
-        # Discretization (simplified)
-        deltaA = torch.exp(delta.unsqueeze(-1) * A.unsqueeze(0).unsqueeze(0))  # (B, L, d_inner, d_state)
-        deltaB_u = delta.unsqueeze(-1) * B_param.unsqueeze(-2) * x.unsqueeze(-1)  # (B, L, d_inner, d_state)
-        
-        # State space recurrence (simplified)
-        y = torch.zeros_like(x)  # (B, L, d_inner)
-        for i in range(L):
-            if i == 0:
-                y[:, i] = deltaB_u[:, i].sum(-1)
-            else:
-                y[:, i] = (deltaA[:, i] * y[:, i-1].unsqueeze(-1)).sum(-1) + deltaB_u[:, i].sum(-1)
-        
-        # Gating
-        y = y * F.silu(z)
-        
-        # Output projection
-        output = self.out_proj(y)
-        return output
+# Import MixtureOfExperts from the correct location
+from models.layers import MixtureOfExperts
 
 
-class MambaMoEBlock(nn.Module):
-    """Mamba block with MoE feed-forward"""
-    def __init__(
-        self,
-        d_model: int,
-        d_ff: int,
-        max_seq_len: int,
-        num_experts: int = 8,
-        top_k: int = 2,
-        dropout: float = 0.1,
-        d_state: int = 16,
-        d_conv: int = 4,
-        expand: int = 2
-    ):
-        super().__init__()
-        
-        # Mamba SSM layer
-        self.mamba = MambaSSM(d_model, d_state, d_conv, expand)
-        
-        # MoE layer
-        self.feed_forward = MixtureOfExperts(
-            d_model, d_ff, num_experts, top_k, dropout
-        )
-        
-        # Normalization layers
-        self.norm1 = nn.RMSNorm(d_model)
-        self.norm2 = nn.RMSNorm(d_model)
-        self.dropout = nn.Dropout(dropout)
-        
-    def forward(self, x):
-        # Mamba SSM
-        mamba_out = self.mamba(self.norm1(x))
-        x = x + self.dropout(mamba_out)
-        
-        # MoE feed-forward
-        ff_out, aux_loss = self.feed_forward(self.norm2(x))
-        x = x + self.dropout(ff_out)
-        return x, aux_loss
-
-
-class MambaMoEModel(nn.Module):
-    """Mamba-based MoE model without attention"""
-    def __init__(self, config: MoEModelConfig):
-        super().__init__()
-        self.config = config
-        
-        # Embedding layers
-        self.token_embedding = nn.Embedding(config.vocab_size, config.d_model)
-        self.position_embedding = nn.Embedding(config.max_seq_len, config.d_model)
-        
-        # Mamba MoE blocks
-        self.blocks = nn.ModuleList([
-            MambaMoEBlock(
-                d_model=config.d_model,
-                d_ff=config.d_ff,
-                max_seq_len=config.max_seq_len,
-                num_experts=config.num_experts,
-                top_k=config.top_k,
-                dropout=config.dropout,
-                d_state=getattr(config, 'd_state', 16),
-                d_conv=getattr(config, 'd_conv', 4),
-                expand=getattr(config, 'expand', 2)
-            )
-            for _ in range(config.n_layers)
-        ])
-        
-        # Output layers
-        self.norm = nn.RMSNorm(config.d_model)
-        self.lm_head = nn.Linear(config.d_model, config.vocab_size, bias=False)
-        
-        # Initialize weights
-        self.apply(self._init_weights)
-        
-    def _init_weights(self, module):
-        if isinstance(module, nn.Linear):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
-            if module.bias is not None:
-                torch.nn.init.zeros_(module.bias)
-        elif isinstance(module, nn.Embedding):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
-    
-    def forward(self, input_ids, labels=None):
-        batch_size, seq_len = input_ids.shape
-        device = input_ids.device
-        
-        # Create position ids
-        position_ids = torch.arange(seq_len, device=device).unsqueeze(0).expand(batch_size, -1)
-        
-        # Embeddings
-        token_embeds = self.token_embedding(input_ids)
-        position_embeds = self.position_embedding(position_ids)
-        x = token_embeds + position_embeds
-        
-        # Forward through Mamba blocks
-        total_aux_loss = 0.0
-        for block in self.blocks:
-            x, aux_loss = block(x)
-            total_aux_loss += aux_loss
-        
-        # Final normalization and output
-        x = self.norm(x)
-        logits = self.lm_head(x)
-        
-        loss = None
-        if labels is not None:
-            # Shift so that tokens < n predict n
-            shift_logits = logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-            # Flatten the tokens
-            loss_fct = nn.CrossEntropyLoss()
-            shift_logits = shift_logits.view(-1, self.config.vocab_size)
-            shift_labels = shift_labels.view(-1)
-            # Enable model parallelism
-            shift_labels = shift_labels.to(shift_logits.device)
-            loss = loss_fct(shift_logits, shift_labels)
-            
-            # Add auxiliary loss
-            if total_aux_loss > 0:
-                loss += 0.01 * total_aux_loss
-        
-        return {
-            'loss': loss,
-            'logits': logits,
-            'aux_loss': total_aux_loss
-        }
-
-
-def run_mamba_experiment():
-    """Run the Mamba experiment"""
-    print("🚀 Starting Experiment 3: Mamba State Space Model")
+def run_advanced_deepseek_experiment():
+    """Run the Advanced DeepSeek experiment"""
+    print("🚀 Starting Experiment 3: Advanced DeepSeek Attention Features")
     print("=" * 60)
     
     # Set random seed
     set_seed(42)
     
     # Get configurations
-    mamba_configs = get_mamba_configs()
+    deepseek_configs = get_advanced_deepseek_configs()
     training_configs = get_training_configs()
     
     results = []
     
-    for i, (mamba_config, training_config) in enumerate(zip(mamba_configs, training_configs)):
-        print(f"\n📊 Configuration {i+1}/{len(mamba_configs)}")
-        print(f"Model: {mamba_config['name']}")
-        print(f"Parameters: {mamba_config['params']}")
+    for i, (deepseek_config, training_config) in enumerate(zip(deepseek_configs, training_configs)):
+        print(f"\n📊 Configuration {i+1}/{len(deepseek_configs)}")
+        print(f"Model: {deepseek_config['name']}")
+        print(f"Parameters: {deepseek_config['params']}")
         
         # Create MoE config
-        moe_config = create_moe_config_from_mamba(mamba_config)
+        moe_config = create_moe_config_from_deepseek(deepseek_config)
         
         # Create model
-        model = MambaMoEModel(moe_config)
+        model = DeepSeekMoEModel(moe_config)
         
         # Count parameters
         total_params = sum(p.numel() for p in model.parameters())
@@ -406,14 +204,14 @@ def run_mamba_experiment():
         print(f"Final val loss: {val_losses[-1]:.4f}")
     
     # Save results
-    results_dir = Path("experiments/exp3/exp3_mamba_results")
+    results_dir = Path("experiments/exp3/exp3_advanced_deepseek_results")
     results_dir.mkdir(parents=True, exist_ok=True)
     
-    with open(results_dir / "mamba_experiment_results.json", "w") as f:
+    with open(results_dir / "advanced_deepseek_experiment_results.json", "w") as f:
         json.dump(results, f, indent=2)
     
     # Create visualization
-    create_mamba_visualization(results, results_dir)
+    create_advanced_deepseek_visualization(results, results_dir)
     
     print("\n🎉 Experiment 3 completed!")
     print(f"Results saved to: {results_dir}")
@@ -421,10 +219,10 @@ def run_mamba_experiment():
     return results
 
 
-def create_mamba_visualization(results, results_dir):
-    """Create visualization for Mamba experiment results"""
+def create_advanced_deepseek_visualization(results, results_dir):
+    """Create visualization for Advanced DeepSeek experiment results"""
     fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-    fig.suptitle('Experiment 3: Mamba State Space Model Results', fontsize=16, fontweight='bold')
+    fig.suptitle('Experiment 3: Advanced DeepSeek Attention Features Results', fontsize=16, fontweight='bold')
     
     # Extract data
     config_names = [r['config_name'] for r in results]
@@ -476,11 +274,11 @@ def create_mamba_visualization(results, results_dir):
     axes[1, 1].grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig(results_dir / "mamba_experiment_comprehensive.png", dpi=300, bbox_inches='tight')
+    plt.savefig(results_dir / "advanced_deepseek_experiment_comprehensive.png", dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"📊 Visualization saved to: {results_dir / 'mamba_experiment_comprehensive.png'}")
+    print(f"📊 Visualization saved to: {results_dir / 'advanced_deepseek_experiment_comprehensive.png'}")
 
 
 if __name__ == "__main__":
-    results = run_mamba_experiment()
+    results = run_advanced_deepseek_experiment()
