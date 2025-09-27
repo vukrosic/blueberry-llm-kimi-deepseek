@@ -179,8 +179,8 @@ class Exp7Trainer:
         
         return loss.item()
     
-    def print_sequences(self, input_ids, target_ids, logits, step, mode="train"):
-        """Print input, target, and predicted sequences for debugging"""
+    def print_token_predictions(self, input_ids, target_ids, logits, step, mode="train"):
+        """Print next token predictions for debugging"""
         if self.tokenizer is None:
             return
             
@@ -189,23 +189,27 @@ class Exp7Trainer:
         target_seq = target_ids[0].cpu().tolist()
         predicted_seq = logits[0].argmax(dim=-1).cpu().tolist()
         
-        # Decode sequences
-        input_text = self.tokenizer.decode(input_seq, skip_special_tokens=True)
-        target_text = self.tokenizer.decode(target_seq, skip_special_tokens=True)
-        predicted_text = self.tokenizer.decode(predicted_seq, skip_special_tokens=True)
+        print(f"\n🔍 {mode.upper()} TOKEN PREDICTIONS at step {step}:")
+        print(f"   Next token predictions (first 20):")
         
-        print(f"\n🔍 {mode.upper()} SEQUENCES at step {step}:")
-        print(f"   Input:     '{input_text[:100]}{'...' if len(input_text) > 100 else ''}'")
-        print(f"   Target:    '{target_text[:100]}{'...' if len(target_text) > 100 else ''}'")
-        print(f"   Predicted: '{predicted_text[:100]}{'...' if len(predicted_text) > 100 else ''}'")
-        
-        # Show token-level comparison for first 20 tokens
-        print(f"   Token comparison (first 20):")
+        # Show next token predictions
         for i in range(min(20, len(target_seq))):
-            target_token = self.tokenizer.decode([target_seq[i]], skip_special_tokens=True)
-            pred_token = self.tokenizer.decode([predicted_seq[i]], skip_special_tokens=True)
-            match = "✓" if target_seq[i] == predicted_seq[i] else "✗"
-            print(f"     {i:2d}: {match} Target='{target_token}' Pred='{pred_token}'")
+            # Get the input context (what the model sees)
+            context = input_seq[i:i+5]  # Show 5 tokens of context
+            context_text = self.tokenizer.decode(context, skip_special_tokens=True)
+            
+            # Get the correct next token
+            correct_token_id = target_seq[i]
+            correct_token = self.tokenizer.decode([correct_token_id], skip_special_tokens=True)
+            
+            # Get the predicted next token
+            predicted_token_id = predicted_seq[i]
+            predicted_token = self.tokenizer.decode([predicted_token_id], skip_special_tokens=True)
+            
+            # Check if prediction is correct
+            match = "✓" if correct_token_id == predicted_token_id else "✗"
+            
+            print(f"     {i:2d}: {match} Context='{context_text}' → Correct='{correct_token}' Pred='{predicted_token}'")
         print()
     
     def train(self):
@@ -228,16 +232,6 @@ class Exp7Trainer:
                 if step % 100 == 0:
                     print(f"Step {step}/{self.config.max_steps}: Loss={loss:.4f}")
                 
-                # Print sequences occasionally during training
-                if step % 500 == 0 and step > 0:
-                    input_ids, target_ids = batch
-                    input_ids = input_ids.to(self.device)
-                    target_ids = target_ids.to(self.device)
-                    with torch.no_grad():
-                        output = self.model(input_ids, return_aux_loss=False)
-                        logits = output if not isinstance(output, tuple) else output[0]
-                    self.print_sequences(input_ids, target_ids, logits, step, "train")
-                
                 # Evaluation
                 if step % self.config.eval_every == 0 and step > 0:
                     eval_results = evaluate_model(self.model, self.val_loader, self.config)
@@ -257,16 +251,6 @@ class Exp7Trainer:
                     
                     print(f"🔍 Evaluating model at step {step}...")
                     print(f"✅ Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
-                    
-                    # Print validation sequences
-                    val_batch = next(iter(self.val_loader))
-                    val_input_ids, val_target_ids = val_batch
-                    val_input_ids = val_input_ids.to(self.device)
-                    val_target_ids = val_target_ids.to(self.device)
-                    with torch.no_grad():
-                        val_output = self.model(val_input_ids, return_aux_loss=False)
-                        val_logits = val_output if not isinstance(val_output, tuple) else val_output[0]
-                    self.print_sequences(val_input_ids, val_target_ids, val_logits, step, "val")
                 
                 step += 1
         
