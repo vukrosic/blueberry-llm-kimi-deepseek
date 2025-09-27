@@ -28,7 +28,7 @@ from training.evaluation import evaluate_model
 class Exp7Trainer:
     """Trainer for Experiment 7: Best Architecture Model"""
     
-    def __init__(self, config: MoEModelConfig):
+    def __init__(self, config: MoEModelConfig, resume_from_checkpoint: str = None):
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = None
@@ -37,6 +37,8 @@ class Exp7Trainer:
         self.train_loader = None
         self.val_loader = None
         self.tokenizer = None  # For decoding sequences
+        self.resume_from_checkpoint = resume_from_checkpoint
+        self.start_step = 0
         
         # Results tracking
         self.results = {
@@ -146,6 +148,10 @@ class Exp7Trainer:
         )
         
         print("✅ Model created successfully")
+        
+        # Load checkpoint if specified
+        if self.resume_from_checkpoint:
+            self.load_checkpoint(self.resume_from_checkpoint)
     
     def train_step(self, batch):
         """Single training step"""
@@ -217,7 +223,7 @@ class Exp7Trainer:
         print(f"🚀 Starting training for {self.config.max_steps} steps...")
         
         start_time = time.time()
-        step = 0
+        step = self.start_step
         
         # Training loop
         while step < self.config.max_steps:
@@ -252,6 +258,10 @@ class Exp7Trainer:
                     print(f"🔍 Evaluating model at step {step}...")
                     print(f"✅ Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
                 
+                # Save checkpoint every 3000 steps
+                if step % 3000 == 0 and step > 0:
+                    self.save_checkpoint(step)
+                
                 step += 1
         
         # Final evaluation
@@ -280,8 +290,53 @@ class Exp7Trainer:
         print(f"   Params: {self.results['parameters_millions']:.2f}M")
         print("✅ Exp7 training completed")
     
+    def save_checkpoint(self, step):
+        """Save checkpoint at given step"""
+        checkpoint_dir = "experiments/exp7/exp7_checkpoints"
+        os.makedirs(checkpoint_dir, exist_ok=True)
+        
+        # Save model checkpoint
+        checkpoint_file = f"{checkpoint_dir}/exp7_checkpoint_step_{step}.pt"
+        torch.save({
+            'step': step,
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'scheduler_state_dict': self.scheduler.state_dict(),
+            'results': self.results
+        }, checkpoint_file)
+        
+        # Save results
+        results_file = f"{checkpoint_dir}/exp7_results_step_{step}.json"
+        with open(results_file, 'w') as f:
+            json.dump(self.results, f, indent=2)
+        
+        print(f"💾 Checkpoint saved at step {step}: {checkpoint_file}")
+    
+    def load_checkpoint(self, checkpoint_path):
+        """Load checkpoint and resume training"""
+        print(f"📦 Loading checkpoint from {checkpoint_path}...")
+        
+        checkpoint = torch.load(checkpoint_path, map_location=self.device)
+        
+        # Load model state
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        
+        # Load optimizer state
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        
+        # Load scheduler state
+        self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        
+        # Load results
+        self.results = checkpoint['results']
+        
+        # Set start step
+        self.start_step = checkpoint['step']
+        
+        print(f"✅ Checkpoint loaded from step {self.start_step}")
+    
     def save_results(self):
-        """Save training results"""
+        """Save final training results"""
         os.makedirs("experiments/exp7/exp7_results", exist_ok=True)
         
         # Save results
