@@ -51,22 +51,21 @@ class Exp7Inference:
             config_dict = {k: v for k, v in config_dict.items() if k in valid_keys}
             self.config = MoEModelConfig(**config_dict)
         else:
-            # Default config matching training
+            # Default config matching training (from exp7_training_results.json)
             self.config = MoEModelConfig(
-                max_steps=1000,
-                batch_size=16,
+                max_steps=2000,
+                batch_size=32,
                 max_tokens=100000,
-                eval_every=100,
+                eval_every=200,
                 num_documents=1000,
                 max_seq_len=256,
-                d_model=256,
-                n_heads=4,
-                n_layers=3,
-                d_ff=1024,
+                d_model=768,        # Match training
+                n_heads=12,         # Match training
+                n_layers=8,         # Match training
+                d_ff=3072,          # Match training
                 num_experts=8,
                 expert_top_k=2,
-                vocab_size=32000,
-                learning_rate=1e-3,
+                vocab_size=49152,   # Match training
                 weight_decay=0.01
             )
         

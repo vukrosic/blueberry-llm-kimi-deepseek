@@ -32,83 +32,83 @@
   "training_history": [
     {
       "step": 200,
-      "train_loss": 0.03916188329458237,
-      "val_loss": 1.3119722855091096,
-      "val_accuracy": 0.88026611328125,
-      "val_perplexity": 3.713490557999673,
+      "train_loss": 0.0349900908768177,
+      "val_loss": 0.028499296605587005,
+      "val_accuracy": 0.99657470703125,
+      "val_perplexity": 1.0289092871052254,
       "learning_rate": 0.0009777564731873593
     },
     {
       "step": 400,
-      "train_loss": 0.02349858172237873,
-      "val_loss": 1.2340959978103638,
-      "val_accuracy": 0.8842529296875,
-      "val_perplexity": 3.4352716235261203,
+      "train_loss": 0.02463306486606598,
+      "val_loss": 0.021682880520820617,
+      "val_accuracy": 0.996796875,
+      "val_perplexity": 1.021919662449332,
       "learning_rate": 0.0009136417175896859
     },
     {
       "step": 600,
-      "train_loss": 0.021590134128928185,
-      "val_loss": 1.207895667552948,
-      "val_accuracy": 0.8845849609375,
-      "val_perplexity": 3.346435225754107,
+      "train_loss": 0.022677943110466003,
+      "val_loss": 0.020763696916401387,
+      "val_accuracy": 0.99678955078125,
+      "val_perplexity": 1.0209807622275264,
       "learning_rate": 0.000813931177033507
     },
     {
       "step": 800,
-      "train_loss": 0.02354614809155464,
-      "val_loss": 1.1980288112163544,
-      "val_accuracy": 0.88453369140625,
-      "val_perplexity": 3.313578791560516,
+      "train_loss": 0.02181190438568592,
+      "val_loss": 0.020255228541791438,
+      "val_accuracy": 0.99676025390625,
+      "val_perplexity": 1.0204617577587098,
       "learning_rate": 0.0006883852139526465
     },
     {
       "step": 1000,
-      "train_loss": 0.017863702028989792,
-      "val_loss": 1.1791542708873748,
-      "val_accuracy": 0.885400390625,
-      "val_perplexity": 3.2516230474130325,
+      "train_loss": 0.020682010799646378,
+      "val_loss": 0.019587468579411505,
+      "val_accuracy": 0.99691162109375,
+      "val_perplexity": 1.0197805617167728,
       "learning_rate": 0.00054929314194362
     },
     {
       "step": 1200,
-      "train_loss": 0.016920071095228195,
-      "val_loss": 1.1882681089639664,
-      "val_accuracy": 0.88572265625,
-      "val_perplexity": 3.281393267772872,
+      "train_loss": 0.021329043433070183,
+      "val_loss": 0.019196545891463756,
+      "val_accuracy": 0.9968603515625,
+      "val_perplexity": 1.019381984270029,
       "learning_rate": 0.0004102702621261221
     },
     {
       "step": 1400,
-      "train_loss": 0.019843101501464844,
-      "val_loss": 1.1862663662433623,
-      "val_accuracy": 0.88269287109375,
-      "val_perplexity": 3.274831332529846,
+      "train_loss": 0.02089041844010353,
+      "val_loss": 0.01898134548217058,
+      "val_accuracy": 0.99686279296875,
+      "val_perplexity": 1.0191626364525044,
       "learning_rate": 0.00028492510260604747
     },
     {
       "step": 1600,
-      "train_loss": 0.017524663358926773,
-      "val_loss": 1.162194641828537,
-      "val_accuracy": 0.8819921875,
-      "val_perplexity": 3.1969417248185406,
+      "train_loss": 0.022031808272004128,
+      "val_loss": 0.01826277207583189,
+      "val_accuracy": 0.996923828125,
+      "val_perplexity": 1.018430556343365,
       "learning_rate": 0.00018552732092830138
     },
     {
       "step": 1800,
-      "train_loss": 0.016724778339266777,
-      "val_loss": 1.1539458227157593,
-      "val_accuracy": 0.88471435546875,
-      "val_perplexity": 3.1706791971514714,
+      "train_loss": 0.015706824138760567,
+      "val_loss": 0.017995141465216875,
+      "val_accuracy": 0.9969873046875,
+      "val_perplexity": 1.018158029621575,
       "learning_rate": 0.00012180666450856855
     }
   ],
   "final_metrics": {
-    "val_loss": 1.1586869418621064,
-    "val_accuracy": 0.88211181640625,
-    "val_perplexity": 3.185747456981987
+    "val_loss": 0.017771621700376272,
+    "val_accuracy": 0.99696533203125,
+    "val_perplexity": 1.0179304766104686
   },
-  "training_time_minutes": 6.9181778947512305,
+  "training_time_minutes": 6.914504166444143,
   "parameter_count": 102653184,
   "test_mode": false,
   "max_steps": 2000,

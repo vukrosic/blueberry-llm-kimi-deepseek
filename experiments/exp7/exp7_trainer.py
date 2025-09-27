@@ -68,15 +68,23 @@ class Exp7Trainer:
         # Load data using the existing loader
         texts, tokenizer, tokens = load_and_cache_data(self.config)
         
-        # Split data into train/val
-        split_idx = int(0.9 * len(tokens))
-        train_tokens = tokens[:split_idx]
-        val_tokens = tokens[split_idx:]
+        # Create random window split to avoid temporal bias
+        import random
+        random.seed(42)  # For reproducibility
         
-        # Create datasets
+        # Create all possible windows
+        all_windows = list(range(max(0, len(tokens) - self.config.max_seq_len)))
+        
+        # Randomly split windows (not tokens)
+        random.shuffle(all_windows)
+        split_idx = int(0.9 * len(all_windows))
+        train_windows = all_windows[:split_idx]
+        val_windows = all_windows[split_idx:]
+        
+        # Create datasets from window indices
         from data.loader import TextTokenDataset
-        train_data = TextTokenDataset(train_tokens, self.config.max_seq_len)
-        val_data = TextTokenDataset(val_tokens, self.config.max_seq_len)
+        train_data = TextTokenDataset(tokens, self.config.max_seq_len, train_windows)
+        val_data = TextTokenDataset(tokens, self.config.max_seq_len, val_windows)
         
         # Create data loaders
         self.train_loader = DataLoader(
@@ -93,6 +101,7 @@ class Exp7Trainer:
         )
         
         print(f"📊 Dataset: {len(train_data)} train, {len(val_data)} val samples")
+        print(f"📊 Total windows: {len(all_windows)}, Train: {len(train_windows)}, Val: {len(val_windows)}")
         return {"texts": texts, "tokenizer": tokenizer, "tokens": tokens}
     
     def create_model(self):
