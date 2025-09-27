@@ -47,7 +47,7 @@ class DeepseekV3Config:
     scoring_func: str = "sigmoid"
     n_shared_experts: Optional[int] = None
     seq_aux: bool = True
-    topk_method: str = "normal"
+    topk_method: str = "noaux_tc"
     n_group: int = 1
     topk_group: int = 1
     norm_topk_prob: bool = False

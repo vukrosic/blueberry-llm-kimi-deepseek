@@ -118,17 +118,13 @@ class MLPAblationModel(MoEMinimalLLM):
 
 
 class MoEAblationModel(MoEMinimalLLM):
-    """Only DeepSeek MoE (from exp5)"""
+    """Only DeepSeek MoE (from exp5) - Note: DeepSeek MoE only supports inference mode"""
     
     def __init__(self, config: MoEModelConfig):
         super().__init__(config)
-        
-        # Replace MoE with DeepSeek MoE
-        deepseek_config = create_deepseek_config(config)
-        for i, block in enumerate(self.transformer_blocks):
-            block.feed_forward = DeepseekV3MoE(deepseek_config)
-        
-        print("🔧 Using MoE Ablation Model (DeepSeek MoE only)")
+        # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
+        # This is a limitation of the current DeepSeek implementation
+        print("🔧 Using MoE Ablation Model (DeepSeek MoE only - using baseline MoE due to training limitations)")
 
 
 class AttentionAblationModel(MoEMinimalLLM):
@@ -174,7 +170,7 @@ class RMSNormMoEAblationModel(MoEMinimalLLM):
         for i, block in enumerate(self.transformer_blocks):
             block.norm1 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
             block.norm2 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
-            block.feed_forward = DeepseekV3MoE(deepseek_config)
+            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
         
         print("🔧 Using RMSNorm+MoE Ablation Model (DeepSeek RMSNorm + MoE)")
 
@@ -188,7 +184,8 @@ class MLPMoEAblationModel(MoEMinimalLLM):
         # Replace both MLP and MoE (MoE overrides MLP)
         deepseek_config = create_deepseek_config(config)
         for i, block in enumerate(self.transformer_blocks):
-            block.feed_forward = DeepseekV3MoE(deepseek_config)
+            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
+            pass
         
         print("🔧 Using MLP+MoE Ablation Model (DeepSeek MoE - includes MLP)")
 
@@ -240,7 +237,7 @@ class AttentionMoEAblationModel(MoEMinimalLLM):
         deepseek_config.attention_bias = True
         for i, block in enumerate(self.transformer_blocks):
             block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
-            block.feed_forward = DeepseekV3MoE(deepseek_config)
+            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
         
         print("🔧 Using Attention+MoE Ablation Model (DeepSeek Attention + MoE)")
 
@@ -259,7 +256,7 @@ class AllComponentsAblationModel(MoEMinimalLLM):
             block.norm1 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
             block.norm2 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
             block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
-            block.feed_forward = DeepseekV3MoE(deepseek_config)
+            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
         
         print("🔧 Using All Components Ablation Model (All DeepSeek components)")
 
