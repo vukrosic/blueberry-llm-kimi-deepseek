@@ -139,16 +139,16 @@ class CleanExperiment6Trainer:
                 if step % 5 == 0:  # Log every 5 steps
                     print(f"Step {step}/{test_steps}: Loss={ce_loss.item():.4f}")
                 
-        # Evaluation (every 10 steps)
-        if step % 10 == 0 and step > 0:
-            eval_metrics = self._evaluate_model(model, val_loader)
-            
-            # Track for plotting
-            eval_steps.append(step)
-            eval_losses.append(eval_metrics['val_loss'])
-            eval_times.append(time.time())
-        
-        step += 1
+                # Evaluation (every 10 steps)
+                if step % 10 == 0 and step > 0:
+                    eval_metrics = self._evaluate_model(model, val_loader)
+                    
+                    # Track for plotting
+                    eval_steps.append(step)
+                    eval_losses.append(eval_metrics['val_loss'])
+                    eval_times.append(time.time())
+                
+                step += 1
         
         total_time = time.time() - start_time
         
@@ -424,11 +424,9 @@ class CleanExperiment6Trainer:
         print(f"     Range: {np.min(params):.1f} - {np.max(params):.1f}M")
     
     def _create_clean_plot(self):
-        """Create clean loss vs time visualization"""
+        """Create multiple clean loss vs time visualizations with better scaling"""
         if not self.loss_curves:
             return
-        
-        plt.figure(figsize=(20, 12))
         
         # Color scheme by category
         colors = {
@@ -443,6 +441,10 @@ class CleanExperiment6Trainer:
         
         markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', '*', 'h', 'H', '+', 'x', '|', '_']
         
+        # Prepare data for all plots
+        plot_data = []
+        all_final_losses = []
+        
         for i, (name, data) in enumerate(self.loss_curves.items()):
             if 'eval_times' in data and len(data['eval_times']) > 1:
                 # Convert timestamps to elapsed time in minutes
@@ -453,23 +455,131 @@ class CleanExperiment6Trainer:
                 color = colors.get(category, 'gray')
                 marker = markers[i % len(markers)]
                 
-                plt.plot(elapsed_times, data['eval_losses'], 
-                        color=color, marker=marker, linewidth=2, markersize=6,
-                        label=f'{name} (Final: {data["eval_losses"][-1]:.4f})', alpha=0.8)
+                # Calculate normalized loss (relative to initial loss)
+                initial_loss = data['eval_losses'][0]
+                normalized_losses = [loss / initial_loss for loss in data['eval_losses']]
+                
+                plot_data.append({
+                    'name': name,
+                    'times': elapsed_times,
+                    'losses': data['eval_losses'],
+                    'normalized_losses': normalized_losses,
+                    'category': category,
+                    'color': color,
+                    'marker': marker,
+                    'final_loss': data['eval_losses'][-1],
+                    'initial_loss': initial_loss
+                })
+                all_final_losses.append(data['eval_losses'][-1])
+        
+        # 1. Original plot with better y-axis limits
+        plt.figure(figsize=(20, 12))
+        
+        for data in plot_data:
+            plt.plot(data['times'], data['losses'], 
+                    color=data['color'], marker=data['marker'], linewidth=2, markersize=6,
+                    label=f'{data["name"]} (Final: {data["final_loss"]:.4f})', alpha=0.8)
+        
+        # Set y-axis limits to focus on the meaningful range
+        min_final = min(all_final_losses)
+        max_initial = max([d['initial_loss'] for d in plot_data])
+        plt.ylim(min_final * 0.8, max_initial * 1.1)
         
         plt.xlabel('Time (minutes)', fontsize=12)
         plt.ylabel('Validation Loss', fontsize=12)
-        plt.title(f'Size Ablation Experiment 6: All {len(CLEAN_ABLATION_MODELS)} Models - Validation Loss vs Time', fontsize=14)
+        plt.title(f'Size Ablation Experiment 6: Validation Loss vs Time (Improved Scaling)', fontsize=14)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         
-        # Save plot
+        # Save improved plot
         plot_file = self.output_dir / "exp6_clean_loss_vs_time_comparison.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
         plt.show()
         
-        print(f"\n📈 Size ablation study plot saved as: {plot_file}")
+        # 2. Normalized loss plot (relative improvement)
+        plt.figure(figsize=(20, 12))
+        
+        for data in plot_data:
+            plt.plot(data['times'], data['normalized_losses'], 
+                    color=data['color'], marker=data['marker'], linewidth=2, markersize=6,
+                    label=f'{data["name"]} (Improvement: {(1-data["normalized_losses"][-1])*100:.1f}%)', alpha=0.8)
+        
+        plt.xlabel('Time (minutes)', fontsize=12)
+        plt.ylabel('Normalized Loss (Relative to Initial)', fontsize=12)
+        plt.title(f'Size Ablation Experiment 6: Relative Loss Improvement vs Time', fontsize=14)
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
+        plt.grid(True, alpha=0.3)
+        plt.axhline(y=1.0, color='gray', linestyle='--', alpha=0.5, label='Initial Loss (100%)')
+        plt.tight_layout()
+        
+        # Save normalized plot
+        normalized_plot_file = self.output_dir / "exp6_clean_normalized_loss_comparison.png"
+        plt.savefig(normalized_plot_file, dpi=300, bbox_inches='tight')
+        plt.show()
+        
+        # 3. Zoomed plot focusing on final loss range
+        plt.figure(figsize=(20, 12))
+        
+        for data in plot_data:
+            plt.plot(data['times'], data['losses'], 
+                    color=data['color'], marker=data['marker'], linewidth=2, markersize=6,
+                    label=f'{data["name"]} (Final: {data["final_loss"]:.4f})', alpha=0.8)
+        
+        # Focus on final loss range with some margin
+        final_losses = [d['final_loss'] for d in plot_data]
+        min_final = min(final_losses)
+        max_final = max(final_losses)
+        margin = (max_final - min_final) * 0.2
+        plt.ylim(min_final - margin, max_final + margin)
+        
+        plt.xlabel('Time (minutes)', fontsize=12)
+        plt.ylabel('Validation Loss', fontsize=12)
+        plt.title(f'Size Ablation Experiment 6: Final Loss Range Focus (Zoomed View)', fontsize=14)
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        
+        # Save zoomed plot
+        zoomed_plot_file = self.output_dir / "exp6_clean_zoomed_loss_comparison.png"
+        plt.savefig(zoomed_plot_file, dpi=300, bbox_inches='tight')
+        plt.show()
+        
+        # 4. Category-based subplot
+        categories = list(set([d['category'] for d in plot_data]))
+        n_categories = len(categories)
+        cols = 3
+        rows = (n_categories + cols - 1) // cols
+        
+        plt.figure(figsize=(20, 5 * rows))
+        
+        for i, category in enumerate(categories):
+            plt.subplot(rows, cols, i + 1)
+            category_data = [d for d in plot_data if d['category'] == category]
+            
+            for data in category_data:
+                plt.plot(data['times'], data['losses'], 
+                        color=data['color'], marker=data['marker'], linewidth=2, markersize=6,
+                        label=f'{data["name"]} (Final: {data["final_loss"]:.4f})', alpha=0.8)
+            
+            plt.xlabel('Time (minutes)', fontsize=10)
+            plt.ylabel('Validation Loss', fontsize=10)
+            plt.title(f'{category} Models', fontsize=12)
+            plt.legend(fontsize=8)
+            plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        
+        # Save category plot
+        category_plot_file = self.output_dir / "exp6_clean_category_loss_comparison.png"
+        plt.savefig(category_plot_file, dpi=300, bbox_inches='tight')
+        plt.show()
+        
+        print(f"\n📈 Multiple loss visualizations created:")
+        print(f"   📊 Main plot (improved scaling): {plot_file}")
+        print(f"   📈 Normalized improvement plot: {normalized_plot_file}")
+        print(f"   🔍 Zoomed final range plot: {zoomed_plot_file}")
+        print(f"   📋 Category comparison plot: {category_plot_file}")
 
 
 def main():
