@@ -59,7 +59,7 @@ class Exp7Trainer:
         print(f"   Steps: {config.max_steps}")
         print(f"   Batch Size: {config.batch_size}")
         print(f"   Model: {config.d_model}d, {config.n_layers}L, {config.n_heads}H")
-        print(f"   Expected: 15.59M params, ~5-6 min training, <1.0 loss")
+        print(f"   Expected: ~150M params, ~15-20 min training, <1.0 loss")
     
     def load_data(self):
         """Load and prepare data"""
@@ -274,19 +274,19 @@ class Exp7Trainer:
 
 def main():
     """Main function"""
-    # Configuration
+    # Configuration - Increased model size to 100M-200M parameters
     config = MoEModelConfig(
-        max_steps=10000,  # Extended training for better performance
-        batch_size=16,
+        max_steps=2000,  # Training for 2000 steps
+        batch_size=32,    # Reduced batch size for larger model
         max_tokens=100000,
-        eval_every=500,  # Evaluate every 500 steps for longer training
+        eval_every=200,  # Evaluate every 200 steps for 2000 step training
         num_documents=1000,
         max_seq_len=256,
-        d_model=256,
-        n_heads=4,
-        n_layers=3,
-        d_ff=1024,
-        num_experts=8,  # Not used in MLP model
+        d_model=768,     # Increased from 256 to 768
+        n_heads=12,      # Increased from 4 to 12 (768/12 = 64 head dim)
+        n_layers=8,      # Increased from 3 to 8 layers
+        d_ff=3072,       # Increased from 1024 to 3072 (4x d_model)
+        num_experts=8,   # Not used in MLP model
         expert_top_k=2,  # Not used in MLP model
         vocab_size=32000,
         weight_decay=0.01,
