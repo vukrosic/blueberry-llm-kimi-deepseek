@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "val_loss": 2.077404737472534,
+    "val_accuracy": 0.57578125,
+    "val_perplexity": 7.9837221493663995,
+    "model_name": "Baseline MoE",
+    "training_time_minutes": 1.7434203187624613,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192
+  },
+  "deepseek": {
+    "val_loss": 1.3905706644058227,
+    "val_accuracy": 0.675390625,
+    "val_perplexity": 4.017141838872279,
+    "model_name": "Simple DeepseekV3MoE",
+    "training_time_minutes": 1.645934534072876,
+    "parameter_count": 32256256,
+    "parameters_millions": 32.256256
+  }
+}
