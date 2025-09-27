@@ -329,7 +329,6 @@ ABLATION_MODELS = {
     "mlp": MLPAblationModel,
     "moe": MoEAblationModel,
     "attention": AttentionAblationModel,
-    "mlp_moe": MLPMoEAblationModel,
     "attention_mlp": AttentionMLPAblationModel,
     "attention_moe": AttentionMoEAblationModel,
     "all_components": AllComponentsAblationModel,
