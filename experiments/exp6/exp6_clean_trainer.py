@@ -590,9 +590,9 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Create configuration for extended size ablation testing (500 steps each)
+    # Create configuration for extended size ablation testing (1500 steps each)
     base_config = MoEModelConfig(
-        max_steps=500,  # 500 steps per model for better convergence
+        max_steps=1500,  # 1500 steps per model for better convergence
         batch_size=16,  # Same batch size as previous experiments
         max_tokens=100000,  # Same dataset size
         eval_every=25,  # Evaluation every 25 steps for longer training
@@ -607,21 +607,21 @@ def main():
     )
     
     print(f"🚀 Extended Size Ablation Experiment 6 Configuration:")
-    print(f"   Steps: {base_config.max_steps} (500 steps per model for better curves)")
+    print(f"   Steps: {base_config.max_steps} (1500 steps per model for better curves)")
     print(f"   Batch Size: {base_config.batch_size}")
     print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H")
     print(f"   MoE: {base_config.num_experts} experts, top-{base_config.expert_top_k}")
     print(f"   Models: {len(CLEAN_ABLATION_MODELS)} size ablation configurations")
-    print(f"   Expected Total Time: ~{len(CLEAN_ABLATION_MODELS) * 50} minutes (500 steps each)")
+    print(f"   Expected Total Time: ~{len(CLEAN_ABLATION_MODELS) * 150} minutes (1500 steps each)")
     
     # Create trainer
     trainer = CleanExperiment6Trainer(base_config)
     
-    # Run extended size ablation study with 500 steps per model
-    print(f"\n🧪 Running extended size ablation study (500 steps per model)...")
+    # Run extended size ablation study with 1500 steps per model
+    print(f"\n🧪 Running extended size ablation study (1500 steps per model)...")
     
     # Run extended size ablation experiment
-    results = trainer.run_clean_test(test_steps=500)
+    results = trainer.run_clean_test(test_steps=1500)
     
     print(f"\n✅ Size Ablation Experiment 6 completed!")
     print(f"📁 Results saved in: {trainer.output_dir}")
