@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "val_loss": 1.9875585556030273,
+    "val_accuracy": 0.596484375,
+    "val_perplexity": 7.29769507833308,
+    "model_name": "Baseline MLP",
+    "training_time_minutes": 1.8335222283999124,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192
+  },
+  "deepseek": {
+    "val_loss": 1.5392253398895264,
+    "val_accuracy": 0.64482421875,
+    "val_perplexity": 4.660978198218467,
+    "model_name": "DeepseekV3MLP",
+    "training_time_minutes": 1.1153392275174459,
+    "parameter_count": 28354840,
+    "parameters_millions": 28.35484
+  }
+}
