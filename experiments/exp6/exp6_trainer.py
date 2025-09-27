@@ -396,15 +396,15 @@ class Experiment6Trainer:
             "baseline": "None (control)",
             "rmsnorm": "DeepSeek RMSNorm",
             "mlp": "DeepSeek MLP",
-            "moe": "DeepSeek MoE",
+            "moe": "GLM4 MoE",
             "attention": "DeepSeek Attention",
             "rmsnorm_mlp": "RMSNorm + MLP",
-            "rmsnorm_moe": "RMSNorm + MoE",
-            "mlp_moe": "MLP + MoE",
+            "rmsnorm_moe": "RMSNorm + GLM4 MoE",
+            "mlp_moe": "GLM4 MoE (replaces MLP)",
             "attention_rmsnorm": "Attention + RMSNorm",
             "attention_mlp": "Attention + MLP",
-            "attention_moe": "Attention + MoE",
-            "all_components": "All DeepSeek components"
+            "attention_moe": "Attention + GLM4 MoE",
+            "all_components": "DeepSeek components + GLM4 MoE"
         }
         return descriptions.get(model_name, "Unknown")
     
@@ -456,7 +456,7 @@ class Experiment6Trainer:
         individual_components = {
             'rmsnorm': 'DeepSeek RMSNorm',
             'mlp': 'DeepSeek MLP', 
-            'moe': 'DeepSeek MoE',
+            'moe': 'GLM4 MoE',
             'attention': 'DeepSeek Attention'
         }
         
