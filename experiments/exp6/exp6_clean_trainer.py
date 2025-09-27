@@ -31,7 +31,7 @@ from experiments.exp6.exp6_clean_ablation_models import (
 class CleanExperiment6Trainer:
     """Clean ablation study trainer for meaningful model configurations"""
     
-    def __init__(self, base_config: MoEModelConfig, output_dir: str = "experiments/exp6/exp6_clean_results"):
+    def __init__(self, base_config: MoEModelConfig, output_dir: str = "experiments/exp6/exp6_clean_results_extended"):
         self.base_config = base_config
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -135,12 +135,12 @@ class CleanExperiment6Trainer:
                     for scheduler in schedulers:
                         scheduler.step()
                 
-                # Progress logging
-                if step % 5 == 0:  # Log every 5 steps
+                # Progress logging (every 25 steps for longer training)
+                if step % 25 == 0:  # Log every 25 steps
                     print(f"Step {step}/{test_steps}: Loss={ce_loss.item():.4f}")
                 
-                # Evaluation (every 10 steps)
-                if step % 10 == 0 and step > 0:
+                # Evaluation (every 25 steps for longer training)
+                if step % 25 == 0 and step > 0:
                     eval_metrics = self._evaluate_model(model, val_loader)
                     
                     # Track for plotting
@@ -590,12 +590,12 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Create configuration for size ablation testing (100 steps each)
+    # Create configuration for extended size ablation testing (500 steps each)
     base_config = MoEModelConfig(
-        max_steps=100,  # 100 steps per model for size ablation testing
+        max_steps=500,  # 500 steps per model for better convergence
         batch_size=16,  # Same batch size as previous experiments
         max_tokens=100000,  # Same dataset size
-        eval_every=10,  # Evaluation every 10 steps
+        eval_every=25,  # Evaluation every 25 steps for longer training
         num_documents=1000,  # Same dataset size
         max_seq_len=256,  # Same sequence length
         d_model=256,  # Same model size
@@ -606,22 +606,22 @@ def main():
         expert_top_k=2,  # Same top-k selection
     )
     
-    print(f"🚀 Size Ablation Experiment 6 Configuration:")
-    print(f"   Steps: {base_config.max_steps} (100 steps per model)")
+    print(f"🚀 Extended Size Ablation Experiment 6 Configuration:")
+    print(f"   Steps: {base_config.max_steps} (500 steps per model for better curves)")
     print(f"   Batch Size: {base_config.batch_size}")
     print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H")
     print(f"   MoE: {base_config.num_experts} experts, top-{base_config.expert_top_k}")
     print(f"   Models: {len(CLEAN_ABLATION_MODELS)} size ablation configurations")
-    print(f"   Expected Total Time: ~{len(CLEAN_ABLATION_MODELS) * 10} minutes (100 steps each)")
+    print(f"   Expected Total Time: ~{len(CLEAN_ABLATION_MODELS) * 50} minutes (500 steps each)")
     
     # Create trainer
     trainer = CleanExperiment6Trainer(base_config)
     
-    # Run size ablation study with 100 steps per model
-    print(f"\n🧪 Running size ablation study (100 steps per model)...")
+    # Run extended size ablation study with 500 steps per model
+    print(f"\n🧪 Running extended size ablation study (500 steps per model)...")
     
-    # Run size ablation experiment
-    results = trainer.run_clean_test(test_steps=100)
+    # Run extended size ablation experiment
+    results = trainer.run_clean_test(test_steps=500)
     
     print(f"\n✅ Size Ablation Experiment 6 completed!")
     print(f"📁 Results saved in: {trainer.output_dir}")
