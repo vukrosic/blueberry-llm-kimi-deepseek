@@ -139,16 +139,16 @@ class CleanExperiment6Trainer:
                 if step % 5 == 0:  # Log every 5 steps
                     print(f"Step {step}/{test_steps}: Loss={ce_loss.item():.4f}")
                 
-                # Evaluation (every 5 steps)
-                if step % 5 == 0 and step > 0:
-                    eval_metrics = self._evaluate_model(model, val_loader)
-                    
-                    # Track for plotting
-                    eval_steps.append(step)
-                    eval_losses.append(eval_metrics['val_loss'])
-                    eval_times.append(time.time())
-                
-                step += 1
+        # Evaluation (every 10 steps)
+        if step % 10 == 0 and step > 0:
+            eval_metrics = self._evaluate_model(model, val_loader)
+            
+            # Track for plotting
+            eval_steps.append(step)
+            eval_losses.append(eval_metrics['val_loss'])
+            eval_times.append(time.time())
+        
+        step += 1
         
         total_time = time.time() - start_time
         
@@ -231,9 +231,9 @@ class CleanExperiment6Trainer:
             'val_perplexity': perplexity
         }
     
-    def run_clean_test(self, test_steps: int = 20) -> Dict[str, Any]:
-        """Run clean 20-step test on all 22 models"""
-        print(f"\n🚀 Starting Clean Experiment 6: Meaningful Ablation Study")
+    def run_clean_test(self, test_steps: int = 100) -> Dict[str, Any]:
+        """Run size ablation test on all 32 models"""
+        print(f"\n🚀 Starting Size Ablation Experiment 6: MLP vs MoE Size Comparison")
         print(f"📋 Testing {len(CLEAN_ABLATION_MODELS)} models with {test_steps} steps each")
         
         # Print summary of all models
@@ -276,13 +276,13 @@ class CleanExperiment6Trainer:
         # Save results
         self._save_results(results, "clean")
         
-        # Print clean comparison
+        # Print size ablation comparison
         self._print_clean_comparison(results)
         
-        # Create clean loss vs time plot
+        # Create size ablation loss vs time plot
         self._create_clean_plot()
         
-        print(f"\n📊 Clean Test Summary:")
+        print(f"\n📊 Size Ablation Test Summary:")
         print(f"   ✅ Successful: {successful}")
         print(f"   ❌ Failed: {failed}")
         print(f"   📁 Results saved in: {self.output_dir}")
@@ -299,9 +299,9 @@ class CleanExperiment6Trainer:
         print(f"\n💾 Results saved to: {results_file}")
     
     def _print_clean_comparison(self, results: Dict[str, Any]):
-        """Print clean comparison of all 22 models"""
+        """Print size ablation comparison of all 32 models"""
         print(f"\n{'='*120}")
-        print(f"📊 CLEAN EXPERIMENT 6 COMPARISON: All {len(CLEAN_ABLATION_MODELS)} Models")
+        print(f"📊 SIZE ABLATION EXPERIMENT 6 COMPARISON: All {len(CLEAN_ABLATION_MODELS)} Models")
         print(f"{'='*120}")
         
         # Filter successful results
@@ -459,7 +459,7 @@ class CleanExperiment6Trainer:
         
         plt.xlabel('Time (minutes)', fontsize=12)
         plt.ylabel('Validation Loss', fontsize=12)
-        plt.title(f'Clean Experiment 6: All {len(CLEAN_ABLATION_MODELS)} Ablation Models - Validation Loss vs Time', fontsize=14)
+        plt.title(f'Size Ablation Experiment 6: All {len(CLEAN_ABLATION_MODELS)} Models - Validation Loss vs Time', fontsize=14)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
@@ -469,23 +469,23 @@ class CleanExperiment6Trainer:
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
         plt.show()
         
-        print(f"\n📈 Clean ablation study plot saved as: {plot_file}")
+        print(f"\n📈 Size ablation study plot saved as: {plot_file}")
 
 
 def main():
-    """Main function to run Clean Experiment 6"""
+    """Main function to run Size Ablation Experiment 6"""
     # Check system
     print(f"🔍 Device: {'CUDA' if torch.cuda.is_available() else 'CPU'}")
     if torch.cuda.is_available():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Create configuration for clean testing (20 steps each)
+    # Create configuration for size ablation testing (100 steps each)
     base_config = MoEModelConfig(
-        max_steps=20,  # 20 steps per model for clean testing
+        max_steps=100,  # 100 steps per model for size ablation testing
         batch_size=16,  # Same batch size as previous experiments
         max_tokens=100000,  # Same dataset size
-        eval_every=5,  # Evaluation every 5 steps
+        eval_every=10,  # Evaluation every 10 steps
         num_documents=1000,  # Same dataset size
         max_seq_len=256,  # Same sequence length
         d_model=256,  # Same model size
@@ -496,24 +496,24 @@ def main():
         expert_top_k=2,  # Same top-k selection
     )
     
-    print(f"🚀 Clean Experiment 6 Configuration:")
-    print(f"   Steps: {base_config.max_steps} (20 steps per model)")
+    print(f"🚀 Size Ablation Experiment 6 Configuration:")
+    print(f"   Steps: {base_config.max_steps} (100 steps per model)")
     print(f"   Batch Size: {base_config.batch_size}")
     print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H")
     print(f"   MoE: {base_config.num_experts} experts, top-{base_config.expert_top_k}")
-    print(f"   Models: {len(CLEAN_ABLATION_MODELS)} clean ablation configurations")
-    print(f"   Expected Total Time: ~{len(CLEAN_ABLATION_MODELS) * 2} minutes (clean testing)")
+    print(f"   Models: {len(CLEAN_ABLATION_MODELS)} size ablation configurations")
+    print(f"   Expected Total Time: ~{len(CLEAN_ABLATION_MODELS) * 10} minutes (100 steps each)")
     
     # Create trainer
     trainer = CleanExperiment6Trainer(base_config)
     
-    # Run clean ablation study with 20 steps per model
-    print(f"\n🧪 Running clean ablation study (20 steps per model)...")
+    # Run size ablation study with 100 steps per model
+    print(f"\n🧪 Running size ablation study (100 steps per model)...")
     
-    # Run clean experiment
-    results = trainer.run_clean_test(test_steps=20)
+    # Run size ablation experiment
+    results = trainer.run_clean_test(test_steps=100)
     
-    print(f"\n✅ Clean Experiment 6 completed!")
+    print(f"\n✅ Size Ablation Experiment 6 completed!")
     print(f"📁 Results saved in: {trainer.output_dir}")
 
 

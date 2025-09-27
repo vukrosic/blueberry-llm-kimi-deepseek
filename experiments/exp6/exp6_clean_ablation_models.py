@@ -370,6 +370,189 @@ class AttentionMoE_16e_2kAblationModel(MoEMinimalLLM):
 
 
 # =============================================================================
+# MLP SIZE ABLATIONS (matching MoE sizes)
+# =============================================================================
+
+class MLP_256dAblationModel(MoEMinimalLLM):
+    """DeepSeek MLP with 256d (matching MoE_256d)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 256 dimensions
+        config.d_model = 256
+        super().__init__(config)
+        
+        # Replace MLP with DeepSeek MLP
+        deepseek_config = create_deepseek_config(config)
+        for i, block in enumerate(self.transformer_blocks):
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using MLP_256d Ablation Model (DeepSeek MLP: 256d)")
+
+
+class MLP_512dAblationModel(MoEMinimalLLM):
+    """DeepSeek MLP with 512d (matching MoE_512d)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 512 dimensions
+        config.d_model = 512
+        super().__init__(config)
+        
+        # Replace MLP with DeepSeek MLP
+        deepseek_config = create_deepseek_config(config)
+        for i, block in enumerate(self.transformer_blocks):
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using MLP_512d Ablation Model (DeepSeek MLP: 512d)")
+
+
+class MLP_1024dAblationModel(MoEMinimalLLM):
+    """DeepSeek MLP with 1024d (matching MoE_1024d)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 1024 dimensions
+        config.d_model = 1024
+        super().__init__(config)
+        
+        # Replace MLP with DeepSeek MLP
+        deepseek_config = create_deepseek_config(config)
+        for i, block in enumerate(self.transformer_blocks):
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using MLP_1024d Ablation Model (DeepSeek MLP: 1024d)")
+
+
+class AttentionMLP_256dAblationModel(MoEMinimalLLM):
+    """DeepSeek Attention + MLP with 256d (matching Attention+MoE_256d)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 256 dimensions
+        config.d_model = 256
+        super().__init__(config)
+        
+        # Replace both attention and MLP
+        deepseek_config = create_deepseek_config(config)
+        deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
+        deepseek_config.attention_bias = True
+        for i, block in enumerate(self.transformer_blocks):
+            block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using Attention+MLP_256d Ablation Model (DeepSeek Attention + MLP: 256d)")
+
+
+class AttentionMLP_512dAblationModel(MoEMinimalLLM):
+    """DeepSeek Attention + MLP with 512d (matching Attention+MoE_512d)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 512 dimensions
+        config.d_model = 512
+        super().__init__(config)
+        
+        # Replace both attention and MLP
+        deepseek_config = create_deepseek_config(config)
+        deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
+        deepseek_config.attention_bias = True
+        for i, block in enumerate(self.transformer_blocks):
+            block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using Attention+MLP_512d Ablation Model (DeepSeek Attention + MLP: 512d)")
+
+
+class AttentionMLP_1024dAblationModel(MoEMinimalLLM):
+    """DeepSeek Attention + MLP with 1024d (matching Attention+MoE_1024d)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 1024 dimensions
+        config.d_model = 1024
+        super().__init__(config)
+        
+        # Replace both attention and MLP
+        deepseek_config = create_deepseek_config(config)
+        deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
+        deepseek_config.attention_bias = True
+        for i, block in enumerate(self.transformer_blocks):
+            block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using Attention+MLP_1024d Ablation Model (DeepSeek Attention + MLP: 1024d)")
+
+
+# =============================================================================
+# ADDITIONAL SIZE ABLATIONS
+# =============================================================================
+
+class MLP_128dAblationModel(MoEMinimalLLM):
+    """DeepSeek MLP with 128d (smaller size)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 128 dimensions
+        config.d_model = 128
+        super().__init__(config)
+        
+        # Replace MLP with DeepSeek MLP
+        deepseek_config = create_deepseek_config(config)
+        for i, block in enumerate(self.transformer_blocks):
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using MLP_128d Ablation Model (DeepSeek MLP: 128d)")
+
+
+class MLP_2048dAblationModel(MoEMinimalLLM):
+    """DeepSeek MLP with 2048d (larger size)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 2048 dimensions
+        config.d_model = 2048
+        super().__init__(config)
+        
+        # Replace MLP with DeepSeek MLP
+        deepseek_config = create_deepseek_config(config)
+        for i, block in enumerate(self.transformer_blocks):
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using MLP_2048d Ablation Model (DeepSeek MLP: 2048d)")
+
+
+class AttentionMLP_128dAblationModel(MoEMinimalLLM):
+    """DeepSeek Attention + MLP with 128d (smaller size)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 128 dimensions
+        config.d_model = 128
+        super().__init__(config)
+        
+        # Replace both attention and MLP
+        deepseek_config = create_deepseek_config(config)
+        deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
+        deepseek_config.attention_bias = True
+        for i, block in enumerate(self.transformer_blocks):
+            block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using Attention+MLP_128d Ablation Model (DeepSeek Attention + MLP: 128d)")
+
+
+class AttentionMLP_2048dAblationModel(MoEMinimalLLM):
+    """DeepSeek Attention + MLP with 2048d (larger size)"""
+    
+    def __init__(self, config: MoEModelConfig):
+        # Override to 2048 dimensions
+        config.d_model = 2048
+        super().__init__(config)
+        
+        # Replace both attention and MLP
+        deepseek_config = create_deepseek_config(config)
+        deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
+        deepseek_config.attention_bias = True
+        for i, block in enumerate(self.transformer_blocks):
+            block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
+            block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
+        
+        print("🔧 Using Attention+MLP_2048d Ablation Model (DeepSeek Attention + MLP: 2048d)")
+
+
+# =============================================================================
 # ARCHITECTURE SCALING ABLATIONS
 # =============================================================================
 
@@ -610,6 +793,18 @@ CLEAN_ABLATION_MODELS = {
     "attention_moe_8e_1k": AttentionMoE_8e_1kAblationModel,
     "attention_moe_16e_2k": AttentionMoE_16e_2kAblationModel,
     
+    # MLP size ablations (10 models) - comprehensive size range
+    "mlp_128d": MLP_128dAblationModel,
+    "mlp_256d": MLP_256dAblationModel,
+    "mlp_512d": MLP_512dAblationModel,
+    "mlp_1024d": MLP_1024dAblationModel,
+    "mlp_2048d": MLP_2048dAblationModel,
+    "attention_mlp_128d": AttentionMLP_128dAblationModel,
+    "attention_mlp_256d": AttentionMLP_256dAblationModel,
+    "attention_mlp_512d": AttentionMLP_512dAblationModel,
+    "attention_mlp_1024d": AttentionMLP_1024dAblationModel,
+    "attention_mlp_2048d": AttentionMLP_2048dAblationModel,
+    
     # Architecture scaling (5 models)
     "attention_moe_8e_2k_256d": AttentionMoE_8e_2k_256dAblationModel,
     "attention_moe_8e_2k_512d": AttentionMoE_8e_2k_512dAblationModel,
@@ -627,7 +822,7 @@ CLEAN_ABLATION_MODELS = {
     "standard_moe_8e_2k": AttentionMoE_8e_2k_StandardAblationModel,
 }
 
-# Total: 1 + 2 + 4 + 5 + 5 + 2 + 3 = 22 models
+# Total: 1 + 2 + 4 + 5 + 10 + 5 + 2 + 3 = 32 models
 
 
 def create_clean_ablation_model(model_name: str, config: MoEModelConfig):
@@ -649,6 +844,7 @@ def print_clean_ablation_summary():
         "Single Components": ["mlp", "attention"],
         "MoE Configurations": ["moe_8e_2k", "moe_4e_2k", "moe_8e_1k", "moe_16e_2k"],
         "Two Components": ["attention_mlp", "attention_moe_8e_2k", "attention_moe_4e_2k", "attention_moe_8e_1k", "attention_moe_16e_2k"],
+        "MLP Size Scaling": ["mlp_128d", "mlp_256d", "mlp_512d", "mlp_1024d", "mlp_2048d", "attention_mlp_128d", "attention_mlp_256d", "attention_mlp_512d", "attention_mlp_1024d", "attention_mlp_2048d"],
         "Architecture Scaling": ["attention_moe_8e_2k_256d", "attention_moe_8e_2k_512d", "attention_moe_8e_2k_1024d", "attention_moe_4e_2k_512d", "attention_moe_16e_2k_512d"],
         "Layer Count": ["attention_moe_8e_2k_3layers", "attention_moe_8e_2k_6layers"],
         "Attention Variants": ["attention_moe_8e_2k_no_rope", "attention_moe_8e_2k_no_bias", "standard_moe_8e_2k"]
@@ -662,6 +858,7 @@ def print_clean_ablation_summary():
     print(f"\n🎯 Total: {len(CLEAN_ABLATION_MODELS)} clean ablation configurations")
     print(f"🔧 No RMSNorm ablations (not useful)")
     print(f"📝 Clear MoE naming: moe_{'{experts}e_{topk}k'}")
+    print(f"📏 MLP size ablations: mlp_{'{size}d'} (128d, 256d, 512d, 1024d, 2048d)")
     print(f"{'='*80}")
 
 
