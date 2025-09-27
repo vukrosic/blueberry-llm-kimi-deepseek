@@ -44,16 +44,18 @@ The most fascinating finding from this experiment is the **massive performance g
 ### Component Contribution Analysis
 
 ```
-Baseline (control): 2.0592
+Baseline (control): 2.0592 (Standard attention + MoE)
 
 Individual Component Improvements:
 ├── DeepSeek RMSNorm: 2.0587 (+0.0%)     ← Virtually no improvement
-├── DeepSeek MLP: 2.3137 (-12.4%)        ← Actually hurts performance!
-├── DeepSeek MoE: 2.1135 (-2.6%)         ← Slightly worse than baseline
+├── DeepSeek MLP: 2.3137 (-12.4%)        ← MoE → Single MLP hurts performance!
+├── Baseline MoE: 2.1135 (-2.6%)         ← Same MoE as baseline (DeepSeek MoE failed)
 └── DeepSeek Attention: 0.0356 (+98.3%) ← Massive improvement!
 
 All Components Combined: 0.0352 (+98.3%) ← Attention dominates
 ```
+
+**Key Insight**: The "DeepSeek MoE" ablation actually uses the same baseline MoE due to training limitations, explaining why it performs similarly to baseline.
 
 ## 🧠 Why These Results Are So Interesting
 
@@ -68,11 +70,13 @@ The most striking finding is that **DeepSeek attention mechanisms are responsibl
 ### 2. The MLP Paradox
 
 DeepSeek MLP actually **hurts performance** when used alone:
-- **Baseline**: 2.0592 loss
-- **DeepSeek MLP**: 2.3137 loss (-12.4% worse!)
+- **Baseline**: 2.0592 loss (MoE feedforward)
+- **DeepSeek MLP**: 2.3137 loss (-12.4% worse!) (single MLP feedforward)
+
+**Important Note**: The `mlp` ablation replaces the MoE feedforward with a single DeepSeek MLP, which explains the performance drop. This suggests that **MoE is better than single MLP** for this task, even when using an advanced MLP architecture.
 
 This suggests:
-- **Context matters**: MLP improvements only work when combined with better attention
+- **MoE vs MLP trade-off**: MoE provides better performance than single MLP for this task
 - **Component interactions**: The MLP needs the right attention mechanism to be effective
 - **Architecture coupling**: Components aren't independent - they work as a system
 
@@ -82,9 +86,11 @@ DeepSeek MoE performs worse than baseline:
 - **Baseline**: 2.0592 loss  
 - **DeepSeek MoE**: 2.1135 loss (-2.6% worse)
 
+**Important Note**: The "DeepSeek MoE" ablation actually uses the **baseline MoE** because DeepSeek MoE only supports inference mode (`topk_method="noaux_tc"`). This means the `moe` ablation is essentially testing the same MoE as baseline, explaining the similar performance.
+
 Possible explanations:
 - **Training limitations**: DeepSeek MoE only supports inference mode (`topk_method="noaux_tc"`)
-- **Expert routing issues**: The gating mechanism may not be optimal for this task
+- **Implementation fallback**: All MoE ablations fall back to baseline MoE due to training constraints
 - **Task mismatch**: MoE benefits may be task-specific
 
 ### 4. The RMSNorm Mystery
@@ -99,6 +105,18 @@ This suggests:
 - **Task insensitivity**: This task may not benefit from advanced normalization
 
 ## 🔧 Technical Implementation Details
+
+### Architecture Ablation Clarifications
+
+**Important**: Understanding what each ablation actually tests is crucial for interpreting results:
+
+- **`attention`**: DeepSeek attention + **same baseline MoE** (unchanged)
+- **`mlp`**: Standard attention + **DeepSeek MLP** (replaces MoE with single MLP)
+- **`moe`**: Standard attention + **baseline MoE** (DeepSeek MoE failed, uses same MoE as baseline)
+- **`attention_mlp`**: DeepSeek attention + **DeepSeek MLP** (replaces MoE with single MLP)
+- **`attention_moe`**: DeepSeek attention + **baseline MoE** (DeepSeek MoE failed)
+
+**Key Insight**: The performance difference between `attention_mlp` (0.0364) and `attention_moe` (0.0349) is tiny, but the efficiency difference is huge (3x faster training, 40% fewer parameters).
 
 ### Architecture Components Tested
 
@@ -117,10 +135,11 @@ This suggests:
    - Gated architecture with up/down projections
    - Enhanced intermediate representations
 
-4. **DeepSeek MoE**:
-   - Advanced expert routing
-   - Improved gating mechanisms
-   - Better load balancing
+4. **Baseline MoE** (used in all experiments):
+   - 8 experts with top-2 routing
+   - Load balancing loss
+   - Standard expert networks with SiLU activation
+   - **Note**: DeepSeek MoE was not used due to training limitations
 
 ### Experimental Setup
 
@@ -157,9 +176,10 @@ This suggests:
 ### For Practitioners
 
 1. **Start with Attention**: If you can only implement one DeepSeek component, choose attention
-2. **Avoid MLP Alone**: DeepSeek MLP without attention actually hurts performance
+2. **Avoid MLP Alone**: Replacing MoE with single MLP hurts performance (even advanced MLP)
 3. **Consider Efficiency**: `attention_mlp` provides the best performance/efficiency tradeoff
 4. **Skip RMSNorm**: The improvement is negligible for most use cases
+5. **MoE vs MLP Trade-off**: MoE provides better performance, MLP provides better efficiency
 
 ### For Researchers
 
