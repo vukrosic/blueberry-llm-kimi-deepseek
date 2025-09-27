@@ -228,10 +228,9 @@ class Exp7Inference:
         print("=" * 60)
         print("🤖 Exp7 Model Chat Interface")
         print("=" * 60)
-        print("Type 'quit' to exit, 'clear' to clear conversation")
+        print("Type 'quit' to exit")
+        print("Each message starts fresh (no conversation history)")
         print("=" * 60)
-        
-        conversation_history = []
         
         while True:
             try:
@@ -242,19 +241,11 @@ class Exp7Inference:
                     print("👋 Goodbye!")
                     break
                 
-                if user_input.lower() == 'clear':
-                    conversation_history = []
-                    print("🧹 Conversation cleared!")
-                    continue
-                
                 if not user_input:
                     continue
                 
-                # Add to conversation history
-                conversation_history.append(f"Human: {user_input}")
-                
-                # Create prompt from conversation history
-                prompt = " ".join(conversation_history[-5:])  # Last 5 exchanges
+                # Use only the current input as prompt (no conversation history)
+                prompt = f"Human: {user_input}"
                 
                 # Generate response with improved parameters
                 print("🤖 Bot: ", end="", flush=True)
@@ -268,9 +259,6 @@ class Exp7Inference:
                     bot_response = response[len(prompt):].strip()
                 
                 print(bot_response)
-                
-                # Add to conversation history
-                conversation_history.append(f"Bot: {bot_response}")
                 
             except KeyboardInterrupt:
                 print("\n👋 Goodbye!")
