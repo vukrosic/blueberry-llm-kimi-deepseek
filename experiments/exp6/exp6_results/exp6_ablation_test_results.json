@@ -1,0 +1,99 @@
+{
+  "baseline": {
+    "val_loss": 10.78049545288086,
+    "val_accuracy": 0.0166015625,
+    "val_perplexity": 48073.93670928676,
+    "model_name": "baseline",
+    "training_time_minutes": 0.04775956074396769,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192,
+    "test_mode": true,
+    "max_steps": 5
+  },
+  "rmsnorm": {
+    "val_loss": 10.779072570800782,
+    "val_accuracy": 0.0166015625,
+    "val_perplexity": 48005.58180823878,
+    "model_name": "rmsnorm",
+    "training_time_minutes": 0.030817091464996338,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192,
+    "test_mode": true,
+    "max_steps": 5
+  },
+  "mlp": {
+    "val_loss": 10.77514419555664,
+    "val_accuracy": 0.0166015625,
+    "val_perplexity": 47817.36779875562,
+    "model_name": "mlp",
+    "training_time_minutes": 0.020624470710754395,
+    "parameter_count": 15730432,
+    "parameters_millions": 15.730432,
+    "test_mode": true,
+    "max_steps": 5
+  },
+  "moe": {
+    "error": "'DeepseekV3Config' object has no attribute 'norm_topk_prob'",
+    "model_name": "moe"
+  },
+  "attention": {
+    "val_loss": 10.779632759094238,
+    "val_accuracy": 0.0166015625,
+    "val_perplexity": 48032.48150693298,
+    "model_name": "attention",
+    "training_time_minutes": 0.03572183052698771,
+    "parameter_count": 25815232,
+    "parameters_millions": 25.815232,
+    "test_mode": true,
+    "max_steps": 5
+  },
+  "rmsnorm_mlp": {
+    "val_loss": 10.791854095458984,
+    "val_accuracy": 0.0166015625,
+    "val_perplexity": 48623.104368873006,
+    "model_name": "rmsnorm_mlp",
+    "training_time_minutes": 0.01784274975458781,
+    "parameter_count": 15730432,
+    "parameters_millions": 15.730432,
+    "test_mode": true,
+    "max_steps": 5
+  },
+  "rmsnorm_moe": {
+    "error": "'DeepseekV3Config' object has no attribute 'norm_topk_prob'",
+    "model_name": "rmsnorm_moe"
+  },
+  "mlp_moe": {
+    "error": "'DeepseekV3Config' object has no attribute 'norm_topk_prob'",
+    "model_name": "mlp_moe"
+  },
+  "attention_rmsnorm": {
+    "val_loss": 10.784630393981933,
+    "val_accuracy": 0.0166015625,
+    "val_perplexity": 48273.131150903806,
+    "model_name": "attention_rmsnorm",
+    "training_time_minutes": 0.03318637212117513,
+    "parameter_count": 25815232,
+    "parameters_millions": 25.815232,
+    "test_mode": true,
+    "max_steps": 5
+  },
+  "attention_mlp": {
+    "val_loss": 10.788570976257324,
+    "val_accuracy": 0.0166015625,
+    "val_perplexity": 48463.73068583045,
+    "model_name": "attention_mlp",
+    "training_time_minutes": 0.02163391908009847,
+    "parameter_count": 15585472,
+    "parameters_millions": 15.585472,
+    "test_mode": true,
+    "max_steps": 5
+  },
+  "attention_moe": {
+    "error": "'DeepseekV3Config' object has no attribute 'norm_topk_prob'",
+    "model_name": "attention_moe"
+  },
+  "all_components": {
+    "error": "'DeepseekV3Config' object has no attribute 'norm_topk_prob'",
+    "model_name": "all_components"
+  }
+}
