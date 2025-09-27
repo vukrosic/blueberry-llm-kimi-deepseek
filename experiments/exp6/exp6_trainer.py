@@ -133,7 +133,7 @@ class Experiment6Trainer:
                         scheduler.step()
                 
                 # Progress logging
-                if step % 1 == 0:  # Log every step in test mode
+                if step % 10 == 0:  # Log every 10 steps
                     print(f"Step {step}/{max_steps}: Loss={ce_loss.item():.4f}")
                 
                 # Evaluation (every step in test mode, every eval_every in full mode)
@@ -393,15 +393,10 @@ class Experiment6Trainer:
     def _get_component_description(self, model_name: str) -> str:
         """Get human-readable description of model components"""
         descriptions = {
-            "baseline": "None (control)",
-            "rmsnorm": "DeepSeek RMSNorm",
+            "baseline": "Baseline (original RMSNorm)",
             "mlp": "DeepSeek MLP",
             "moe": "GLM4 MoE",
             "attention": "DeepSeek Attention",
-            "rmsnorm_mlp": "RMSNorm + MLP",
-            "rmsnorm_moe": "RMSNorm + GLM4 MoE",
-            "mlp_moe": "GLM4 MoE (replaces MLP)",
-            "attention_rmsnorm": "Attention + RMSNorm",
             "attention_mlp": "Attention + MLP",
             "attention_moe": "Attention + GLM4 MoE",
             "all_components": "DeepSeek components + GLM4 MoE"
@@ -454,7 +449,6 @@ class Experiment6Trainer:
         
         # Individual component contributions
         individual_components = {
-            'rmsnorm': 'DeepSeek RMSNorm',
             'mlp': 'DeepSeek MLP', 
             'moe': 'GLM4 MoE',
             'attention': 'DeepSeek Attention'
@@ -483,14 +477,10 @@ class Experiment6Trainer:
         # Color scheme for different component types
         colors = {
             'baseline': 'black',
-            'rmsnorm': 'blue',
             'mlp': 'green', 
             'moe': 'red',
             'attention': 'orange',
-            'rmsnorm_mlp': 'purple',
-            'rmsnorm_moe': 'brown',
             'mlp_moe': 'pink',
-            'attention_rmsnorm': 'gray',
             'attention_mlp': 'olive',
             'attention_moe': 'cyan',
             'all_components': 'magenta'
@@ -534,12 +524,12 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Create configuration for fair comparison (same as exp4/exp5)
+    # Create configuration for full training (200 steps)
     base_config = MoEModelConfig(
-        max_steps=1000,  # Full training
+        max_steps=200,  # Full training with 200 steps
         batch_size=16,  # Same batch size as previous experiments
         max_tokens=100000,  # Same dataset size
-        eval_every=100,  # Same evaluation frequency
+        eval_every=20,  # Evaluation every 20 steps
         num_documents=1000,  # Same dataset size
         max_seq_len=256,  # Same sequence length
         d_model=256,  # Same model size
@@ -556,25 +546,15 @@ def main():
     print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H")
     print(f"   MoE: {base_config.num_experts} experts, top-{base_config.expert_top_k}")
     print(f"   Models: {len(ABLATION_MODELS)} ablation configurations")
-    print(f"   Expected Training Time: ~2-3 hours total")
+    print(f"   Expected Training Time: ~2-3 hours total (full training)")
     
     # Create trainer
     trainer = Experiment6Trainer(base_config)
     
-    # First run 5-step tests to verify all models work
-    print(f"\n🧪 Running 5-step tests to verify all models work...")
-    test_results = trainer.run_test_experiment()
+    # Run full ablation study with 200 steps
+    print(f"\n🧪 Running 200-step ablation study (full training)...")
     
-    # Check if all tests passed
-    failed_tests = [name for name, result in test_results.items() if "error" in result]
-    if failed_tests:
-        print(f"\n❌ Some models failed testing: {failed_tests}")
-        print("Please fix the issues before running the full experiment.")
-        return
-    
-    print(f"\n✅ All models passed testing! Proceeding with full experiment...")
-    
-    # Run full experiment
+    # Run full experiment with 200 steps
     results = trainer.run_full_experiment()
     
     print(f"\n✅ Experiment 6 completed!")

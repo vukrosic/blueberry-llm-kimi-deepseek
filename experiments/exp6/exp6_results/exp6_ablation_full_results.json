@@ -1,0 +1,101 @@
+{
+  "baseline": {
+    "val_loss": 6.059567165374756,
+    "val_accuracy": 0.183642578125,
+    "val_perplexity": 428.1900612589936,
+    "model_name": "baseline",
+    "training_time_minutes": 0.30707136789957684,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "rmsnorm": {
+    "val_loss": 5.989869594573975,
+    "val_accuracy": 0.190625,
+    "val_perplexity": 399.3625274907315,
+    "model_name": "rmsnorm",
+    "training_time_minutes": 0.28114458719889324,
+    "parameter_count": 25960192,
+    "parameters_millions": 25.960192,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "mlp": {
+    "val_loss": 6.000511837005615,
+    "val_accuracy": 0.192724609375,
+    "val_perplexity": 403.6353361319494,
+    "model_name": "mlp",
+    "training_time_minutes": 0.10838880538940429,
+    "parameter_count": 15730432,
+    "parameters_millions": 15.730432,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "moe": {
+    "val_loss": 5.648862838745117,
+    "val_accuracy": 0.21875,
+    "val_perplexity": 283.9683643279612,
+    "model_name": "moe",
+    "training_time_minutes": 0.17828073501586914,
+    "parameter_count": 114874624,
+    "parameters_millions": 114.874624,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "attention": {
+    "val_loss": 5.997584438323974,
+    "val_accuracy": 0.18740234375,
+    "val_perplexity": 402.45546240408385,
+    "model_name": "attention",
+    "training_time_minutes": 0.31400076150894163,
+    "parameter_count": 25815232,
+    "parameters_millions": 25.815232,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "mlp_moe": {
+    "val_loss": 5.597710227966308,
+    "val_accuracy": 0.220263671875,
+    "val_perplexity": 269.8079009908642,
+    "model_name": "mlp_moe",
+    "training_time_minutes": 0.18135289351145426,
+    "parameter_count": 114874624,
+    "parameters_millions": 114.874624,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "attention_mlp": {
+    "val_loss": 5.920744132995606,
+    "val_accuracy": 0.1958984375,
+    "val_perplexity": 372.688940854506,
+    "model_name": "attention_mlp",
+    "training_time_minutes": 0.12734867334365846,
+    "parameter_count": 15585472,
+    "parameters_millions": 15.585472,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "attention_moe": {
+    "val_loss": 5.443816375732422,
+    "val_accuracy": 0.25751953125,
+    "val_perplexity": 231.32331771756904,
+    "model_name": "attention_moe",
+    "training_time_minutes": 0.1876646399497986,
+    "parameter_count": 114729664,
+    "parameters_millions": 114.729664,
+    "test_mode": false,
+    "max_steps": 200
+  },
+  "all_components": {
+    "val_loss": 5.5163853645324705,
+    "val_accuracy": 0.23466796875,
+    "val_perplexity": 248.73432638163922,
+    "model_name": "all_components",
+    "training_time_minutes": 0.1884847402572632,
+    "parameter_count": 114729664,
+    "parameters_millions": 114.729664,
+    "test_mode": false,
+    "max_steps": 200
+  }
+}

@@ -101,8 +101,9 @@ class GLM4MoEWrapper(nn.Module):
     def forward(self, x):
         # Use only the MoE component, bypassing attention and other components
         # The MoE layer expects normalized input
-        output, aux_loss = self.moe_layer(x)
-        return output, aux_loss
+        output = self.moe_layer(x)
+        # GLM4 MoE doesn't return auxiliary loss, so return None
+        return output, None
 
 
 def create_deepseek_config(moe_config: MoEModelConfig) -> DeepseekV3Config:
@@ -325,14 +326,10 @@ class AllComponentsAblationModel(MoEMinimalLLM):
 # Model registry for easy access
 ABLATION_MODELS = {
     "baseline": BaselineAblationModel,
-    "rmsnorm": RMSNormAblationModel,
     "mlp": MLPAblationModel,
     "moe": MoEAblationModel,
     "attention": AttentionAblationModel,
-    "rmsnorm_mlp": RMSNormMLPAblationModel,
-    "rmsnorm_moe": RMSNormMoEAblationModel,
     "mlp_moe": MLPMoEAblationModel,
-    "attention_rmsnorm": AttentionRMSNormAblationModel,
     "attention_mlp": AttentionMLPAblationModel,
     "attention_moe": AttentionMoEAblationModel,
     "all_components": AllComponentsAblationModel,
