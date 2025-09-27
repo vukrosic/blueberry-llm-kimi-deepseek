@@ -75,7 +75,7 @@ The experiment will:
 ## Configuration
 
 - **Training Steps**: 1000
-- **Batch Size**: 16
+- **Batch Size**: 64 (optimized for RTX 4090 24GB)
 - **Model Size**: 256d, 3L, 4H
 - **MoE**: 8 experts, top-2 selection
 - **Sequence Length**: 256
@@ -91,7 +91,7 @@ This experiment follows the "import as much as possible" approach:
 
 ## Expected Training Time
 
-- **Per Model**: ~5-10 minutes
-- **Total Experiment**: ~10-20 minutes
+- **Per Model**: ~3-5 minutes (faster with larger batch size)
+- **Total Experiment**: ~6-10 minutes
 
 The experiment is designed to be fair and unbiased, comparing only the attention implementations while keeping everything else identical, including using your existing MoE implementation for both models.

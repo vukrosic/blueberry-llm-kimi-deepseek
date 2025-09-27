@@ -362,7 +362,7 @@ def main():
     # Create configuration for fair comparison
     base_config = MoEModelConfig(
         max_steps=1000,  # Same as previous experiments
-        batch_size=16,  # Same batch size
+        batch_size=64,  # 4x larger batch size for RTX 4090 (24GB)
         max_tokens=100000,  # Same dataset size
         eval_every=100,  # Same evaluation frequency
         num_documents=1000,  # Same dataset size
@@ -377,10 +377,10 @@ def main():
     
     print(f"🚀 Experiment 6 Configuration:")
     print(f"   Steps: {base_config.max_steps}")
-    print(f"   Batch Size: {base_config.batch_size}")
+    print(f"   Batch Size: {base_config.batch_size} (4x larger for RTX 4090)")
     print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H")
     print(f"   MoE: {base_config.num_experts} experts, top-{base_config.expert_top_k}")
-    print(f"   Expected Training Time: ~5-10 minutes per model")
+    print(f"   Expected Training Time: ~3-5 minutes per model (faster with larger batch)")
     
     # Create trainer
     trainer = Experiment6Trainer(base_config)
