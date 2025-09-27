@@ -28,7 +28,7 @@ from experiments.exp3.exp3_deepseek_model import DeepSeekMoEModel
 class Experiment3Trainer:
     """Minimal trainer for RMSNorm comparison"""
     
-    def __init__(self, base_config: MoEModelConfig, output_dir: str = "experiments/exp3_results"):
+    def __init__(self, base_config: MoEModelConfig, output_dir: str = "experiments/exp3/exp3_results"):
         self.base_config = base_config
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
