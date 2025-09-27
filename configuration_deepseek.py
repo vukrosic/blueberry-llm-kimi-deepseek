@@ -43,6 +43,14 @@ class DeepseekV3Config:
     moe_intermediate_size: Optional[int] = None
     first_k_dense_replace: int = 0
     moe_layer_freq: int = 1
+    routed_scaling_factor: float = 1.0
+    scoring_func: str = "sigmoid"
+    n_shared_experts: Optional[int] = None
+    seq_aux: bool = True
+    topk_method: str = "noaux_tc"
+    n_group: int = 1
+    topk_group: int = 1
+    norm_topk_prob: bool = False
     
     # Normalization
     rms_norm_eps: float = 1e-6

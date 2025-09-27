@@ -1,0 +1,160 @@
+{
+  "model_name": "exp7_attention_mlp",
+  "config": {
+    "d_model": 768,
+    "n_heads": 12,
+    "n_layers": 8,
+    "d_ff": 3072,
+    "batch_size": 32,
+    "max_steps": 17366,
+    "gradient_accumulation_steps": 4,
+    "muon_lr": 0.01,
+    "max_seq_len": 256,
+    "num_documents": 1000,
+    "max_tokens": 100000,
+    "eval_every": 1000,
+    "eval_steps": 50,
+    "weight_decay": 0.01,
+    "dropout": 0.1,
+    "grad_clip": 1.0,
+    "use_amp": false,
+    "vocab_size": 49152,
+    "log_milestones": [
+      2000,
+      5000,
+      10000
+    ],
+    "num_experts": 8,
+    "expert_top_k": 2,
+    "load_balancing_weight": 0.01,
+    "d_k": 64
+  },
+  "training_history": [
+    {
+      "step": 1000,
+      "train_loss": 0.022328205406665802,
+      "val_loss": 0.020921664498746394,
+      "val_accuracy": 0.99678955078125,
+      "val_perplexity": 1.02114205682948,
+      "learning_rate": 0.000992641933348827
+    },
+    {
+      "step": 2000,
+      "train_loss": 0.019596358761191368,
+      "val_loss": 0.02045068170875311,
+      "val_accuracy": 0.996865234375,
+      "val_perplexity": 1.0206612297341067,
+      "learning_rate": 0.0009708371968320432
+    },
+    {
+      "step": 3000,
+      "train_loss": 0.017564551904797554,
+      "val_loss": 0.02110580824315548,
+      "val_accuracy": 0.99677734375,
+      "val_perplexity": 1.0213301110653723,
+      "learning_rate": 0.0009352974327668901
+    },
+    {
+      "step": 4000,
+      "train_loss": 0.018857093527913094,
+      "val_loss": 0.020825260728597642,
+      "val_accuracy": 0.996796875,
+      "val_perplexity": 1.021043619630279,
+      "learning_rate": 0.0008871825662791731
+    },
+    {
+      "step": 5000,
+      "train_loss": 0.022669458761811256,
+      "val_loss": 0.020514904968440533,
+      "val_accuracy": 0.9968603515625,
+      "val_perplexity": 1.0207267820302852,
+      "learning_rate": 0.0008280629410116926
+    },
+    {
+      "step": 6000,
+      "train_loss": 0.0160378348082304,
+      "val_loss": 0.021106548942625522,
+      "val_accuracy": 0.99680419921875,
+      "val_perplexity": 1.0213308675643245,
+      "learning_rate": 0.0007598680672069154
+    },
+    {
+      "step": 7000,
+      "train_loss": 0.0163206085562706,
+      "val_loss": 0.020920204296708107,
+      "val_accuracy": 0.9968505859375,
+      "val_perplexity": 1.021140565756856,
+      "learning_rate": 0.0006848236475294852
+    },
+    {
+      "step": 8000,
+      "train_loss": 0.017619330435991287,
+      "val_loss": 0.020564901139587165,
+      "val_accuracy": 0.99682861328125,
+      "val_perplexity": 1.020777815736908,
+      "learning_rate": 0.0006053789359412245
+    },
+    {
+      "step": 9000,
+      "train_loss": 0.01371221523731947,
+      "val_loss": 0.021693368442356586,
+      "val_accuracy": 0.9968359375,
+      "val_perplexity": 1.021930380318772,
+      "learning_rate": 0.000524126800445397
+    },
+    {
+      "step": 10000,
+      "train_loss": 0.013792606070637703,
+      "val_loss": 0.021142138410359623,
+      "val_accuracy": 0.99687744140625,
+      "val_perplexity": 1.0213672168331032,
+      "learning_rate": 0.00044371909864344885
+    },
+    {
+      "step": 11000,
+      "train_loss": 0.01039777509868145,
+      "val_loss": 0.02074047889560461,
+      "val_accuracy": 0.99690673828125,
+      "val_perplexity": 1.0209570573501472,
+      "learning_rate": 0.00036678012802540276
+    },
+    {
+      "step": 12000,
+      "train_loss": 0.008370144292712212,
+      "val_loss": 0.023388080969452857,
+      "val_accuracy": 0.99691162109375,
+      "val_perplexity": 1.023663726883332,
+      "learning_rate": 0.0002958209757502585
+    },
+    {
+      "step": 13000,
+      "train_loss": 0.008754081092774868,
+      "val_loss": 0.023310328610241415,
+      "val_accuracy": 0.99689453125,
+      "val_perplexity": 1.0235841377076909,
+      "learning_rate": 0.00023315756331602962
+    },
+    {
+      "step": 14000,
+      "train_loss": 0.008354324847459793,
+      "val_loss": 0.023146267235279083,
+      "val_accuracy": 0.99694580078125,
+      "val_perplexity": 1.0234162208613797,
+      "learning_rate": 0.00018083506092757338
+    },
+    {
+      "step": 15000,
+      "train_loss": 0.003348845522850752,
+      "val_loss": 0.02608913656324148,
+      "val_accuracy": 0.99691650390625,
+      "val_perplexity": 1.0264324370557314,
+      "learning_rate": 0.00014056113847985715
+    }
+  ],
+  "final_metrics": {},
+  "training_time_minutes": 0,
+  "parameter_count": 102653184,
+  "test_mode": false,
+  "max_steps": 17366,
+  "parameters_millions": 102.653184
+}

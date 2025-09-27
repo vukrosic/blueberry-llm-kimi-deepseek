@@ -10,16 +10,24 @@ from configs.moe_config import MoEModelConfig
 
 
 class TextTokenDataset(Dataset):
-    def __init__(self, tokens: List[int], seq_len: int = 512):
+    def __init__(self, tokens: List[int], seq_len: int = 512, window_indices: List[int] = None):
         self.tokens = tokens
         self.seq_len = seq_len
+        # If window_indices is provided, use those specific windows
+        # Otherwise, use all possible windows (original behavior)
+        if window_indices is not None:
+            self.window_indices = window_indices
+        else:
+            self.window_indices = list(range(max(0, len(tokens) - seq_len)))
 
     def __len__(self):
-        return max(0, len(self.tokens) - self.seq_len)
+        return len(self.window_indices)
 
     def __getitem__(self, idx):
-        x = torch.tensor(self.tokens[idx:idx + self.seq_len], dtype=torch.long)
-        y = torch.tensor(self.tokens[idx + 1:idx + self.seq_len + 1], dtype=torch.long)
+        # Get the actual window start position
+        window_start = self.window_indices[idx]
+        x = torch.tensor(self.tokens[window_start:window_start + self.seq_len], dtype=torch.long)
+        y = torch.tensor(self.tokens[window_start + 1:window_start + self.seq_len + 1], dtype=torch.long)
         return x, y
 
 
