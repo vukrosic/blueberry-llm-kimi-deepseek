@@ -149,30 +149,10 @@
       "val_accuracy": 0.99691650390625,
       "val_perplexity": 1.0264324370557314,
       "learning_rate": 0.00014056113847985715
-    },
-    {
-      "step": 16000,
-      "train_loss": 0.00145706906914711,
-      "val_loss": 0.026090104207396506,
-      "val_accuracy": 0.9969580078125,
-      "val_perplexity": 1.0264334302775602,
-      "learning_rate": 0.00011365023167026511
-    },
-    {
-      "step": 17000,
-      "train_loss": 0.0009958134032785892,
-      "val_loss": 0.02620458208024502,
-      "val_accuracy": 0.996943359375,
-      "val_perplexity": 1.0265509409193347,
-      "learning_rate": 0.00010098064224865469
     }
   ],
-  "final_metrics": {
-    "val_loss": 0.02652256950736046,
-    "val_accuracy": 0.996962890625,
-    "val_perplexity": 1.0268774231177067
-  },
-  "training_time_minutes": 56.417800982793175,
+  "final_metrics": {},
+  "training_time_minutes": 0,
   "parameter_count": 102653184,
   "test_mode": false,
   "max_steps": 17366,
