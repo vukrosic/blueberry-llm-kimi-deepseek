@@ -480,7 +480,6 @@ class Experiment6Trainer:
             'mlp': 'green', 
             'moe': 'red',
             'attention': 'orange',
-            'mlp_moe': 'pink',
             'attention_mlp': 'olive',
             'attention_moe': 'cyan',
             'all_components': 'magenta'
