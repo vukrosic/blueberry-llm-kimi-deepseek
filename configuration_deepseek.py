@@ -47,6 +47,9 @@ class DeepseekV3Config:
     # Normalization
     rms_norm_eps: float = 1e-6
     
+    # Activation function
+    hidden_act: str = "silu"
+    
     # Other parameters
     initializer_range: float = 0.02
     use_cache: bool = True
