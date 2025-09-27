@@ -23,6 +23,14 @@ from deepseek_modeling import (
 )
 from configuration_deepseek import DeepseekV3Config
 
+# GLM4 MoE imports
+try:
+    from transformers import Glm4MoeConfig, Glm4MoeForCausalLM
+    GLM4_MOE_AVAILABLE = True
+except ImportError:
+    GLM4_MOE_AVAILABLE = False
+    print("Warning: GLM4 MoE not available, falling back to baseline MoE")
+
 
 class DeepseekV3MLPWrapper(nn.Module):
     """Wrapper for DeepseekV3MLP to return (output, aux_loss) like MoE components"""
@@ -51,6 +59,50 @@ class DeepseekV3AttentionWrapper(nn.Module):
         
         output, _, _ = self.attention(x, attention_mask=attention_mask)  # Unpack tuple, ignore cache and attention weights
         return output
+
+
+class GLM4MoEWrapper(nn.Module):
+    """Wrapper for GLM4 MoE to return (output, aux_loss) like MoE components"""
+    
+    def __init__(self, config: MoEModelConfig):
+        super().__init__()
+        if not GLM4_MOE_AVAILABLE:
+            raise RuntimeError("GLM4 MoE not available")
+        
+        # Create a minimal GLM4 MoE config for just the MoE component
+        head_dim = config.d_model // config.n_heads
+        vocab_size = max(32000, config.vocab_size or 32000)  # Ensure minimum vocab size
+        
+        glm4_config = Glm4MoeConfig(
+            vocab_size=vocab_size,
+            hidden_size=config.d_model,
+            num_hidden_layers=1,  # Single layer for this component
+            num_attention_heads=config.n_heads,
+            num_key_value_heads=config.n_heads,
+            head_dim=head_dim,
+            max_position_embeddings=max(2048, config.max_seq_len),
+            attention_dropout=0.0,
+            n_routed_experts=config.num_experts,
+            num_experts_per_tok=config.expert_top_k,
+            moe_intermediate_size=max(1024, 4*config.d_model//2),
+            n_shared_experts=1,
+            use_cache=False,
+            tie_word_embeddings=False,
+            pad_token_id=min(151329, vocab_size - 1),  # Ensure padding_idx is within vocab_size
+            eos_token_id=[min(151329, vocab_size - 1)],
+            attention_bias=True,
+        )
+        
+        # Create the model and extract just the MoE component
+        self.model = Glm4MoeForCausalLM(glm4_config)
+        # Get the MoE layer from the first transformer block
+        self.moe_layer = self.model.model.layers[0].mlp
+        
+    def forward(self, x):
+        # Use only the MoE component, bypassing attention and other components
+        # The MoE layer expects normalized input
+        output, aux_loss = self.moe_layer(x)
+        return output, aux_loss
 
 
 def create_deepseek_config(moe_config: MoEModelConfig) -> DeepseekV3Config:
@@ -118,13 +170,18 @@ class MLPAblationModel(MoEMinimalLLM):
 
 
 class MoEAblationModel(MoEMinimalLLM):
-    """Only DeepSeek MoE (from exp5) - Note: DeepSeek MoE only supports inference mode"""
+    """Only GLM4 MoE (replacing DeepSeek MoE)"""
     
     def __init__(self, config: MoEModelConfig):
         super().__init__(config)
-        # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
-        # This is a limitation of the current DeepSeek implementation
-        print("🔧 Using MoE Ablation Model (DeepSeek MoE only - using baseline MoE due to training limitations)")
+        
+        # Replace MoE with GLM4 MoE
+        if GLM4_MOE_AVAILABLE:
+            for i, block in enumerate(self.transformer_blocks):
+                block.feed_forward = GLM4MoEWrapper(config)
+            print("🔧 Using MoE Ablation Model (GLM4 MoE)")
+        else:
+            print("🔧 Using MoE Ablation Model (baseline MoE - GLM4 MoE not available)")
 
 
 class AttentionAblationModel(MoEMinimalLLM):
@@ -160,23 +217,23 @@ class RMSNormMLPAblationModel(MoEMinimalLLM):
 
 
 class RMSNormMoEAblationModel(MoEMinimalLLM):
-    """DeepSeek RMSNorm + MoE (exp3 + exp5)"""
+    """DeepSeek RMSNorm + GLM4 MoE (exp3 + GLM4 MoE)"""
     
     def __init__(self, config: MoEModelConfig):
         super().__init__(config)
         
         # Replace both RMSNorm and MoE
-        deepseek_config = create_deepseek_config(config)
         for i, block in enumerate(self.transformer_blocks):
             block.norm1 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
             block.norm2 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
-            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
+            if GLM4_MOE_AVAILABLE:
+                block.feed_forward = GLM4MoEWrapper(config)
         
-        print("🔧 Using RMSNorm+MoE Ablation Model (DeepSeek RMSNorm + MoE)")
+        print("🔧 Using RMSNorm+MoE Ablation Model (DeepSeek RMSNorm + GLM4 MoE)")
 
 
 class MLPMoEAblationModel(MoEMinimalLLM):
-    """DeepSeek MLP + MoE (exp4 + exp5)"""
+    """DeepSeek MLP + GLM4 MoE (exp4 + GLM4 MoE)"""
     
     def __init__(self, config: MoEModelConfig):
         super().__init__(config)
@@ -184,10 +241,12 @@ class MLPMoEAblationModel(MoEMinimalLLM):
         # Replace both MLP and MoE (MoE overrides MLP)
         deepseek_config = create_deepseek_config(config)
         for i, block in enumerate(self.transformer_blocks):
-            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
-            pass
+            if GLM4_MOE_AVAILABLE:
+                block.feed_forward = GLM4MoEWrapper(config)
+            else:
+                block.feed_forward = DeepseekV3MLPWrapper(deepseek_config)
         
-        print("🔧 Using MLP+MoE Ablation Model (DeepSeek MoE - includes MLP)")
+        print("🔧 Using MLP+MoE Ablation Model (GLM4 MoE - replaces MLP)")
 
 
 class AttentionRMSNormAblationModel(MoEMinimalLLM):
@@ -226,7 +285,7 @@ class AttentionMLPAblationModel(MoEMinimalLLM):
 
 
 class AttentionMoEAblationModel(MoEMinimalLLM):
-    """DeepSeek Attention + MoE (exp1 + exp5)"""
+    """DeepSeek Attention + GLM4 MoE (exp1 + GLM4 MoE)"""
     
     def __init__(self, config: MoEModelConfig):
         super().__init__(config)
@@ -237,18 +296,19 @@ class AttentionMoEAblationModel(MoEMinimalLLM):
         deepseek_config.attention_bias = True
         for i, block in enumerate(self.transformer_blocks):
             block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
-            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
+            if GLM4_MOE_AVAILABLE:
+                block.feed_forward = GLM4MoEWrapper(config)
         
-        print("🔧 Using Attention+MoE Ablation Model (DeepSeek Attention + MoE)")
+        print("🔧 Using Attention+MoE Ablation Model (DeepSeek Attention + GLM4 MoE)")
 
 
 class AllComponentsAblationModel(MoEMinimalLLM):
-    """All DeepSeek components (exp1 + exp3 + exp5) - Best of all worlds"""
+    """All DeepSeek components + GLM4 MoE (exp1 + exp3 + GLM4 MoE) - Best of all worlds"""
     
     def __init__(self, config: MoEModelConfig):
         super().__init__(config)
         
-        # Replace all components with DeepSeek versions
+        # Replace all components with DeepSeek versions + GLM4 MoE
         deepseek_config = create_deepseek_config(config)
         deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
         deepseek_config.attention_bias = True
@@ -256,9 +316,10 @@ class AllComponentsAblationModel(MoEMinimalLLM):
             block.norm1 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
             block.norm2 = DeepseekV3RMSNorm(config.d_model, eps=1e-6)
             block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
-            # Note: DeepSeek MoE only supports inference mode, so we use baseline MoE for training
+            if GLM4_MOE_AVAILABLE:
+                block.feed_forward = GLM4MoEWrapper(config)
         
-        print("🔧 Using All Components Ablation Model (All DeepSeek components)")
+        print("🔧 Using All Components Ablation Model (DeepSeek components + GLM4 MoE)")
 
 
 # Model registry for easy access
