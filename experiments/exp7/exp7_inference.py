@@ -146,17 +146,21 @@ class Exp7Inference:
                     words.append("<unk>")
             return " ".join(words)
     
-    def generate(self, prompt: str, max_length: int = 50, temperature: float = 0.8) -> str:
-        """Generate text from a prompt"""
+    def generate(self, prompt: str, max_length: int = 100, temperature: float = 0.3, 
+                 repetition_penalty: float = 1.1, top_p: float = 0.9) -> str:
+        """Generate text from a prompt with improved parameters"""
         # Encode prompt
         input_ids = self.encode(prompt)
         
         # Convert to tensor
         input_tensor = torch.tensor([input_ids], dtype=torch.long, device=self.device)
         
+        # Track generated tokens for repetition penalty
+        generated_tokens = []
+        
         # Generate
         with torch.no_grad():
-            for _ in range(max_length):
+            for step in range(max_length):
                 # Get logits
                 output = self.model(input_tensor, return_aux_loss=False)
                 if isinstance(output, tuple):
@@ -167,12 +171,47 @@ class Exp7Inference:
                 # Get next token logits
                 next_token_logits = logits[0, -1, :] / temperature
                 
+                # Apply repetition penalty
+                if repetition_penalty != 1.0 and generated_tokens:
+                    for token_id in generated_tokens:
+                        if next_token_logits[token_id] < 0:
+                            next_token_logits[token_id] *= repetition_penalty
+                        else:
+                            next_token_logits[token_id] /= repetition_penalty
+                
+                # Top-p (nucleus) sampling
+                if top_p < 1.0:
+                    sorted_logits, sorted_indices = torch.sort(next_token_logits, descending=True)
+                    cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
+                    
+                    # Remove tokens with cumulative probability above the threshold
+                    sorted_indices_to_remove = cumulative_probs > top_p
+                    sorted_indices_to_remove[1:] = sorted_indices_to_remove[:-1].clone()
+                    sorted_indices_to_remove[0] = 0
+                    
+                    indices_to_remove = sorted_indices[sorted_indices_to_remove]
+                    next_token_logits[indices_to_remove] = float('-inf')
+                
                 # Sample next token
                 probs = torch.softmax(next_token_logits, dim=-1)
                 next_token = torch.multinomial(probs, 1)
                 
+                # Check for stopping conditions
+                next_token_id = next_token.item()
+                
+                # Stop on EOS token
+                if self.tokenizer is not None and next_token_id == self.tokenizer.eos_token_id:
+                    break
+                
+                # Stop on repeated patterns (simple check)
+                if len(generated_tokens) >= 3:
+                    if (generated_tokens[-3:] == [next_token_id] * 3 or
+                        generated_tokens[-6:] == generated_tokens[-3:] * 2):
+                        break
+                
                 # Append to input
                 input_tensor = torch.cat([input_tensor, next_token.unsqueeze(0)], dim=1)
+                generated_tokens.append(next_token_id)
                 
                 # Stop if we hit max sequence length
                 if input_tensor.size(1) >= self.config.max_seq_len:
@@ -217,9 +256,10 @@ class Exp7Inference:
                 # Create prompt from conversation history
                 prompt = " ".join(conversation_history[-5:])  # Last 5 exchanges
                 
-                # Generate response
+                # Generate response with improved parameters
                 print("🤖 Bot: ", end="", flush=True)
-                response = self.generate(prompt, max_length=30, temperature=0.7)
+                response = self.generate(prompt, max_length=100, temperature=0.3, 
+                                       repetition_penalty=1.1, top_p=0.9)
                 
                 # Extract just the bot's response
                 if "Bot:" in response:

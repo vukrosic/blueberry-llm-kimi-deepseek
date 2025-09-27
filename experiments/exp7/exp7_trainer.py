@@ -36,6 +36,7 @@ class Exp7Trainer:
         self.scheduler = None
         self.train_loader = None
         self.val_loader = None
+        self.tokenizer = None  # For decoding sequences
         
         # Results tracking
         self.results = {
@@ -102,6 +103,10 @@ class Exp7Trainer:
         
         print(f"📊 Dataset: {len(train_data)} train, {len(val_data)} val samples")
         print(f"📊 Total windows: {len(all_windows)}, Train: {len(train_windows)}, Val: {len(val_windows)}")
+        
+        # Store tokenizer for sequence decoding
+        self.tokenizer = tokenizer
+        
         return {"texts": texts, "tokenizer": tokenizer, "tokens": tokens}
     
     def create_model(self):
@@ -174,6 +179,35 @@ class Exp7Trainer:
         
         return loss.item()
     
+    def print_sequences(self, input_ids, target_ids, logits, step, mode="train"):
+        """Print input, target, and predicted sequences for debugging"""
+        if self.tokenizer is None:
+            return
+            
+        # Get the first sequence in the batch
+        input_seq = input_ids[0].cpu().tolist()
+        target_seq = target_ids[0].cpu().tolist()
+        predicted_seq = logits[0].argmax(dim=-1).cpu().tolist()
+        
+        # Decode sequences
+        input_text = self.tokenizer.decode(input_seq, skip_special_tokens=True)
+        target_text = self.tokenizer.decode(target_seq, skip_special_tokens=True)
+        predicted_text = self.tokenizer.decode(predicted_seq, skip_special_tokens=True)
+        
+        print(f"\n🔍 {mode.upper()} SEQUENCES at step {step}:")
+        print(f"   Input:     '{input_text[:100]}{'...' if len(input_text) > 100 else ''}'")
+        print(f"   Target:    '{target_text[:100]}{'...' if len(target_text) > 100 else ''}'")
+        print(f"   Predicted: '{predicted_text[:100]}{'...' if len(predicted_text) > 100 else ''}'")
+        
+        # Show token-level comparison for first 20 tokens
+        print(f"   Token comparison (first 20):")
+        for i in range(min(20, len(target_seq))):
+            target_token = self.tokenizer.decode([target_seq[i]], skip_special_tokens=True)
+            pred_token = self.tokenizer.decode([predicted_seq[i]], skip_special_tokens=True)
+            match = "✓" if target_seq[i] == predicted_seq[i] else "✗"
+            print(f"     {i:2d}: {match} Target='{target_token}' Pred='{pred_token}'")
+        print()
+    
     def train(self):
         """Train the model"""
         print(f"🚀 Starting training for {self.config.max_steps} steps...")
@@ -194,6 +228,16 @@ class Exp7Trainer:
                 if step % 100 == 0:
                     print(f"Step {step}/{self.config.max_steps}: Loss={loss:.4f}")
                 
+                # Print sequences occasionally during training
+                if step % 500 == 0 and step > 0:
+                    input_ids, target_ids = batch
+                    input_ids = input_ids.to(self.device)
+                    target_ids = target_ids.to(self.device)
+                    with torch.no_grad():
+                        output = self.model(input_ids, return_aux_loss=False)
+                        logits = output if not isinstance(output, tuple) else output[0]
+                    self.print_sequences(input_ids, target_ids, logits, step, "train")
+                
                 # Evaluation
                 if step % self.config.eval_every == 0 and step > 0:
                     eval_results = evaluate_model(self.model, self.val_loader, self.config)
@@ -213,6 +257,16 @@ class Exp7Trainer:
                     
                     print(f"🔍 Evaluating model at step {step}...")
                     print(f"✅ Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
+                    
+                    # Print validation sequences
+                    val_batch = next(iter(self.val_loader))
+                    val_input_ids, val_target_ids = val_batch
+                    val_input_ids = val_input_ids.to(self.device)
+                    val_target_ids = val_target_ids.to(self.device)
+                    with torch.no_grad():
+                        val_output = self.model(val_input_ids, return_aux_loss=False)
+                        val_logits = val_output if not isinstance(val_output, tuple) else val_output[0]
+                    self.print_sequences(val_input_ids, val_target_ids, val_logits, step, "val")
                 
                 step += 1
         
@@ -283,12 +337,12 @@ class Exp7Trainer:
 
 def main():
     """Main function"""
-    # Configuration - Increased model size to 100M-200M parameters
+    # Configuration - Extended training for 1 hour (17,366 steps)
     config = MoEModelConfig(
-        max_steps=2000,  # Training for 2000 steps
+        max_steps=17366,  # Training for ~1 hour (8.7x more steps)
         batch_size=32,    # Reduced batch size for larger model
         max_tokens=100000,
-        eval_every=200,  # Evaluate every 200 steps for 2000 step training
+        eval_every=1000,  # Evaluate every 1000 steps for extended training
         num_documents=1000,
         max_seq_len=256,
         d_model=768,     # Increased from 256 to 768
