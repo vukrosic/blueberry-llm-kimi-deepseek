@@ -6,6 +6,8 @@ A Tesla T4 GPU-optimized Mixture of Experts (MoE) language model implementation.
 
 ## Quick Start
 
+pip install -r requirements.txt
+
 ## Contributing
 
 We welcome contributions! Fork the repo, experiment with different architectures, and submit PRs with your findings.
