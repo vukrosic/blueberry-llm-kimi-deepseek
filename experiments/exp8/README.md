@@ -40,6 +40,7 @@ Based on the provided JSON config:
 - **Powers of 2 Experts**: Consistent use of powers of 2 for experts (4, 8, 16)
 - **Target Architecture**: One model matches the provided JSON config exactly
 - **Minimal Code**: Streamlined implementation for quick testing
+- **HellaSwag Benchmark**: Automatic evaluation on HellaSwag benchmark at the end
 
 ## Usage
 ```bash
@@ -52,3 +53,17 @@ python exp8_trainer.py
 - Clear performance differences between MLP and MoE at 512 scale
 - Understanding of how DeepSeek components perform at target architecture size
 - Reduced computational cost compared to full ablation studies
+- HellaSwag benchmark scores for all successful models
+
+## HellaSwag Benchmark Integration
+The experiment automatically evaluates all successfully trained models on the HellaSwag benchmark at the end of training. This provides:
+
+- **Standardized Evaluation**: Consistent benchmark across all model variants
+- **Minimal Code**: Uses `lm-evaluation-harness` for reliable evaluation
+- **Automatic Integration**: No manual intervention required
+- **Results Storage**: Benchmark results saved alongside training metrics
+
+### Benchmark Results Location
+- Individual model results: `exp8_results/hellaswag_benchmark/{model_name}_hellaswag_results.json`
+- Combined results: `exp8_results/hellaswag_benchmark/all_models_hellaswag_results.json`
+- Integrated results: `exp8_results/exp8_reduced_results.json` (includes benchmark scores)

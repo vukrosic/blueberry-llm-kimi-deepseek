@@ -26,6 +26,7 @@ from experiments.exp8.exp8_reduced_ablation_models import (
     REDUCED_ABLATION_MODELS,
     print_reduced_ablation_summary
 )
+from benchmark_evaluator import HellaSwagEvaluator
 
 
 class ReducedExperiment8Trainer:
@@ -55,6 +56,9 @@ class ReducedExperiment8Trainer:
         # Track results
         self.results = {}
         self.loss_curves = {}
+        
+        # Initialize HellaSwag evaluator
+        self.hellaswag_evaluator = HellaSwagEvaluator(output_dir=str(self.output_dir / "hellaswag_benchmark"))
     
     def train_model(self, model, model_name: str, test_steps: int = 100) -> Dict[str, Any]:
         """Train a single model with comprehensive metrics"""
@@ -282,10 +286,20 @@ class ReducedExperiment8Trainer:
         # Create reduced ablation loss vs time plot
         self._create_reduced_plot()
         
+        # Run HellaSwag benchmark evaluation on all models
+        print(f"\n🧪 Running HellaSwag benchmark evaluation...")
+        benchmark_results = self.hellaswag_evaluator.evaluate_all_models(results)
+        
+        # Add benchmark results to main results
+        for model_name, benchmark_result in benchmark_results.items():
+            if model_name in results:
+                results[model_name]['hellaswag_benchmark'] = benchmark_result
+        
         print(f"\n📊 Reduced Ablation Test Summary:")
         print(f"   ✅ Successful: {successful}")
         print(f"   ❌ Failed: {failed}")
         print(f"   📁 Results saved in: {self.output_dir}")
+        print(f"   🧪 HellaSwag benchmark evaluated: {len(benchmark_results)} models")
         
         return results
     
