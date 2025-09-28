@@ -1,4 +1,4 @@
-# Experiment 8: Simplified Ablation Study
+# Experiment 1: Simplified Ablation Study
 
 ## Overview
 This experiment focuses on a simplified set of ablations centered around the 512 hidden dimension scale, matching the architecture from the provided JSON config. The goal is to test meaningful combinations while keeping the scope manageable with just 5 models.
@@ -40,8 +40,8 @@ Based on the provided JSON config:
 
 ## Usage
 ```bash
-cd experiments/exp8
-python exp8_trainer.py
+cd experiments/exp1_simplified_ablation_study
+python exp1_trainer.py
 ```
 
 ## Expected Results
@@ -60,6 +60,6 @@ The experiment automatically evaluates all successfully trained models on the He
 - **Results Storage**: Benchmark results saved alongside training metrics
 
 ### Benchmark Results Location
-- Individual model results: `exp8_results/hellaswag_benchmark/{model_name}_hellaswag_results.json`
-- Combined results: `exp8_results/hellaswag_benchmark/all_models_hellaswag_results.json`
-- Integrated results: `exp8_results/exp8_reduced_results.json` (includes benchmark scores)
+- Individual model results: `exp1_results/hellaswag_benchmark/{model_name}_hellaswag_results.json`
+- Combined results: `exp1_results/hellaswag_benchmark/all_models_hellaswag_results.json`
+- Integrated results: `exp1_results/exp1_reduced_results.json` (includes benchmark scores)

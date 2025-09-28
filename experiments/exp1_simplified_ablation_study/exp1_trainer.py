@@ -1,5 +1,5 @@
 """
-Experiment 8: Reduced Ablation Study Trainer
+Experiment 1: Simplified Ablation Study Trainer
 Focused on 512 hidden dimension scale with powers of 2 ablations
 """
 
@@ -21,7 +21,7 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp8.exp8_models import (
+from experiments.exp1_simplified_ablation_study.exp1_models import (
     create_reduced_ablation_model, 
     REDUCED_ABLATION_MODELS,
     print_reduced_ablation_summary
@@ -29,10 +29,10 @@ from experiments.exp8.exp8_models import (
 from benchmark_evaluator import HellaSwagEvaluator
 
 
-class ReducedExperiment8Trainer:
+class SimplifiedExperiment1Trainer:
     """Reduced ablation study trainer focused on 512 scale"""
     
-    def __init__(self, base_config: MoEModelConfig, output_dir: str = "exp8_results"):
+    def __init__(self, base_config: MoEModelConfig, output_dir: str = "exp1_results"):
         self.base_config = base_config
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -305,7 +305,7 @@ class ReducedExperiment8Trainer:
     
     def _save_results(self, results: Dict[str, Any], mode: str):
         """Save experiment results to file"""
-        results_file = self.output_dir / f"exp8_{mode}_results_1500steps.json"
+        results_file = self.output_dir / f"exp1_{mode}_results_1500steps.json"
         
         with open(results_file, 'w') as f:
             json.dump(results, f, indent=2)
@@ -454,7 +454,7 @@ class ReducedExperiment8Trainer:
         plt.tight_layout()
         
         # Save plot
-        plot_file = self.output_dir / "exp8_reduced_loss_vs_time_comparison_1500steps.png"
+        plot_file = self.output_dir / "exp1_reduced_loss_vs_time_comparison_1500steps.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
         plt.show()
         
@@ -495,7 +495,7 @@ def main():
     print(f"   Expected Total Time: ~{len(REDUCED_ABLATION_MODELS) * 150} minutes (1500 steps each)")
     
     # Create trainer
-    trainer = ReducedExperiment8Trainer(base_config)
+    trainer = SimplifiedExperiment1Trainer(base_config)
     
     # Run reduced ablation study
     print(f"\n🧪 Running reduced ablation study (1500 steps per model)...")

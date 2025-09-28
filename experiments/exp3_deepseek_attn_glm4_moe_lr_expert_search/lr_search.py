@@ -24,7 +24,7 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp8.exp8_models import AttentionMoE_8e_2k_512dModel
+from experiments.exp1_simplified_ablation_study.exp1_models import AttentionMoE_8e_2k_512dModel
 
 
 class LearningRateSearchTrainer:

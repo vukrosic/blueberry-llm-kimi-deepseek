@@ -24,14 +24,14 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp8.exp8_models import AttentionMLP_512dModel
+from experiments.exp1_simplified_ablation_study.exp1_models import AttentionMLP_512dModel
 from benchmark_evaluator import HellaSwagEvaluator
 
 
-class LongTermExperiment9Trainer:
+class LongTermExperiment2Trainer:
     """Long-term trainer for Attention+MLP 512d model"""
     
-    def __init__(self, base_config: MoEModelConfig, output_dir: str = "exp9_results"):
+    def __init__(self, base_config: MoEModelConfig, output_dir: str = "exp2_results"):
         self.base_config = base_config
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -336,7 +336,7 @@ class LongTermExperiment9Trainer:
     
     def _save_results(self, results: Dict[str, Any], mode: str):
         """Save experiment results to file"""
-        results_file = self.output_dir / f"exp9_{mode}_results.json"
+        results_file = self.output_dir / f"exp2_{mode}_results.json"
         
         with open(results_file, 'w') as f:
             json.dump(results, f, indent=2)
@@ -381,7 +381,7 @@ class LongTermExperiment9Trainer:
         plt.tight_layout()
         
         # Save plot
-        plot_file = self.output_dir / "exp9_long_term_training_curves.png"
+        plot_file = self.output_dir / "exp2_long_term_training_curves.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
         plt.show()
         
@@ -420,7 +420,7 @@ def main():
     print(f"   Checkpoints: Regular saves during training")
     
     # Create trainer
-    trainer = LongTermExperiment9Trainer(base_config)
+    trainer = LongTermExperiment2Trainer(base_config)
     
     # Run long-term training experiment
     print(f"\n🧪 Running long-term training experiment...")

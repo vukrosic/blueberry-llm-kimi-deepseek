@@ -25,14 +25,14 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp8.exp8_models import AttentionMoE_8e_2k_512dModel
+from experiments.exp1_simplified_ablation_study.exp1_models import AttentionMoE_8e_2k_512dModel
 from benchmark_evaluator import HellaSwagEvaluator
 
 
-class ExtendedExperiment10Trainer:
+class ExtendedExperiment3Trainer:
     """Extended trainer for DeepSeek Attention + GLM4 MoE model"""
     
-    def __init__(self, config: MoEModelConfig, output_dir: str = "exp10_results"):
+    def __init__(self, config: MoEModelConfig, output_dir: str = "exp3_results"):
         self.config = config
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
@@ -276,7 +276,7 @@ class ExtendedExperiment10Trainer:
         }
         
         # Save results
-        results_file = self.output_dir / "exp10_extended_results.json"
+        results_file = self.output_dir / "exp3_extended_results.json"
         with open(results_file, 'w') as f:
             json.dump(results, f, indent=2)
         
@@ -325,7 +325,7 @@ class ExtendedExperiment10Trainer:
         ax4.grid(True, alpha=0.3)
         
         plt.tight_layout()
-        plot_file = self.output_dir / "exp10_training_curves.png"
+        plot_file = self.output_dir / "exp3_training_curves.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
         plt.close()
         
@@ -354,7 +354,7 @@ def run_extended_training():
     )
     
     # Create trainer
-    trainer = ExtendedExperiment10Trainer(config, output_dir="exp10_results")
+    trainer = ExtendedExperiment3Trainer(config, output_dir="exp3_results")
     
     # Run extended training
     results = trainer.run_extended_training(
@@ -377,7 +377,7 @@ def main():
         results = run_extended_training()
         
         print(f"\n✅ Extended Training completed successfully!")
-        print(f"📁 Results saved in: exp10_results/")
+        print(f"📁 Results saved in: exp3_results/")
         
         return True
         

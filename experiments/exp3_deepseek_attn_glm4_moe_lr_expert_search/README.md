@@ -1,4 +1,4 @@
-# Experiment 10: DeepSeek Attention + GLM4 MoE with Learning Rate & Expert Search
+# Experiment 3: DeepSeek Attention + GLM4 MoE with Learning Rate & Expert Search
 
 ## Overview
 This experiment focuses on optimizing and training the DeepSeek Attention + GLM4 MoE model through comprehensive learning rate search and expert configuration search. The goal is to find the optimal hyperparameters for the DeepSeek Attention + GLM4 MoE architecture and then train it for extended periods.
@@ -39,7 +39,7 @@ This experiment focuses on optimizing and training the DeepSeek Attention + GLM4
 
 ### Step 1: Learning Rate Search
 ```bash
-cd experiments/exp10_deepseek_attn_glm4_moe
+cd experiments/exp3_deepseek_attn_glm4_moe_lr_expert_search
 python lr_search.py
 ```
 
@@ -123,7 +123,7 @@ Both searches provide:
 
 ## File Structure
 ```
-exp10_deepseek_attn_glm4_moe/
+exp3_deepseek_attn_glm4_moe_lr_expert_search/
 ├── lr_search.py              # Learning rate search script
 ├── expert_search.py          # Expert configuration search script
 ├── trainer.py               # Extended training script
@@ -138,9 +138,9 @@ exp10_deepseek_attn_glm4_moe/
 │   ├── expert_search_comparison.png
 │   ├── expert_recommendation.json
 │   └── experts_8_top_2_result.json
-└── exp10_results/           # Generated during extended training
-    ├── exp10_extended_results.json
-    ├── exp10_training_curves.png
+└── exp3_results/           # Generated during extended training
+    ├── exp3_extended_results.json
+    ├── exp3_training_curves.png
     ├── final_model.pt
     ├── checkpoint_step_3000.pt
     └── hellaswag_benchmark/
@@ -221,7 +221,7 @@ Step 100/10000: Loss=8.1234
    Val Loss: 0.1234, Val Acc: 0.9876
 Step 200/10000: Loss=6.2345
    Val Loss: 0.0987, Val Acc: 0.9923
-💾 Checkpoint saved: exp10_results/checkpoint_step_3000.pt
+💾 Checkpoint saved: exp3_results/checkpoint_step_3000.pt
 ```
 
 ## Hardware Requirements
@@ -245,7 +245,7 @@ Step 200/10000: Loss=6.2345
 
 ## Comparison with Other Experiments
 
-| Aspect | Experiment 8 | Experiment 9 | Experiment 10 |
+| Aspect | Experiment 1 | Experiment 2 | Experiment 3 |
 |--------|---------------|--------------|---------------|
 | **Purpose** | Architecture comparison | LR optimization | LR + Expert optimization |
 | **Model** | Multiple architectures | DeepSeek Attn+MLP | DeepSeek Attn+GLM4 MoE |
@@ -254,9 +254,9 @@ Step 200/10000: Loss=6.2345
 | **Complexity** | Low | Medium | High |
 
 ## Next Steps
-After completing Experiment 10:
+After completing Experiment 3:
 1. **Analyze Results**: Compare LR and expert search results
-2. **Compare Performance**: Compare with Experiments 8 and 9
+2. **Compare Performance**: Compare with Experiments 1 and 2
 3. **Extend Training**: Run even longer if needed
 4. **Fine-tune**: Adjust other hyperparameters
 5. **Deploy**: Use optimized model for applications

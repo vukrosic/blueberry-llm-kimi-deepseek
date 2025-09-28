@@ -1,4 +1,4 @@
-# Experiment 9: DeepSeek Attention + MLP with Learning Rate Search
+# Experiment 2: DeepSeek Attention + MLP with Learning Rate Search
 
 ## Overview
 This experiment focuses on training the DeepSeek Attention + MLP model with learning rate optimization. The goal is to find the optimal learning rate for the DeepSeek Attention + MLP architecture and then train it for extended periods.
@@ -31,14 +31,14 @@ This experiment focuses on training the DeepSeek Attention + MLP model with lear
 
 ### Learning Rate Search
 ```bash
-cd experiments/exp9
+cd experiments/exp2_deepseek_attn_mlp_lr_search
 python lr_search.py
 ```
 
 ### Extended Training (after LR search)
 ```bash
-cd experiments/exp9
-python exp9_trainer.py
+cd experiments/exp2_deepseek_attn_mlp_lr_search
+python exp2_trainer.py
 ```
 
 ## Learning Rate Search Process
@@ -92,18 +92,18 @@ The system automatically recommends the best learning rate based on validation l
 
 ## File Structure
 ```
-experiments/exp9/
+experiments/exp2_deepseek_attn_mlp_lr_search/
 ├── lr_search.py              # Learning rate search script
-├── exp9_trainer.py          # Extended training script
+├── exp2_trainer.py          # Extended training script
 ├── README.md               # This documentation
 ├── lr_search_results/      # Generated during LR search
 │   ├── lr_search_results.json
 │   ├── lr_search_comparison.png
 │   ├── lr_recommendation.json
 │   └── lr_1.00e-03_result.json
-└── exp9_results/           # Generated during training
-    ├── exp9_long_term_results.json
-    ├── exp9_long_term_training_curves.png
+└── exp2_results/           # Generated during training
+    ├── exp2_long_term_results.json
+    ├── exp2_long_term_training_curves.png
     └── hellaswag_benchmark/
         └── attention_mlp_512d_hellaswag_results.json
 ```
@@ -125,7 +125,7 @@ Check `lr_search_results/lr_recommendation.json` for the recommended learning ra
 
 ### 3. Extended Training
 ```bash
-python exp9_trainer.py
+python exp2_trainer.py
 ```
 This will:
 - Use the recommended learning rate
@@ -156,7 +156,7 @@ Step 100/10000: Loss=8.1234
    Val Loss: 0.1234, Val Acc: 0.9876
 Step 200/10000: Loss=6.2345
    Val Loss: 0.0987, Val Acc: 0.9923
-💾 Checkpoint saved: exp9_results/checkpoints/checkpoint_step_3000.pt
+💾 Checkpoint saved: exp2_results/checkpoints/checkpoint_step_3000.pt
 ```
 
 ## Hardware Requirements
@@ -179,7 +179,7 @@ Step 200/10000: Loss=6.2345
 
 ## Comparison with Experiment 8
 
-| Aspect | Experiment 8 | Experiment 9 |
+| Aspect | Experiment 1 | Experiment 2 |
 |--------|---------------|--------------|
 | **Purpose** | Architecture comparison | LR optimization + extended training |
 | **Training Steps** | 1,500 | 10,000+ |
@@ -188,9 +188,9 @@ Step 200/10000: Loss=6.2345
 | **Monitoring** | Basic | Comprehensive |
 
 ## Next Steps
-After completing Experiment 9:
+After completing Experiment 2:
 1. **Analyze LR Results**: Understand which LR works best
-2. **Compare Performance**: Compare with Experiment 8 results
+2. **Compare Performance**: Compare with Experiment 1 results
 3. **Extend Training**: Run even longer if needed
 4. **Fine-tune**: Adjust other hyperparameters
 5. **Deploy**: Use optimized model for applications
