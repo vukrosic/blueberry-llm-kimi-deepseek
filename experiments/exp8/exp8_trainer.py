@@ -32,7 +32,7 @@ from benchmark_evaluator import HellaSwagEvaluator
 class ReducedExperiment8Trainer:
     """Reduced ablation study trainer focused on 512 scale"""
     
-    def __init__(self, base_config: MoEModelConfig, output_dir: str = "experiments/exp8/exp8_results"):
+    def __init__(self, base_config: MoEModelConfig, output_dir: str = "experiments/exp8/exp8_results_600steps"):
         self.base_config = base_config
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -139,12 +139,12 @@ class ReducedExperiment8Trainer:
                     for scheduler in schedulers:
                         scheduler.step()
                 
-                # Progress logging (every 20 steps)
-                if step % 20 == 0:
+                # Progress logging (every 50 steps)
+                if step % 50 == 0:
                     print(f"Step {step}/{test_steps}: Loss={ce_loss.item():.4f}")
                 
-                # Evaluation (every 20 steps)
-                if step % 20 == 0 and step > 0:
+                # Evaluation (every 50 steps)
+                if step % 50 == 0 and step > 0:
                     eval_metrics = self._evaluate_model(model, val_loader)
                     
                     # Track for plotting
@@ -305,7 +305,7 @@ class ReducedExperiment8Trainer:
     
     def _save_results(self, results: Dict[str, Any], mode: str):
         """Save experiment results to file"""
-        results_file = self.output_dir / f"exp8_{mode}_results.json"
+        results_file = self.output_dir / f"exp8_{mode}_results_600steps.json"
         
         with open(results_file, 'w') as f:
             json.dump(results, f, indent=2)
@@ -454,7 +454,7 @@ class ReducedExperiment8Trainer:
         plt.tight_layout()
         
         # Save plot
-        plot_file = self.output_dir / "exp8_reduced_loss_vs_time_comparison.png"
+        plot_file = self.output_dir / "exp8_reduced_loss_vs_time_comparison_600steps.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
         plt.show()
         
@@ -472,10 +472,10 @@ def main():
     # Create configuration for reduced ablation testing
     # Based on the provided JSON config, targeting 512 scale
     base_config = MoEModelConfig(
-        max_steps=100,  # 100 steps per model for quick testing
+        max_steps=600,  # 600 steps per model for extended testing
         batch_size=16,
         max_tokens=100000,
-        eval_every=20,  # Evaluation every 20 steps
+        eval_every=50,  # Evaluation every 50 steps
         num_documents=1000,
         max_seq_len=256,
         d_model=512,  # Target 512 scale
@@ -487,21 +487,21 @@ def main():
     )
     
     print(f"🚀 Reduced Ablation Experiment 8 Configuration:")
-    print(f"   Steps: {base_config.max_steps} (100 steps per model)")
+    print(f"   Steps: {base_config.max_steps} (600 steps per model)")
     print(f"   Batch Size: {base_config.batch_size}")
     print(f"   Model: {base_config.d_model}d, {base_config.n_layers}L, {base_config.n_heads}H")
     print(f"   MoE: {base_config.num_experts} experts, top-{base_config.expert_top_k}")
     print(f"   Models: {len(REDUCED_ABLATION_MODELS)} reduced configurations")
-    print(f"   Expected Total Time: ~{len(REDUCED_ABLATION_MODELS) * 10} minutes (100 steps each)")
+    print(f"   Expected Total Time: ~{len(REDUCED_ABLATION_MODELS) * 60} minutes (600 steps each)")
     
     # Create trainer
     trainer = ReducedExperiment8Trainer(base_config)
     
     # Run reduced ablation study
-    print(f"\n🧪 Running reduced ablation study (100 steps per model)...")
+    print(f"\n🧪 Running reduced ablation study (600 steps per model)...")
     
     # Run reduced ablation experiment
-    results = trainer.run_reduced_test(test_steps=100)
+    results = trainer.run_reduced_test(test_steps=600)
     
     print(f"\n✅ Reduced Ablation Experiment 8 completed!")
     print(f"📁 Results saved in: {trainer.output_dir}")
