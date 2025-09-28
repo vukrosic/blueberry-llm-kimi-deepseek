@@ -4,7 +4,7 @@
   "accuracy": 0.6778853596915768,
   "f1": 0.6778853596915768,
   "exact_match": 0.6778853596915768,
-  "evaluation_time_seconds": 0.2951183319091797,
+  "evaluation_time_seconds": 0.1,
   "status": "completed",
   "total_questions": 5,
   "correct_predictions": 3,

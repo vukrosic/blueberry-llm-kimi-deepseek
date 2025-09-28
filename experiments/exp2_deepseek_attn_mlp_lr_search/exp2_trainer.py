@@ -396,20 +396,21 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Create configuration for long-term training
+    # Create configuration for long-term training with optimal learning rate
     base_config = MoEModelConfig(
         max_steps=10000,  # Will be overridden by total_steps parameter
-        batch_size=128,  # Original batch size - baseline
-        max_tokens=100000,  # 4x increase from 100000 to support larger batch size
+        batch_size=16,   # Further reduced batch size for memory
+        max_tokens=100000,  # Full dataset
         eval_every=100,  # Evaluation every 100 steps
-        num_documents=1000,  # 4x increase from 1000 to support larger batch size
+        num_documents=1000,  # Full dataset
         max_seq_len=256,
         d_model=512,  # Target 512 scale
         n_heads=8,    # Powers of 2
-        n_layers=12,  # Deeper model (was 3, now 12)
+        n_layers=6,   # Reduced layers for memory constraints
         d_ff=2048,    # Powers of 2 (4x d_model)
         num_experts=8,  # Powers of 2
         expert_top_k=2,  # Keep same top-k
+        muon_lr=3e-3,  # Optimal learning rate from LR search
     )
     
     print(f"🚀 Long-term Experiment 9 Configuration:")
