@@ -25,7 +25,7 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp1_simplified_ablation_study.exp1_models import AttentionMoE_8e_2k_512dModel
+from experiments.exp1_simplified_ablation_study.exp1_models import MoEMinimalLLM
 from benchmark_evaluator import HellaSwagEvaluator
 
 
@@ -39,29 +39,45 @@ class ExtendedExperiment3Trainer:
         
         # Load data
         print("📚 Loading data...")
-        self.train_data, self.val_data = load_and_cache_data(config)
+        self.texts, self.tokenizer, self.tokens = load_and_cache_data(config)
         
-        print(f"✅ Data loaded: {len(self.train_data)} train, {len(self.val_data)} val samples")
+        # Create dataset
+        self.dataset = TextTokenDataset(self.tokens, config.max_seq_len)
+        
+        # Train/val split
+        val_size = len(self.dataset) // 10
+        train_size = len(self.dataset) - val_size
+        self.train_dataset, self.val_dataset = torch.utils.data.random_split(
+            self.dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42)
+        )
+        
+        print(f"✅ Data loaded: {len(self.train_dataset)} train, {len(self.val_dataset)} val samples")
         
         # Initialize HellaSwag evaluator
         self.hellaswag_evaluator = HellaSwagEvaluator()
     
-    def train_step(self, model, optimizer, batch):
+    def train_step(self, model, optimizers, batch):
         """Single training step"""
-        input_ids = batch['input_ids'].cuda() if torch.cuda.is_available() else batch['input_ids']
-        labels = batch['labels'].cuda() if torch.cuda.is_available() else batch['labels']
+        x, y = batch
+        input_ids = x.cuda() if torch.cuda.is_available() else x
+        labels = y.cuda() if torch.cuda.is_available() else y
         
-        optimizer.zero_grad()
-        outputs = model(input_ids)
+        for optimizer in optimizers:
+            optimizer.zero_grad()
+        outputs, aux_loss = model(input_ids, return_aux_loss=True)
         
         loss = torch.nn.functional.cross_entropy(
             outputs.view(-1, outputs.size(-1)), 
-            labels.view(-1), 
-            ignore_index=-100
+            labels.view(-1)
         )
         
+        # Add auxiliary loss if present
+        if aux_loss is not None:
+            loss = loss + aux_loss
+        
         loss.backward()
-        optimizer.step()
+        for optimizer in optimizers:
+            optimizer.step()
         
         return loss.item()
     
@@ -74,23 +90,26 @@ class ExtendedExperiment3Trainer:
         
         with torch.no_grad():
             for batch in val_loader:
-                input_ids = batch['input_ids'].cuda() if torch.cuda.is_available() else batch['input_ids']
-                labels = batch['labels'].cuda() if torch.cuda.is_available() else batch['labels']
+                x, y = batch
+                input_ids = x.cuda() if torch.cuda.is_available() else x
+                labels = y.cuda() if torch.cuda.is_available() else y
                 
-                outputs = model(input_ids)
+                outputs, aux_loss = model(input_ids, return_aux_loss=True)
                 loss = torch.nn.functional.cross_entropy(
                     outputs.view(-1, outputs.size(-1)), 
-                    labels.view(-1), 
-                    ignore_index=-100
+                    labels.view(-1)
                 )
+                
+                # Add auxiliary loss if present
+                if aux_loss is not None:
+                    loss = loss + aux_loss
                 
                 total_loss += loss.item()
                 
                 # Calculate accuracy
                 predictions = torch.argmax(outputs, dim=-1)
-                mask = labels != -100
-                total_correct += ((predictions == labels) & mask).sum().item()
-                total_tokens += mask.sum().item()
+                total_correct += (predictions == labels).sum().item()
+                total_tokens += labels.numel()
         
         avg_loss = total_loss / len(val_loader)
         accuracy = total_correct / total_tokens if total_tokens > 0 else 0
@@ -121,18 +140,19 @@ class ExtendedExperiment3Trainer:
         set_seed(42)
         
         # Create model
-        model = AttentionMoE_8e_2k_512dModel(self.config)
+        model = MoEMinimalLLM(self.config)
         model = model.cuda() if torch.cuda.is_available() else model
         
         # Create data loaders
-        train_dataset = TextTokenDataset(self.train_data, self.config.max_seq_len)
-        val_dataset = TextTokenDataset(self.val_data, self.config.max_seq_len)
+        train_loader = DataLoader(self.train_dataset, batch_size=self.config.batch_size, shuffle=True)
+        val_loader = DataLoader(self.val_dataset, batch_size=self.config.batch_size, shuffle=False)
         
-        train_loader = DataLoader(train_dataset, batch_size=self.config.batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=self.config.batch_size, shuffle=False)
-        
-        # Setup optimizer
-        optimizer = setup_muon_optimizer(model, learning_rate=learning_rate)
+        # Setup optimizer with custom learning rate
+        # Temporarily modify config for this training run
+        original_lr = self.config.muon_lr
+        self.config.muon_lr = learning_rate
+        optimizers = setup_muon_optimizer(model, self.config)
+        self.config.muon_lr = original_lr  # Restore original
         
         # Training tracking
         train_losses = []
@@ -155,7 +175,7 @@ class ExtendedExperiment3Trainer:
                 
                 # Training step
                 step_start = time.time()
-                loss = self.train_step(model, optimizer, batch)
+                loss = self.train_step(model, optimizers, batch)
                 step_time = time.time() - step_start
                 
                 train_losses.append(loss)
@@ -182,7 +202,7 @@ class ExtendedExperiment3Trainer:
                     torch.save({
                         'step': step,
                         'model_state_dict': model.state_dict(),
-                        'optimizer_state_dict': optimizer.state_dict(),
+                        'optimizer_state_dicts': [opt.state_dict() for opt in optimizers],
                         'val_loss': val_losses[-1] if val_losses else None,
                         'val_accuracy': val_accuracies[-1] if val_accuracies else None,
                         'timestamp': time.time()
@@ -226,7 +246,7 @@ class ExtendedExperiment3Trainer:
         torch.save({
             'step': step,
             'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
+            'optimizer_state_dicts': [opt.state_dict() for opt in optimizers],
             'final_val_loss': final_val_loss,
             'final_val_accuracy': final_val_acc,
             'final_val_perplexity': final_val_perp,
@@ -341,16 +361,16 @@ def run_extended_training():
     config = MoEModelConfig(
         max_steps=10000,  # Will be overridden
         batch_size=16,    # Smaller batch for extended training
-        max_tokens=100000,
+        max_tokens=50000, # Reduced tokens for memory
         eval_every=100,
         num_documents=1000,
-        max_seq_len=256,
-        d_model=512,
+        max_seq_len=128,  # Reduced sequence length
+        d_model=256,     # Reduced model size
         n_heads=8,
-        n_layers=12,
-        d_ff=1024,  # Smaller for MoE
-        num_experts=8,    # Default, should be optimized via expert search
-        expert_top_k=2,   # Default, should be optimized via expert search
+        n_layers=6,      # Reduced layers
+        d_ff=512,        # Smaller for MoE
+        num_experts=4,   # Use reasonable default
+        expert_top_k=2,  # Use reasonable default
     )
     
     # Create trainer
@@ -362,7 +382,7 @@ def run_extended_training():
         checkpoint_every=3000,
         eval_every=100,
         hellaswag_every=1000,
-        learning_rate=1e-3  # Should be optimized via LR search
+        learning_rate=3e-3  # Use optimal LR from search
     )
     
     return results

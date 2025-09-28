@@ -1,0 +1,14 @@
+{
+  "experts_2_top_1": {
+    "error": "empty() received an invalid combination of arguments - got (tuple, dtype=NoneType, device=NoneType), but expected one of:\n * (tuple of ints size, *, tuple of names names, torch.memory_format memory_format = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n * (tuple of ints size, *, torch.memory_format memory_format = None, Tensor out = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n"
+  },
+  "experts_2_top_2": {
+    "error": "empty() received an invalid combination of arguments - got (tuple, dtype=NoneType, device=NoneType), but expected one of:\n * (tuple of ints size, *, tuple of names names, torch.memory_format memory_format = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n * (tuple of ints size, *, torch.memory_format memory_format = None, Tensor out = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n"
+  },
+  "experts_4_top_1": {
+    "error": "empty() received an invalid combination of arguments - got (tuple, dtype=NoneType, device=NoneType), but expected one of:\n * (tuple of ints size, *, tuple of names names, torch.memory_format memory_format = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n * (tuple of ints size, *, torch.memory_format memory_format = None, Tensor out = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n"
+  },
+  "experts_4_top_2": {
+    "error": "empty() received an invalid combination of arguments - got (tuple, dtype=NoneType, device=NoneType), but expected one of:\n * (tuple of ints size, *, tuple of names names, torch.memory_format memory_format = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n * (tuple of ints size, *, torch.memory_format memory_format = None, Tensor out = None, torch.dtype dtype = None, torch.layout layout = None, torch.device device = None, bool pin_memory = False, bool requires_grad = False)\n"
+  }
+}

@@ -24,7 +24,7 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp1_simplified_ablation_study.exp1_models import AttentionMoE_8e_2k_512dModel
+from experiments.exp1_simplified_ablation_study.exp1_models import MoEMinimalLLM
 
 
 class LearningRateSearchTrainer:
@@ -37,9 +37,19 @@ class LearningRateSearchTrainer:
         
         # Load data
         print("📚 Loading data...")
-        self.train_data, self.val_data = load_and_cache_data(config)
+        self.texts, self.tokenizer, self.tokens = load_and_cache_data(config)
         
-        print(f"✅ Data loaded: {len(self.train_data)} train, {len(self.val_data)} val samples")
+        # Create dataset
+        self.dataset = TextTokenDataset(self.tokens, config.max_seq_len)
+        
+        # Train/val split
+        val_size = len(self.dataset) // 10
+        train_size = len(self.dataset) - val_size
+        self.train_dataset, self.val_dataset = torch.utils.data.random_split(
+            self.dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42)
+        )
+        
+        print(f"✅ Data loaded: {len(self.train_dataset)} train, {len(self.val_dataset)} val samples")
     
     def train_with_lr(self, learning_rate: float, max_steps: int = 1000, eval_every: int = 100) -> Dict[str, Any]:
         """Train model with specific learning rate"""
@@ -49,18 +59,19 @@ class LearningRateSearchTrainer:
         set_seed(42)
         
         # Create model
-        model = AttentionMoE_8e_2k_512dModel(self.config)
+        model = MoEMinimalLLM(self.config)
         model = model.cuda() if torch.cuda.is_available() else model
         
         # Create data loaders
-        train_dataset = TextTokenDataset(self.train_data, self.config.max_seq_len)
-        val_dataset = TextTokenDataset(self.val_data, self.config.max_seq_len)
+        train_loader = DataLoader(self.train_dataset, batch_size=self.config.batch_size, shuffle=True)
+        val_loader = DataLoader(self.val_dataset, batch_size=self.config.batch_size, shuffle=False)
         
-        train_loader = DataLoader(train_dataset, batch_size=self.config.batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=self.config.batch_size, shuffle=False)
-        
-        # Setup optimizer
-        optimizer = setup_muon_optimizer(model, learning_rate=learning_rate)
+        # Setup optimizer with custom learning rate
+        # Temporarily modify config for this training run
+        original_lr = self.config.muon_lr
+        self.config.muon_lr = learning_rate
+        optimizers = setup_muon_optimizer(model, self.config)
+        self.config.muon_lr = original_lr  # Restore original
         
         # Training loop
         model.train()
@@ -78,23 +89,29 @@ class LearningRateSearchTrainer:
                     break
                     
                 # Move batch to device
-                input_ids = batch['input_ids'].cuda() if torch.cuda.is_available() else batch['input_ids']
-                labels = batch['labels'].cuda() if torch.cuda.is_available() else batch['labels']
+                x, y = batch
+                input_ids = x.cuda() if torch.cuda.is_available() else x
+                labels = y.cuda() if torch.cuda.is_available() else y
                 
                 # Forward pass
-                optimizer.zero_grad()
-                outputs = model(input_ids)
+                for optimizer in optimizers:
+                    optimizer.zero_grad()
+                outputs, aux_loss = model(input_ids, return_aux_loss=True)
                 
                 # Calculate loss
                 loss = torch.nn.functional.cross_entropy(
                     outputs.view(-1, outputs.size(-1)), 
-                    labels.view(-1), 
-                    ignore_index=-100
+                    labels.view(-1)
                 )
+                
+                # Add auxiliary loss if present
+                if aux_loss is not None:
+                    loss = loss + aux_loss
                 
                 # Backward pass
                 loss.backward()
-                optimizer.step()
+                for optimizer in optimizers:
+                    optimizer.step()
                 
                 train_losses.append(loss.item())
                 step += 1
@@ -135,23 +152,26 @@ class LearningRateSearchTrainer:
         
         with torch.no_grad():
             for batch in val_loader:
-                input_ids = batch['input_ids'].cuda() if torch.cuda.is_available() else batch['input_ids']
-                labels = batch['labels'].cuda() if torch.cuda.is_available() else batch['labels']
+                x, y = batch
+                input_ids = x.cuda() if torch.cuda.is_available() else x
+                labels = y.cuda() if torch.cuda.is_available() else y
                 
-                outputs = model(input_ids)
+                outputs, aux_loss = model(input_ids, return_aux_loss=True)
                 loss = torch.nn.functional.cross_entropy(
                     outputs.view(-1, outputs.size(-1)), 
-                    labels.view(-1), 
-                    ignore_index=-100
+                    labels.view(-1)
                 )
+                
+                # Add auxiliary loss if present
+                if aux_loss is not None:
+                    loss = loss + aux_loss
                 
                 total_loss += loss.item()
                 
                 # Calculate accuracy
                 predictions = torch.argmax(outputs, dim=-1)
-                mask = labels != -100
-                total_correct += ((predictions == labels) & mask).sum().item()
-                total_tokens += mask.sum().item()
+                total_correct += (predictions == labels).sum().item()
+                total_tokens += labels.numel()
         
         avg_loss = total_loss / len(val_loader)
         accuracy = total_correct / total_tokens if total_tokens > 0 else 0
@@ -237,21 +257,21 @@ def run_lr_search():
     # Create configuration
     config = MoEModelConfig(
         max_steps=1000,   # Steps per learning rate
-        batch_size=128,
-        max_tokens=100000,
+        batch_size=32,    # Reduced batch size for memory
+        max_tokens=50000, # Reduced tokens for memory
         eval_every=100,   # Evaluate every 100 steps
         num_documents=1000,
-        max_seq_len=256,
-        d_model=512,
+        max_seq_len=128,  # Reduced sequence length
+        d_model=256,     # Reduced model size
         n_heads=8,
-        n_layers=12,
-        d_ff=1024,  # Smaller for MoE
-        num_experts=8,
+        n_layers=6,      # Reduced layers
+        d_ff=512,        # Smaller for MoE
+        num_experts=4,   # Reduced experts
         expert_top_k=2,
     )
     
     print(f"📋 Configuration:")
-    print(f"   Model: DeepSeek Attention + GLM4 MoE 512d")
+    print(f"   Model: DeepSeek Attention + GLM4 MoE {config.d_model}d")
     print(f"   Batch Size: {config.batch_size}")
     print(f"   Model: {config.d_model}d, {config.n_layers}L, {config.n_heads}H")
     print(f"   MoE: {config.num_experts} experts, top-{config.expert_top_k}")
