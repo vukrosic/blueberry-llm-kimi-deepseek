@@ -60,14 +60,19 @@ class LongTermExperiment9Trainer:
         # Create checkpoint directory
         self.checkpoint_dir = self.output_dir / "checkpoints"
         self.checkpoint_dir.mkdir(exist_ok=True)
+        
+        # Initialize HellaSwag evaluator
+        self.hellaswag_evaluator = HellaSwagEvaluator(output_dir=str(self.output_dir / "hellaswag_benchmark"))
     
     def train_model_long_term(self, model, model_name: str, total_steps: int = 10000, 
-                            checkpoint_every: int = 1000, eval_every: int = 100) -> Dict[str, Any]:
+                            checkpoint_every: int = 3000, eval_every: int = 100, 
+                            hellaswag_every: int = 1000) -> Dict[str, Any]:
         """Train model for extended period with regular checkpoints"""
         print(f"\n{'='*80}")
         print(f"🚀 Long-term Training: {model_name} ({total_steps} steps)")
         print(f"📁 Checkpoints every {checkpoint_every} steps")
         print(f"📊 Evaluation every {eval_every} steps")
+        print(f"🧪 HellaSwag benchmark every {hellaswag_every} steps")
         print(f"{'='*80}")
         
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -163,6 +168,15 @@ class LongTermExperiment9Trainer:
                 # Checkpoint saving (every checkpoint_every steps)
                 if step % checkpoint_every == 0 and step > 0:
                     self._save_checkpoint(model, step, eval_losses[-1] if eval_losses else 0)
+                
+                # HellaSwag benchmark evaluation (every hellaswag_every steps)
+                if step % hellaswag_every == 0 and step > 0:
+                    print(f"\n🧪 Running HellaSwag benchmark at step {step}...")
+                    try:
+                        benchmark_result = self.hellaswag_evaluator.evaluate_model(model, model_name)
+                        print(f"✅ HellaSwag benchmark completed: {benchmark_result}")
+                    except Exception as e:
+                        print(f"❌ HellaSwag benchmark failed: {e}")
                 
                 step += 1
         
@@ -273,12 +287,14 @@ class LongTermExperiment9Trainer:
         }
     
     def run_long_term_training(self, total_steps: int = 10000, 
-                              checkpoint_every: int = 1000, eval_every: int = 100) -> Dict[str, Any]:
+                              checkpoint_every: int = 3000, eval_every: int = 100,
+                              hellaswag_every: int = 1000) -> Dict[str, Any]:
         """Run long-term training experiment"""
         print(f"\n🚀 Starting Long-term Experiment 9: Attention+MLP 512d")
         print(f"📋 Training for {total_steps} steps")
         print(f"💾 Checkpoints every {checkpoint_every} steps")
         print(f"📊 Evaluation every {eval_every} steps")
+        print(f"🧪 HellaSwag benchmark every {hellaswag_every} steps")
         
         # Set seed for reproducibility
         set_seed(42)
@@ -295,7 +311,8 @@ class LongTermExperiment9Trainer:
                 "attention_mlp_512d", 
                 total_steps=total_steps,
                 checkpoint_every=checkpoint_every,
-                eval_every=eval_every
+                eval_every=eval_every,
+                hellaswag_every=hellaswag_every
             )
             
             self.results["attention_mlp_512d"] = result
@@ -411,8 +428,9 @@ def main():
     # Run with configurable parameters
     results = trainer.run_long_term_training(
         total_steps=10000,      # Train for 10k steps
-        checkpoint_every=1000,   # Save checkpoint every 1k steps
-        eval_every=100          # Evaluate every 100 steps
+        checkpoint_every=3000,   # Save checkpoint every 3k steps
+        eval_every=100,         # Evaluate every 100 steps
+        hellaswag_every=1000    # HellaSwag benchmark every 1k steps
     )
     
     print(f"\n✅ Long-term Experiment 9 completed!")

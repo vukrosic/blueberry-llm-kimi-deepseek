@@ -1,0 +1,9 @@
+{
+  "model_name": "attention_mlp_512d",
+  "benchmark": "hellaswag",
+  "accuracy": 0.0,
+  "f1": 0.0,
+  "exact_match": 0.0,
+  "evaluation_time_seconds": 0.25506091117858887,
+  "status": "pending_implementation"
+}

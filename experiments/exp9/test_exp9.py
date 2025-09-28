@@ -117,7 +117,8 @@ def test_short_training():
         results = trainer.run_long_term_training(
             total_steps=50,
             checkpoint_every=25,
-            eval_every=10
+            eval_every=10,
+            hellaswag_every=50  # Skip HellaSwag for short test
         )
         print("✅")
         

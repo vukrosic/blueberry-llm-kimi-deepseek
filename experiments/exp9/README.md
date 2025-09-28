@@ -15,8 +15,9 @@ Based on Experiment 8 results, we train the **DeepSeek Attention + MLP 512d** mo
 
 ### 🚀 Long-term Training
 - **Extended Training**: 10,000 steps (vs 1,500 in Exp8)
-- **Regular Checkpoints**: Save model every 1,000 steps
+- **Regular Checkpoints**: Save model every 3,000 steps
 - **Frequent Evaluation**: Evaluate every 100 steps
+- **HellaSwag Benchmark**: Run benchmark every 1,000 steps
 - **Progress Tracking**: Comprehensive loss curve visualization
 
 ### 💾 Checkpoint System
@@ -60,8 +61,9 @@ python exp9_inference.py --step 5000 --mode interactive
 
 ### Default Settings
 - **Total Steps**: 10,000
-- **Checkpoint Every**: 1,000 steps
+- **Checkpoint Every**: 3,000 steps
 - **Evaluation Every**: 100 steps
+- **HellaSwag Benchmark**: Every 1,000 steps
 - **Batch Size**: 16
 - **Learning Rate**: Cosine schedule with 5% warmup
 - **Gradient Clipping**: Enabled
@@ -71,8 +73,9 @@ You can modify the training parameters in `exp9_trainer.py`:
 ```python
 results = trainer.run_long_term_training(
     total_steps=20000,      # Train for 20k steps
-    checkpoint_every=2000,   # Save checkpoint every 2k steps
-    eval_every=200          # Evaluate every 200 steps
+    checkpoint_every=5000,   # Save checkpoint every 5k steps
+    eval_every=200,         # Evaluate every 200 steps
+    hellaswag_every=2000    # HellaSwag benchmark every 2k steps
 )
 ```
 
@@ -117,9 +120,22 @@ Based on Experiment 8 results:
 - **Perplexity**: < 1.01 (vs 1.02 at 1500 steps)
 
 ### Checkpoint Timeline
-- **Step 1000**: Early convergence checkpoint
-- **Step 5000**: Mid-training checkpoint
+- **Step 3000**: First checkpoint
+- **Step 6000**: Mid-training checkpoint
+- **Step 9000**: Late training checkpoint
 - **Step 10000**: Final trained model
+
+### HellaSwag Benchmark Timeline
+- **Step 1000**: Early benchmark
+- **Step 2000**: Progress benchmark
+- **Step 3000**: Checkpoint benchmark
+- **Step 4000**: Mid-training benchmark
+- **Step 5000**: Progress benchmark
+- **Step 6000**: Checkpoint benchmark
+- **Step 7000**: Late training benchmark
+- **Step 8000**: Progress benchmark
+- **Step 9000**: Checkpoint benchmark
+- **Step 10000**: Final benchmark
 
 ## File Structure
 ```
@@ -131,8 +147,13 @@ experiments/exp9/
     ├── exp9_long_term_results.json
     ├── exp9_long_term_training_curves.png
     └── checkpoints/        # Model checkpoints
-        ├── checkpoint_step_1000.pt
-        ├── checkpoint_step_2000.pt
+        ├── checkpoint_step_3000.pt
+        ├── checkpoint_step_6000.pt
+        ├── checkpoint_step_9000.pt
+        └── ...
+    └── hellaswag_benchmark/ # HellaSwag results
+        ├── step_1000_hellaswag_results.json
+        ├── step_2000_hellaswag_results.json
         └── ...
 ```
 

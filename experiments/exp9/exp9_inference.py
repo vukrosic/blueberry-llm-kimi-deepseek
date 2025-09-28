@@ -152,8 +152,20 @@ class Experiment9Inference:
         
         with torch.no_grad():
             for _ in range(max_length):
-                # Get model output
-                logits, _ = model(generated_ids, return_aux_loss=False)
+                # Get model output - handle both single and tuple returns
+                model_output = model(generated_ids, return_aux_loss=False)
+                if isinstance(model_output, tuple):
+                    logits, _ = model_output
+                else:
+                    logits = model_output
+                
+                # Debug: print model output type for troubleshooting
+                if _ == 0:  # Only print on first iteration
+                    print(f"🔍 Debug: Model output type: {type(model_output)}")
+                    if isinstance(model_output, tuple):
+                        print(f"🔍 Debug: Tuple length: {len(model_output)}")
+                    else:
+                        print(f"🔍 Debug: Single tensor shape: {logits.shape}")
                 
                 # Get next token logits
                 next_token_logits = logits[0, -1, :] / temperature
