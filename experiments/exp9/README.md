@@ -1,179 +1,163 @@
-# Experiment 9: Long-term Training of Attention+MLP 512d Model
+# Experiment 9: DeepSeek Attention + MLP with Learning Rate Search
 
 ## Overview
-This experiment focuses on training the best performing model from Experiment 8 (`attention_mlp_512d`) for extended periods with comprehensive checkpointing and inference capabilities. The goal is to achieve maximum performance through long-term training and provide tools for text generation.
+This experiment focuses on training the DeepSeek Attention + MLP model with learning rate optimization. The goal is to find the optimal learning rate for the DeepSeek Attention + MLP architecture and then train it for extended periods.
 
 ## Model Architecture
-Based on Experiment 8 results, we train the **DeepSeek Attention + MLP 512d** model with increased depth:
+**DeepSeek Attention + MLP 512d** model:
 - **Hidden Size**: 512 dimensions
 - **Attention Heads**: 8 heads
-- **Hidden Layers**: 12 layers (increased from 3 for better performance)
+- **Hidden Layers**: 12 layers
 - **Intermediate Size**: 2048 (4x d_model scaling)
-- **Parameters**: ~145M (deeper model for better capacity)
+- **Parameters**: ~145M
 
 ## Key Features
 
-### 🚀 Long-term Training
-- **Extended Training**: 10,000 steps (vs 1,500 in Exp8)
+### 🔍 Learning Rate Search
+- **Multiple LRs**: Test 1e-4, 3e-4, 1e-3, 3e-3
+- **Quick Evaluation**: 1000 steps per learning rate
+- **Comprehensive Metrics**: Loss, accuracy, perplexity tracking
+- **Visualization**: Comparison plots for all learning rates
+- **Recommendation**: Automatic best LR selection
+
+### 🚀 Extended Training
+- **Long-term Training**: 10,000+ steps with optimal LR
 - **Regular Checkpoints**: Save model every 3,000 steps
 - **Frequent Evaluation**: Evaluate every 100 steps
 - **HellaSwag Benchmark**: Run benchmark every 1,000 steps
 - **Progress Tracking**: Comprehensive loss curve visualization
 
-### 💾 Checkpoint System
-- **Automatic Saves**: Regular checkpoints during training
-- **Metadata Storage**: Step number, validation loss, timestamp
-- **Easy Loading**: Simple checkpoint loading for inference
-- **Multiple Versions**: Access to model at different training stages
-
-### 🎯 Inference Capabilities
-- **Interactive Mode**: Real-time text generation
-- **Batch Processing**: Generate text for multiple prompts
-- **Flexible Parameters**: Temperature, top-k, top-p sampling
-- **Checkpoint Selection**: Load any saved checkpoint
-
 ## Usage
 
-### Training
+### Learning Rate Search
+```bash
+cd experiments/exp9
+python lr_search.py
+```
+
+### Extended Training (after LR search)
 ```bash
 cd experiments/exp9
 python exp9_trainer.py
 ```
 
-### Interactive Inference
-```bash
-cd experiments/exp9
-python exp9_inference.py --mode interactive
-```
+## Learning Rate Search Process
 
-### Batch Inference
-```bash
-cd experiments/exp9
-python exp9_inference.py --mode batch --prompts "Hello world" "The future of AI is" "Once upon a time"
-```
+### Step 1: Run LR Search
+The learning rate search tests multiple learning rates:
+- **1e-4**: Conservative learning rate
+- **3e-4**: Medium-low learning rate  
+- **1e-3**: Medium-high learning rate
+- **3e-3**: Aggressive learning rate
 
-### Load Specific Checkpoint
-```bash
-python exp9_inference.py --step 5000 --mode interactive
-```
+### Step 2: Analysis
+The search provides:
+- **Validation Loss Comparison**: Which LR gives lowest loss
+- **Validation Accuracy Comparison**: Which LR gives highest accuracy
+- **Training Stability**: Which LR trains most stably
+- **Convergence Speed**: Which LR converges fastest
+
+### Step 3: Recommendation
+The system automatically recommends the best learning rate based on validation loss.
 
 ## Training Configuration
 
-### Default Settings
-- **Total Steps**: 10,000
+### Learning Rate Search Settings
+- **Steps per LR**: 1000 steps
+- **Evaluation**: Every 100 steps
+- **Batch Size**: 128
+- **Model**: DeepSeek Attention + MLP 512d
+
+### Extended Training Settings
+- **Total Steps**: 10,000+
 - **Checkpoint Every**: 3,000 steps
 - **Evaluation Every**: 100 steps
 - **HellaSwag Benchmark**: Every 1,000 steps
 - **Batch Size**: 16
-- **Learning Rate**: Cosine schedule with 5% warmup
-- **Gradient Clipping**: Enabled
-
-### Customizable Parameters
-You can modify the training parameters in `exp9_trainer.py`:
-```python
-results = trainer.run_long_term_training(
-    total_steps=20000,      # Train for 20k steps
-    checkpoint_every=5000,   # Save checkpoint every 5k steps
-    eval_every=200,         # Evaluate every 200 steps
-    hellaswag_every=2000    # HellaSwag benchmark every 2k steps
-)
-```
-
-## Inference Features
-
-### Interactive Mode Commands
-- `quit` or `exit` - End session
-- `checkpoints` - Show available checkpoints
-- `load <step>` - Load different checkpoint
-- `params` - Show generation parameters
-- Any other text - Generate continuation
-
-### Generation Parameters
-- **Temperature**: Controls randomness (0.1 = deterministic, 2.0 = very random)
-- **Top-k**: Limits sampling to top-k most likely tokens
-- **Top-p**: Nucleus sampling threshold
-- **Max Length**: Maximum tokens to generate
-
-### Example Usage
-```
-🎯 Prompt: The future of artificial intelligence
-🤖 Generated: The future of artificial intelligence is bright and promising. 
-As we continue to develop more sophisticated algorithms and models, 
-we can expect to see significant advances in various fields...
-
-🎯 Prompt: Once upon a time
-🤖 Generated: Once upon a time, in a land far away, there lived a wise 
-old wizard who possessed the power to grant wishes...
-```
+- **Learning Rate**: Optimal LR from search
 
 ## Expected Results
 
-### Training Progress
-- **Early Steps (0-1000)**: Rapid loss decrease
-- **Mid Training (1000-5000)**: Steady improvement
-- **Late Training (5000-10000)**: Fine-tuning and convergence
+### Learning Rate Search Results
+- **Best LR**: Typically 1e-3 or 3e-4
+- **Validation Loss Range**: 0.01 - 0.05
+- **Training Time**: ~30 minutes for full search
+- **Comparison Plot**: Visual comparison of all LRs
 
-### Performance Targets
-Based on Experiment 8 results:
-- **Validation Loss**: < 0.01 (vs 0.0174 at 1500 steps)
-- **Validation Accuracy**: > 99.8% (vs 99.71% at 1500 steps)
-- **Perplexity**: < 1.01 (vs 1.02 at 1500 steps)
-
-### Checkpoint Timeline
-- **Step 3000**: First checkpoint
-- **Step 6000**: Mid-training checkpoint
-- **Step 9000**: Late training checkpoint
-- **Step 10000**: Final trained model
-
-### HellaSwag Benchmark Timeline
-- **Step 1000**: Early benchmark
-- **Step 2000**: Progress benchmark
-- **Step 3000**: Checkpoint benchmark
-- **Step 4000**: Mid-training benchmark
-- **Step 5000**: Progress benchmark
-- **Step 6000**: Checkpoint benchmark
-- **Step 7000**: Late training benchmark
-- **Step 8000**: Progress benchmark
-- **Step 9000**: Checkpoint benchmark
-- **Step 10000**: Final benchmark
+### Extended Training Results
+- **Final Validation Loss**: < 0.01
+- **Final Validation Accuracy**: > 99.8%
+- **Final Perplexity**: < 1.01
+- **Training Time**: ~2-3 hours for 10k steps
 
 ## File Structure
 ```
 experiments/exp9/
-├── exp9_trainer.py          # Long-term training script
-├── exp9_inference.py        # Inference and text generation
+├── lr_search.py              # Learning rate search script
+├── exp9_trainer.py          # Extended training script
 ├── README.md               # This documentation
+├── lr_search_results/      # Generated during LR search
+│   ├── lr_search_results.json
+│   ├── lr_search_comparison.png
+│   ├── lr_recommendation.json
+│   └── lr_1.00e-03_result.json
 └── exp9_results/           # Generated during training
     ├── exp9_long_term_results.json
     ├── exp9_long_term_training_curves.png
-    └── checkpoints/        # Model checkpoints
-        ├── checkpoint_step_3000.pt
-        ├── checkpoint_step_6000.pt
-        ├── checkpoint_step_9000.pt
-        └── ...
-    └── hellaswag_benchmark/ # HellaSwag results
-        ├── step_1000_hellaswag_results.json
-        ├── step_2000_hellaswag_results.json
-        └── ...
+    └── hellaswag_benchmark/
+        └── attention_mlp_512d_hellaswag_results.json
 ```
 
-## Monitoring Training
+## Workflow
 
-### Real-time Output
-The training script provides detailed progress information:
+### 1. Learning Rate Search
+```bash
+python lr_search.py
+```
+This will:
+- Test 4 different learning rates
+- Generate comparison plots
+- Save results and recommendation
+- Take ~30 minutes
+
+### 2. Review Results
+Check `lr_search_results/lr_recommendation.json` for the recommended learning rate.
+
+### 3. Extended Training
+```bash
+python exp9_trainer.py
+```
+This will:
+- Use the recommended learning rate
+- Train for 10,000+ steps
+- Save regular checkpoints
+- Run HellaSwag benchmarks
+- Take ~2-3 hours
+
+## Monitoring Progress
+
+### Learning Rate Search Output
+```
+🧪 Training with LR=1.00e-04
+  Step 100: Train Loss=8.2341, Val Loss=6.1234, Val Acc=0.2345
+  Step 200: Train Loss=7.1234, Val Loss=5.2345, Val Acc=0.3456
+  ...
+
+🏆 Best Learning Rate Found:
+   Learning Rate: 1.00e-03
+   Validation Loss: 0.012345
+   Validation Accuracy: 0.998765
+```
+
+### Extended Training Output
 ```
 Step 0/10000: Loss=10.9205
-Step 100/10000: Loss=10.2187
-   Val Loss: 6.5104, Val Acc: 0.1450
-Step 200/10000: Loss=7.7008
-   Val Loss: 6.1234, Val Acc: 0.2345
-💾 Checkpoint saved: exp9_results/checkpoints/checkpoint_step_1000.pt
+Step 100/10000: Loss=8.1234
+   Val Loss: 0.1234, Val Acc: 0.9876
+Step 200/10000: Loss=6.2345
+   Val Loss: 0.0987, Val Acc: 0.9923
+💾 Checkpoint saved: exp9_results/checkpoints/checkpoint_step_3000.pt
 ```
-
-### Visualization
-- **Training Curves**: Loss vs steps plots
-- **Checkpoint Tracking**: Validation loss over time
-- **Performance Metrics**: Accuracy and perplexity trends
 
 ## Hardware Requirements
 - **GPU**: NVIDIA GPU with 8+ GB VRAM recommended
@@ -184,31 +168,31 @@ Step 200/10000: Loss=7.7008
 
 ### Common Issues
 1. **CUDA Out of Memory**: Reduce batch size in config
-2. **Checkpoint Loading Error**: Ensure checkpoint file is complete
-3. **Tokenization Error**: Check tokenizer compatibility
+2. **LR Search Too Slow**: Reduce max_steps in lr_search.py
+3. **Poor LR Results**: Try different LR ranges
 
 ### Performance Tips
 1. **Use GPU**: Ensure CUDA is available
 2. **Monitor Memory**: Watch GPU memory usage
-3. **Regular Saves**: Don't skip checkpoint saves
-4. **Inference Mode**: Always use `model.eval()` for inference
+3. **Start with LR Search**: Always run LR search first
+4. **Use Recommended LR**: Don't skip the LR recommendation
 
 ## Comparison with Experiment 8
 
 | Aspect | Experiment 8 | Experiment 9 |
 |--------|---------------|--------------|
-| **Training Steps** | 1,500 | 10,000 |
-| **Checkpoints** | None | Every 1,000 steps |
-| **Inference** | None | Full interactive system |
+| **Purpose** | Architecture comparison | LR optimization + extended training |
+| **Training Steps** | 1,500 | 10,000+ |
+| **Learning Rate** | Fixed | Optimized via search |
+| **Checkpoints** | None | Every 3,000 steps |
 | **Monitoring** | Basic | Comprehensive |
-| **Purpose** | Architecture comparison | Performance optimization |
 
 ## Next Steps
 After completing Experiment 9:
-1. **Analyze Results**: Compare with Experiment 8 performance
-2. **Fine-tune Parameters**: Adjust training hyperparameters
+1. **Analyze LR Results**: Understand which LR works best
+2. **Compare Performance**: Compare with Experiment 8 results
 3. **Extend Training**: Run even longer if needed
-4. **Deploy Model**: Use trained model for applications
-5. **Benchmark**: Test on additional datasets
+4. **Fine-tune**: Adjust other hyperparameters
+5. **Deploy**: Use optimized model for applications
 
-This experiment provides a complete pipeline for training and using the best-performing 512-scale language model architecture identified in Experiment 8.
+This experiment provides a complete pipeline for optimizing and training the DeepSeek Attention + MLP architecture with the best possible learning rate.

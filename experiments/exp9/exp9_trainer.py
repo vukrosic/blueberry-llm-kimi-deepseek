@@ -1,6 +1,6 @@
 """
-Experiment 9: Long-term Training of Attention+MLP 512d Model
-Focused on training the best performing model from Experiment 8 for extended periods
+Experiment 9: DeepSeek Attention + MLP Training
+Focused on training the DeepSeek Attention + MLP model with learning rate optimization
 """
 
 import torch
@@ -24,7 +24,7 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp8.exp8_reduced_ablation_models import AttentionMLP_512dModel
+from experiments.exp8.exp8_models import AttentionMLP_512dModel
 from benchmark_evaluator import HellaSwagEvaluator
 
 
