@@ -29,6 +29,8 @@ A function f: A → B maps every element in set A to exactly one element in set 
 
 Let's calculate f(x) for different values step by step:
 
+Don't confuse f(1) and 2(1). f(1) means passing 1 into function f, and 2(1) mean 2*1.
+
 For x = 1:
 - f(1) = 2(1) + 3 = 2 + 3 = 5
 
