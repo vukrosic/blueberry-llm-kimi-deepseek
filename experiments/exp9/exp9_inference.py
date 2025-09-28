@@ -50,7 +50,7 @@ class Experiment9Inference:
             expert_top_k=2,
             vocab_size=32000,
             max_seq_len=256,
-            batch_size=16,
+            batch_size=32,  # 2x increase from 16
             max_steps=100,
             max_tokens=10000,
             num_documents=100,

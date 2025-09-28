@@ -399,10 +399,10 @@ def main():
     # Create configuration for long-term training
     base_config = MoEModelConfig(
         max_steps=10000,  # Will be overridden by total_steps parameter
-        batch_size=256,   # Increased for B200 GPU (16x increase from 16)
-        max_tokens=100000,
+        batch_size=128,  # Original batch size - baseline
+        max_tokens=100000,  # 4x increase from 100000 to support larger batch size
         eval_every=100,  # Evaluation every 100 steps
-        num_documents=1000,
+        num_documents=1000,  # 4x increase from 1000 to support larger batch size
         max_seq_len=256,
         d_model=512,  # Target 512 scale
         n_heads=8,    # Powers of 2
