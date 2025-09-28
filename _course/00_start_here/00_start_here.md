@@ -1,0 +1,3 @@
+A bit circular, for example, to know backpropagation you need to understand neural networks, but to understand neural networks you need to understsandn backpropagation - do not dispair - at moments it will seem impossibly or you will have impster syndrome as if you don't understand as well as other people, but just by learning it anyways, it will all eventually click into place.
+
+Don't copare yourself to others but to yesterday's you.
