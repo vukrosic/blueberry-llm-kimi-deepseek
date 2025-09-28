@@ -1,0 +1,12 @@
+{
+  "val_loss": 0.017400211468338967,
+  "val_accuracy": 0.99697265625,
+  "val_perplexity": 1.0175524770167566,
+  "model_name": "attention_mlp_512d",
+  "training_time_minutes": 12.021105746428171,
+  "parameter_count": 47395712,
+  "parameters_millions": 47.395712,
+  "total_steps": 10000,
+  "checkpoint_every": 3000,
+  "eval_every": 100
+}

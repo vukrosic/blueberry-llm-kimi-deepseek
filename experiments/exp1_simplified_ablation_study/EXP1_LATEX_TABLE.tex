@@ -1,0 +1,25 @@
+% Experiment 1 Results Table for LaTeX Research Paper
+\begin{table}[h]
+\centering
+\caption{Experiment 1: Simplified Ablation Study Results (512 Hidden Dimensions)}
+\label{tab:exp1_results}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model} & \textbf{Architecture} & \textbf{Val Loss} & \textbf{Val Acc} & \textbf{Val Perp} & \textbf{Params (M)} & \textbf{Time (min)} \\
+\midrule
+attention\_moe\_8e\_2k\_512d & DeepSeek Attn + GLM4 MoE & \textbf{0.0172} & 0.9967 & 1.02 & 231.42 & 1.62 \\
+attention\_mlp\_512d & DeepSeek Attn + MLP & \textbf{0.0174} & 0.9971 & 1.02 & 36.28 & 1.13 \\
+moe\_8e\_2k\_512d & GLM4 MoE & 0.1097 & 0.9795 & 1.12 & 232.89 & 1.59 \\
+baseline & Standard MoE & 0.1203 & 0.9775 & 1.13 & 53.49 & 2.21 \\
+mlp\_512d & DeepSeek MLP & 0.1508 & 0.9722 & 1.16 & 37.75 & 0.93 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Key findings for LaTeX
+\begin{itemize}
+\item \textbf{DeepSeek Attention Dominance}: Models with DeepSeek Attention achieved validation losses of $\sim$0.017, representing a 6-9x improvement over baseline architectures.
+\item \textbf{Parameter Efficiency}: The attention\_mlp\_512d model achieved near-optimal performance with only 36.28M parameters.
+\item \textbf{MoE vs MLP}: At 512 dimensions, DeepSeek MLP performed comparably to GLM4 MoE when combined with DeepSeek Attention.
+\item \textbf{Training Efficiency}: All models converged within 1-2 minutes, demonstrating rapid convergence at this scale.
+\end{itemize}
