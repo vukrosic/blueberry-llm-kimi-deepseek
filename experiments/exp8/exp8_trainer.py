@@ -21,7 +21,7 @@ from data.loader import load_and_cache_data
 from data.dataset import TextTokenDataset
 from training.trainer import setup_muon_optimizer
 from utils.helpers import set_seed
-from experiments.exp8.exp8_reduced_ablation_models import (
+from experiments.exp8.exp8_models import (
     create_reduced_ablation_model, 
     REDUCED_ABLATION_MODELS,
     print_reduced_ablation_summary

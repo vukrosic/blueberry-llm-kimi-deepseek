@@ -207,46 +207,6 @@ class MoE_8e_2k_512dModel(MoEMinimalLLM):
             print("🔧 Using MoE_8e_2k_512d Model (baseline MoE - GLM4 MoE not available)")
 
 
-class MoE_4e_2k_512dModel(MoEMinimalLLM):
-    """GLM4 MoE with 4 experts, top-2, 512d (power of 2 experts)"""
-    
-    def __init__(self, config: MoEModelConfig):
-        # Override to 512 dimensions, 4 experts, top-2
-        config.d_model = 512
-        config.num_experts = 4
-        config.expert_top_k = 2
-        config.d_ff = 1024  # Smaller intermediate size for similar params
-        super().__init__(config)
-        
-        # Replace MoE with GLM4 MoE
-        if GLM4_MOE_AVAILABLE:
-            for i, block in enumerate(self.transformer_blocks):
-                block.feed_forward = GLM4MoEWrapper(config)
-            print("🔧 Using MoE_4e_2k_512d Model (GLM4 MoE: 4 experts, top-2, 512d)")
-        else:
-            print("🔧 Using MoE_4e_2k_512d Model (baseline MoE - GLM4 MoE not available)")
-
-
-class MoE_16e_2k_512dModel(MoEMinimalLLM):
-    """GLM4 MoE with 16 experts, top-2, 512d (power of 2 experts)"""
-    
-    def __init__(self, config: MoEModelConfig):
-        # Override to 512 dimensions, 16 experts, top-2
-        config.d_model = 512
-        config.num_experts = 16
-        config.expert_top_k = 2
-        config.d_ff = 1024  # Smaller intermediate size for similar params
-        super().__init__(config)
-        
-        # Replace MoE with GLM4 MoE
-        if GLM4_MOE_AVAILABLE:
-            for i, block in enumerate(self.transformer_blocks):
-                block.feed_forward = GLM4MoEWrapper(config)
-            print("🔧 Using MoE_16e_2k_512d Model (GLM4 MoE: 16 experts, top-2, 512d)")
-        else:
-            print("🔧 Using MoE_16e_2k_512d Model (baseline MoE - GLM4 MoE not available)")
-
-
 class AttentionMoE_8e_2k_512dModel(MoEMinimalLLM):
     """DeepSeek Attention + GLM4 MoE (8 experts, top-2, 512d) - matches target architecture"""
     
@@ -269,50 +229,6 @@ class AttentionMoE_8e_2k_512dModel(MoEMinimalLLM):
         print("🔧 Using Attention+MoE_8e_2k_512d Model (DeepSeek Attention + GLM4 MoE: 8 experts, top-2, 512d)")
 
 
-class AttentionMoE_4e_2k_512dModel(MoEMinimalLLM):
-    """DeepSeek Attention + GLM4 MoE (4 experts, top-2, 512d) - power of 2 experts"""
-    
-    def __init__(self, config: MoEModelConfig):
-        # Override to 512 dimensions, 4 experts, top-2
-        config.d_model = 512
-        config.num_experts = 4
-        config.expert_top_k = 2
-        config.d_ff = 1024  # Smaller intermediate size for similar params
-        super().__init__(config)
-        
-        deepseek_config = create_deepseek_config(config)
-        deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
-        deepseek_config.attention_bias = True
-        for i, block in enumerate(self.transformer_blocks):
-            block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
-            if GLM4_MOE_AVAILABLE:
-                block.feed_forward = GLM4MoEWrapper(config)
-        
-        print("🔧 Using Attention+MoE_4e_2k_512d Model (DeepSeek Attention + GLM4 MoE: 4 experts, top-2, 512d)")
-
-
-class AttentionMoE_16e_2k_512dModel(MoEMinimalLLM):
-    """DeepSeek Attention + GLM4 MoE (16 experts, top-2, 512d) - power of 2 experts"""
-    
-    def __init__(self, config: MoEModelConfig):
-        # Override to 512 dimensions, 16 experts, top-2
-        config.d_model = 512
-        config.num_experts = 16
-        config.expert_top_k = 2
-        config.d_ff = 1024  # Smaller intermediate size for similar params
-        super().__init__(config)
-        
-        deepseek_config = create_deepseek_config(config)
-        deepseek_config.rope_scaling = {"type": "linear", "factor": 1.0}
-        deepseek_config.attention_bias = True
-        for i, block in enumerate(self.transformer_blocks):
-            block.attention = DeepseekV3AttentionWrapper(deepseek_config, layer_idx=i)
-            if GLM4_MOE_AVAILABLE:
-                block.feed_forward = GLM4MoEWrapper(config)
-        
-        print("🔧 Using Attention+MoE_16e_2k_512d Model (DeepSeek Attention + GLM4 MoE: 16 experts, top-2, 512d)")
-
-
 # =============================================================================
 # REDUCED MODEL REGISTRY
 # =============================================================================
@@ -327,18 +243,14 @@ REDUCED_ABLATION_MODELS = {
     # Attention+MLP ablations (1 model) - only 512d
     "attention_mlp_512d": AttentionMLP_512dModel,
     
-    # MoE ablations (3 models) - powers of 2 experts, 512d
-    "moe_4e_2k_512d": MoE_4e_2k_512dModel,
+    # MoE ablations (1 model) - 8 experts, 512d
     "moe_8e_2k_512d": MoE_8e_2k_512dModel,
-    "moe_16e_2k_512d": MoE_16e_2k_512dModel,
     
-    # Attention+MoE ablations (3 models) - powers of 2 experts, 512d
-    "attention_moe_4e_2k_512d": AttentionMoE_4e_2k_512dModel,
+    # Attention+MoE ablations (1 model) - 8 experts, 512d
     "attention_moe_8e_2k_512d": AttentionMoE_8e_2k_512dModel,
-    "attention_moe_16e_2k_512d": AttentionMoE_16e_2k_512dModel,
 }
 
-# Total: 1 + 1 + 1 + 3 + 3 = 9 models
+# Total: 1 + 1 + 1 + 1 + 1 = 5 models
 
 
 def create_reduced_ablation_model(model_name: str, config: MoEModelConfig):
@@ -359,8 +271,8 @@ def print_reduced_ablation_summary():
         "Baseline": ["baseline"],
         "MLP": ["mlp_512d"],
         "Attention+MLP": ["attention_mlp_512d"],
-        "MoE Expert Scaling": ["moe_4e_2k_512d", "moe_8e_2k_512d", "moe_16e_2k_512d"],
-        "Attention+MoE Scaling": ["attention_moe_4e_2k_512d", "attention_moe_8e_2k_512d", "attention_moe_16e_2k_512d"]
+        "MoE": ["moe_8e_2k_512d"],
+        "Attention+MoE": ["attention_moe_8e_2k_512d"]
     }
     
     for category, models in categories.items():
@@ -371,7 +283,7 @@ def print_reduced_ablation_summary():
     print(f"\n🎯 Total: {len(REDUCED_ABLATION_MODELS)} reduced ablation configurations")
     print(f"🔧 Focused on 512 hidden dimension scale")
     print(f"📏 Standard MLP scaling: 512d → 2048d inner")
-    print(f"🧠 Powers of 2 experts: 4, 8, 16")
+    print(f"🧠 MoE configuration: 8 experts, top-2")
     print(f"📝 Target architecture: 512d, 8 experts, top-2")
     print(f"{'='*80}")
 
