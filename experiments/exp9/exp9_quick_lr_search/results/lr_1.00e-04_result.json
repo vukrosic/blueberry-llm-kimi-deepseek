@@ -1,0 +1,16 @@
+{
+  "val_loss": 8.14340934753418,
+  "val_accuracy": 0.03359375,
+  "val_perplexity": 3440.6281916048274,
+  "learning_rate": 0.0001,
+  "model_name": "attention_mlp_512d_lr_1.00e-04",
+  "training_time_minutes": 2.240921473503113,
+  "parameter_count": 69625088,
+  "parameters_millions": 69.625088,
+  "total_steps": 300,
+  "best_val_loss": 8.48330307006836,
+  "best_step": 270,
+  "early_stopped": false,
+  "final_train_loss": 8.602276802062988,
+  "final_lr": 9.779754323328192e-05
+}
