@@ -64,45 +64,78 @@ Word "ancient" asks: "How do I relate to the cosmic themes?"
 
 Mathematically: `X_new = Attention(Q=input_tokens, K=L_refined, V=L_refined)`
 
-## Architectural Details
+## Key Design Choices in DeepSeek
 
-*   **Learnable Latent Vectors**: The initial `L` vectors are typically initialized as learnable parameters (`nn.Parameter`) of the model. They are not derived from the input but are learned over the course of training.
-*   **Number of Latent Tokens**: This is a hyperparameter, usually much smaller than the maximum sequence length (e.g., 64, 128, 256). A smaller number leads to greater compression and efficiency but might lose fine-grained details.
-*   **Projection Layers**: As with standard attention, linear projection layers (`W_Q`, `W_K`, `W_V`, `W_O`) are used to transform the input `X` and latent `L` vectors into Query, Key, and Value representations for each attention step.
-*   **Multi-Head Mechanism**: Each of these attention steps (Input-to-Latent, Latent Self-Attention, Latent-to-Input) is typically performed using a multi-head mechanism, allowing the model to capture different types of relationships simultaneously.
-*   **Residual Connections and Layer Normalization**: These are applied around each attention sub-layer, just as in a standard Transformer block, to ensure stable training and effective information flow.
+### 1. Learnable Latent Tokens
+Unlike some other approaches, DeepSeek's latent tokens aren't derived from the input - they're **learnable parameters** that the model trains. This means:
+- Each latent token starts as a blank slate: `torch.randn(n_latent_tokens, dim)`
+- During training, they learn to specialize in different types of information
+- They become like "expert judges" in different domains (semantic, syntactic, thematic, etc.)
 
-## Conceptual Diagram
+### 2. The Magical Number of Latent Tokens
+DeepSeek typically uses 64-128 latent tokens, regardless of sequence length. Why this works:
+- **Too few** (8-16): Information bottleneck is too tight, lose important details
+- **Too many** (512+): Defeats the purpose of computational efficiency 
+- **Sweet spot** (64-128): Captures global themes while staying efficient
+
+For a 1000-token sequence:
+- Standard attention: 1,000,000 operations
+- DeepSeek Deep Attention: ~64,000 operations (15× faster!)
+
+### 3. Multi-Head Latent Attention
+Just like standard attention, DeepSeek uses multi-head attention for each phase:
+- **Multiple perspectives**: Each head can specialize in different types of relationships
+- **Parallel processing**: All heads work simultaneously
+- **Richer representations**: Combines insights from multiple viewpoints
+
+## The Complete Flow Diagram
 
 ```
-Input Tokens (X)
-      |
-      v
-+-----------------+
-| Input-to-Latent |
-|    Attention    |
-+--------^--------+
-         |
-         v
-  Latent Tokens (L_new)
-         |
-         v
-+-----------------+
-| Latent Self-    |
-|    Attention    |
-+--------^--------+
-         |
-         v
-  Latent Tokens (L_refined)
-         |
-         v
-+-----------------+
-| Latent-to-Input |
-|    Attention    |
-+--------^--------+
-         |
-         v
-Output Tokens (X_new)
+INPUT SEQUENCE
+"The ancient philosopher pondered existence while ocean waves crashed"
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    PHASE 1: Information Gathering           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │ Latent T1   │←─┤   Input     ├─→│ Latent T3   │        │
+│  │ (Philosophy)│  │   Tokens    │  │Human Thought│        │
+│  └─────────────┘  └─────────────┘  └─────────────┘        │
+│         │                        │                        │
+│         │  ┌─────────────┐       │                        │
+│         └─→│ Latent T2   │◄──────┘                        │
+│            │(Nature/Space)│                               │
+└────────────└─────────────┘────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 PHASE 2: Synthesis                         │
+│           Latent tokens cross-talk and refine               │
+│ T1: "Philosophy exists" + T3: "Humans contemplate"        │
+│  → "Ancient wisdom emerges from deep contemplation"        │
+│ T2: "Nature is vast" + Context → "Cosmic scale perspective" │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  PHASE 3: Knowledge Transfer                │
+│ Each input word gets enhanced with global understanding:    │
+│ "ancient" → ["timeless", "wisdom-tradition", "eternal"]     │
+│ "ponder" → ["deep-reflection", "existential", "meaning"]    │
+│ "ocean" → ["vastness", "eternal-motion", "life-force"]      │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+                  ENHANCED REPRESENTATIONS
 ```
 
-This architecture allows DeepSeek models to efficiently process long sequences by distilling information into a compact latent space, refining that information, and then re-integrating it into the token representations. In the next lesson, we will implement this mechanism in PyTorch.
+## Why DeepSeek's Approach is Brilliant
+
+1. **Efficiency**: Dramatically reduces computational cost for long sequences
+2. **Comprehension**: Forces the model to build hierarchical understanding (details → themes → insights)
+3. **Generalization**: Latent tokens learn transferable patterns across different types of content
+4. **Scalability**: Works well from short sentences to entire books
+
+The genius is in the **forced summarization** - the model must distill every input into these compact latent representations, learning to extract only what matters most.
+
+In the next lesson, we'll implement this entire mechanism in PyTorch and see how beautiful the code looks!
