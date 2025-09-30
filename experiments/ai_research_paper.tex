@@ -276,89 +276,33 @@ Our three comprehensive experiments reveal several key insights about DeepSeek c
 \begin{itemize}
     \item \textbf{Attention Mechanisms}: Consistently dominant across all three experiments - the primary performance driver
     \item \textbf{Learning Rate Optimization}: Critical for achieving optimal performance in both MLP and MoE architectures
-    \item \textbf{Architecture Scaling}: Larger model dimensions achieve better performance but with diminishing returns
+    \item \textbf{Architecture Scaling}: 512d models achieve excellent performance, while 256d models provide memory efficiency
     \item \textbf{MoE vs MLP Trade-offs}: Both architectures can achieve excellent performance when properly optimized
 \end{itemize}
 
-\textbf{Experiment 1 - Ablation Study Insights}:
+\textbf{Key Findings}:
 \begin{itemize}
-    \item Attention mechanisms provide the largest performance gains across all 5 configurations
-    \item DeepSeek Attention + MLP achieves excellent performance with only 36.28M parameters
-    \item MLP alone performs poorly (rank 5) but excels when combined with attention
-    \item MoE alone performs moderately (rank 3) but powerful with attention
-\end{itemize}
-
-\textbf{Experiment 2 - Learning Rate Optimization Insights}:
-\begin{itemize}
-    \item Learning rate optimization is crucial for DeepSeek Attention + MLP architectures
-    \item 3e-3 learning rate achieves optimal performance (0.015 validation loss, 99.7\% accuracy)
-    \item Conservative learning rates (1e-4, 3e-4) fail to achieve adequate performance
-    \item Higher learning rates show faster convergence to optimal performance
-\end{itemize}
-
-\textbf{Experiment 3 - MoE Optimization Insights}:
-\begin{itemize}
-    \item Learning rate consistency: 3e-3 optimal for both MLP and MoE architectures
-    \item Extended training (10,000 steps) provides stable convergence
-    \item 4 experts with top-2 routing achieve excellent performance (98.73\% accuracy)
-    \item Memory-efficient 256d models enable GPU training within constraints
-\end{itemize}
-
-\textbf{Attention Mechanisms}:
-\begin{itemize}
-    \item Attention mechanisms provide the largest performance gains across all configurations
-    \item Attention variants (no RoPE, no bias) still achieve excellent performance (ranks 4, 10)
-    \item DeepSeek attention is essential for achieving near-perfect accuracy (99.71\%)
-    \item Attention dominance is consistent across all model categories and sizes
-\end{itemize}
-
-\textbf{Architecture Scaling Insights}:
-\begin{itemize}
-    \item 512d models consistently achieve excellent performance
-    \item Architecture scaling category dominates the top rankings
-    \item 512d models achieve optimal balance of performance and efficiency
-\end{itemize}
-
-\textbf{Component Interaction Patterns}:
-\begin{itemize}
-    \item MLP alone performs poorly (rank 5) but excels when combined with attention
-    \item MoE alone performs moderately (rank 3) but powerful with attention
-    \item Attention+MLP combinations provide excellent efficiency (rank 2)
-    \item Attention+MoE combinations achieve peak performance (rank 1)
+    \item \textbf{Attention dominance}: Models with DeepSeek attention achieve 8.7x better performance than those without
+    \item \textbf{Learning rate consistency}: 3e-3 optimal for both MLP and MoE architectures across experiments
+    \item \textbf{Parameter efficiency}: attention\_mlp\_512d achieves 99.71\% accuracy with only 36.28M parameters
+    \item \textbf{Training efficiency}: All configurations complete training in under 3 minutes (Experiment 1) to 26.6 minutes (Experiment 3)
 \end{itemize}
 
 \subsection{Efficiency Analysis}
 
-\textbf{Cross-Experiment Training Time Efficiency}:
+\textbf{Training Efficiency}:
 \begin{itemize}
-    \item \textbf{Experiment 1}: MLP-based models train fastest (0.69-1.58 minutes), MoE combinations require 1.87-3.15 minutes
-    \item \textbf{Experiment 2}: DeepSeek Attention + MLP achieves optimal performance in ~2-3 hours with 3e-3 learning rate
+    \item \textbf{Experiment 1}: Fastest configurations complete in 0.93-2.21 minutes
+    \item \textbf{Experiment 2}: DeepSeek Attention + MLP achieves optimal performance with extended training
     \item \textbf{Experiment 3}: DeepSeek Attention + MoE completes 10,000-step training in 26.6 minutes
-    \item \textbf{Learning rate impact}: Higher learning rates (3e-3) provide faster convergence across all architectures
+    \item \textbf{Learning rate impact}: 3e-3 learning rate provides fastest convergence across all architectures
 \end{itemize}
 
-\textbf{Parameter Efficiency Analysis}:
+\textbf{Parameter Efficiency}:
 \begin{itemize}
-    \item \textbf{Experiment 1}: attention\_mlp\_512d (rank 2) achieves excellent performance with 36.28M parameters
-    \item \textbf{Experiment 2}: DeepSeek Attention + MLP achieves 99.7\% accuracy with optimized parameters
-    \item \textbf{Experiment 3}: 256d MoE model achieves 98.73\% accuracy with memory-efficient configuration
-    \item \textbf{Efficiency trade-offs}: Larger models provide marginal gains at significantly higher computational cost
-\end{itemize}
-
-\textbf{Learning Rate Optimization Impact}:
-\begin{itemize}
-    \item \textbf{Critical importance}: Learning rate optimization is essential for achieving optimal performance
-    \item \textbf{Consistent optimal value}: 3e-3 learning rate optimal for both MLP and MoE architectures
-    \item \textbf{Performance gap}: Conservative learning rates (1e-4, 3e-4) fail to achieve adequate performance
-    \item \textbf{Training stability}: Higher learning rates show stable convergence without instability
-\end{itemize}
-
-\textbf{Performance per Parameter Analysis}:
-\begin{itemize}
-    \item \textbf{Most efficient}: attention\_mlp\_512d achieves 99.68\% accuracy with 31.66M parameters
-    \item \textbf{Parameter scaling}: Larger models show diminishing returns on accuracy
-    \item \textbf{Optimal balance}: 512d models provide best performance/efficiency trade-off
-    \item \textbf{Wasteful configurations}: Larger models provide minimal gains over 512d
+    \item \textbf{Most efficient}: attention\_mlp\_512d achieves 99.71\% accuracy with 36.28M parameters
+    \item \textbf{Memory optimization}: 256d models enable GPU training within memory constraints
+    \item \textbf{Performance trade-offs}: Larger models provide marginal gains at significantly higher computational cost
 \end{itemize}
 
 \subsection{Cost Analysis and GPU Optimization}
