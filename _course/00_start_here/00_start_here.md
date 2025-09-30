@@ -1,3 +1,20 @@
-A bit circular, for example, to know backpropagation you need to understand neural networks, but to understand neural networks you need to understsandn backpropagation - do not dispair - at moments it will seem impossibly or you will have impster syndrome as if you don't understand as well as other people, but just by learning it anyways, it will all eventually click into place.
+# Welcome to Your AI Research Journey
 
-Don't copare yourself to others but to yesterday's you.
+This is your complete roadmap from zero to AI researcher. This course is currently in active development, so your feedback is invaluable! 
+
+**Have suggestions or found issues?** 
+- Join our Discord community for discussions: [https://discord.gg/6AbXGpKTwN](https://discord.gg/6AbXGpKTwN)
+- Open GitHub issues for bugs or improvements
+- Video course content is coming soon!
+
+## The Learning Paradox
+
+Learning AI can feel circular at times. For example, to understand backpropagation you need to know neural networks, but to understand neural networks you need to understand backpropagation. Don't despair - this is completely normal.
+
+There will be moments when concepts seem impossible or you'll experience imposter syndrome, feeling like you don't understand as well as others. But by persisting and learning anyway, everything will eventually click into place.
+
+## Your Success Mindset
+
+**Don't compare yourself to others - compare yourself to yesterday's you.**
+
+Every expert was once a beginner. Focus on your own progress and celebrate the small victories along the way.
