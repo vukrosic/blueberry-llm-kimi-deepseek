@@ -2,7 +2,7 @@
 
 A comprehensive course that takes you from absolute beginner to conducting cutting-edge AI research. Learn Python, understand the math behind AI, build neural networks from scratch, implement transformers, and conduct real research experiments.
 
-YouTube videos and self-study materials working together.
+YouTube videos and self-study materials working together to create ultimate # Zero to AI Researcher roadmap.
 
 ### 🎬 YouTube Course Coming Soon
 
