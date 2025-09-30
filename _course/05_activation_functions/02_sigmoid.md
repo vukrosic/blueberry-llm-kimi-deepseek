@@ -82,3 +82,7 @@ What does this tell you about the vanishing gradient problem?
 
 ---
 Next, we'll look at Tanh, a close cousin of Sigmoid that addresses one of its key problems.
+
+---
+
+**Next Lesson**: [Tanh](03_tanh.md)

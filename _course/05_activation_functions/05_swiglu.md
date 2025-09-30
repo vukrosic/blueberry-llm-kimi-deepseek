@@ -92,3 +92,7 @@ Notice that the output dimension (`hidden_features`) is different from the input
 
 ---
 Finally, we'll look at Softmax, the standard activation function for multi-class classification problems.
+
+---
+
+**Next Lesson**: [Softmax](06_softmax.md)

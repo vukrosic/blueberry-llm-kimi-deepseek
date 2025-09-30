@@ -123,3 +123,7 @@ Using the same inputs and weights from Practice 1, what happens to the score if 
 ---
 
 Now that we can calculate the neuron's internal score, we need to decide what to do with it. That's the job of the activation function, which we'll cover in the next lesson.
+
+---
+
+**Next Lesson**: [The Activation Function](03_the_activation_function.md)

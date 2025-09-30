@@ -105,4 +105,8 @@ Try to complete this `FlexibleNeuron` and test it with some sample data.
 ---
 Our neuron can now take inputs and produce an output. But how do we know if this output is any good? In the next lesson, we'll learn how to make a prediction and compare it to a desired outcome.
 
+---
+
+**Next Lesson**: [Making a Prediction](05_making_a_prediction.md)
+
 ```

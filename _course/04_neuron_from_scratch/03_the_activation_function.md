@@ -101,3 +101,7 @@ PyTorch has a function for this: `torch.relu()`. Verify your answers with code.
 
 ---
 We now have all the conceptual pieces of a neuron! In the next lesson, we'll put them all together and build a neuron as a reusable piece of code.
+
+---
+
+**Next Lesson**: [Building a Neuron in Python](04_building_a_neuron_in_python.md)

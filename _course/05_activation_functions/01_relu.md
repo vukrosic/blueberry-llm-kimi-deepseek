@@ -88,3 +88,7 @@ Implement the Leaky ReLU function yourself in Python. Test it on the tensor from
 
 ---
 ReLU is the workhorse of modern deep learning, but other functions are still vital, especially in the output layer. Next, we'll revisit the Sigmoid function in its modern context.
+
+---
+
+**Next Lesson**: [Sigmoid](02_sigmoid.md)

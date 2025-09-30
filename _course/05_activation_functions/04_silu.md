@@ -84,3 +84,7 @@ What are the key differences you observe, especially for negative inputs?
 
 ---
 SiLU is a powerful self-gated activation. Next, we'll look at SwiGLU, a more advanced variant that is becoming very popular in modern language models like LLaMA.
+
+---
+
+**Next Lesson**: [SwiGLU](05_swiglu.md)

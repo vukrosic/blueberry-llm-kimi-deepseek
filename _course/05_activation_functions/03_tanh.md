@@ -75,3 +75,7 @@ Verify this relationship. Write code that calculates the Tanh of a value `z` usi
 
 ---
 While ReLU, Sigmoid, and Tanh are the classical activation functions, modern architectures often use more advanced functions. Next, we'll look at SiLU (also known as Swish).
+
+---
+
+**Next Lesson**: [SiLU](04_silu.md)

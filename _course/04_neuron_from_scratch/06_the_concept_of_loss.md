@@ -111,3 +111,7 @@ Calculate the BCE loss for the prediction of `0.85`. Is the trend the same as wi
 
 ---
 We know we need to go "downhill" on the loss landscape. In the final lesson of this series, we'll explore the concept of how we actually take that step.
+
+---
+
+**Next Lesson**: [The Concept of Learning](07_the_concept_of_learning.md)

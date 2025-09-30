@@ -82,3 +82,7 @@ Create a random `(4, 3)` tensor of logits. Apply `F.softmax(dim=-1)`. Check the 
 
 ---
 This concludes our series on activation functions! You've seen the classical functions, modern replacements, and the special functions used for classification outputs.
+
+---
+
+**Next Lesson**: [Architecture of a Network](../06_neural_network_from_scratch/01_architecture_of_a_network.md) (Neural Network Module)
