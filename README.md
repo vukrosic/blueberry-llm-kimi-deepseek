@@ -1,6 +1,6 @@
 # Zero to AI Researcher: A Complete Learning Journey
 
-A comprehensive course that takes you from absolute beginner to conducting cutting-edge AI research. Learn Python, understand the math behind AI, build neural networks from scratch, implement transformers, and conduct real research experiments.
+This repository contains a comprehensive course in the `_course` folder and scientific research on LLMs, including training language models from scratch. A complete learning journey that takes you from absolute beginner to conducting cutting-edge AI research.
 
 YouTube videos and self-study materials working together to create ultimate # Zero to AI Researcher roadmap.
 
