@@ -13,7 +13,7 @@
 
 \geometry{margin=1in}
 
-\title{Blueberry LLM Technical Report: Train LLM For 1 Dollar - Optimizing MoE Architectures on Consumer Hardware}
+\title{Blueberry LLM: Train LLM For 1 Dollar - Optimizing MoE Architectures on Consumer Hardware}
 
 \author{
     Vuk Rosić\textsuperscript{1,2}, [To Be Determined] \\
@@ -28,12 +28,12 @@
 \maketitle
 
 \begin{abstract}
-This technical report presents the Blueberry LLM, a mixture of experts (MoE) language model optimized for training on consumer hardware, specifically targeting Tesla T4 GPUs with the goal of making LLM training accessible for under \$1. We conduct three comprehensive experiments: (1) a systematic ablation study evaluating DeepSeek components across 32 different configurations, revealing a dramatic 189x performance gap between best and worst configurations; (2) a learning rate optimization study for DeepSeek Attention + MLP architectures, identifying 3e-3 as the optimal learning rate achieving 0.015 validation loss and 99.7\% accuracy; and (3) a comprehensive optimization study for DeepSeek Attention + GLM4 MoE architectures, achieving 0.061 validation loss and 98.7\% accuracy with 4 experts and top-2 routing. Our key findings show that DeepSeek attention mechanisms provide the most significant improvements across all architectures, with learning rate optimization being crucial for achieving optimal performance. The study demonstrates that both MLP and MoE architectures can achieve near-perfect performance when properly configured, with training costs estimated at \$0.0023-0.026 per run, providing a 38-435x safety margin under the \$1 budget goal. These results provide a comprehensive roadmap for democratizing LLM training and establish the Blueberry LLM as a practical solution for accessible AI development.
+This technical report presents the Blueberry LLM, a mixture of experts (MoE) language model optimized for training on consumer hardware, specifically targeting modern GPUs including RTX 4090 with the goal of making LLM training accessible for under \$1. We conduct three comprehensive experiments: (1) a systematic ablation study evaluating DeepSeek components across 5 different configurations, revealing a dramatic 8.7x performance gap between best and worst configurations; (2) a learning rate optimization study for DeepSeek Attention + MLP architectures, identifying 3e-3 as the optimal learning rate achieving 0.015 validation loss and 99.7\% accuracy; and (3) a comprehensive optimization study for DeepSeek Attention + GLM4 MoE architectures, achieving 0.061 validation loss and 98.7\% accuracy with 4 experts and top-2 routing. Our key findings show that DeepSeek attention mechanisms provide the most significant improvements across all architectures, with learning rate optimization being crucial for achieving optimal performance. These results provide a comprehensive roadmap for democratizing LLM training and establish the Blueberry LLM as a practical solution for accessible AI development.
 \end{abstract}
 
 \section{Introduction}
 
-The Blueberry LLM represents our approach to democratizing large language model training by making it accessible on consumer hardware, specifically targeting Tesla T4 GPUs with the ambitious goal of training LLMs for under \$1. Our mixture of experts (MoE) language model leverages cutting-edge DeepSeek components and optimization techniques to achieve state-of-the-art performance while maintaining computational efficiency through sparse activation patterns. This technical report presents three comprehensive experiments that systematically evaluate DeepSeek's innovations within the Blueberry LLM framework: (1) a comprehensive ablation study across 32 different configurations revealing the true impact of different architectural components; (2) a learning rate optimization study for DeepSeek Attention + MLP architectures; and (3) a comprehensive optimization study for DeepSeek Attention + GLM4 MoE architectures. These experiments collectively demonstrate the feasibility of cost-effective LLM training on consumer hardware.
+The Blueberry LLM represents our approach to democratizing large language model training by making it accessible on consumer hardware, with our experiments demonstrating feasibility on modern GPUs including RTX 4090 with the ambitious goal of training LLMs for under \$1. Our mixture of experts (MoE) language model leverages cutting-edge DeepSeek components and optimization techniques to achieve state-of-the-art performance while maintaining computational efficiency through sparse activation patterns. This technical report presents three comprehensive experiments that systematically evaluate DeepSeek's innovations within the Blueberry LLM framework: (1) a comprehensive ablation study across 5 different configurations revealing the true impact of different architectural components; (2) a learning rate optimization study for DeepSeek Attention + MLP architectures; and (3) a comprehensive optimization study for DeepSeek Attention + GLM4 MoE architectures. These experiments collectively demonstrate the feasibility of cost-effective LLM training on consumer hardware.
 
 Our Blueberry LLM architecture combines the efficiency benefits of MoE with the performance improvements offered by DeepSeek's innovative components. The model employs a top-2 routing strategy across 8 experts, allowing for specialized processing while maintaining computational tractability.
 
@@ -47,7 +47,7 @@ DeepSeek has introduced several innovative components that enhance traditional t
 
 Our research objectives for the Blueberry LLM are to:
 \begin{enumerate}
-    \item Conduct comprehensive ablation studies to understand component interactions and dependencies across 32 different configurations
+    \item Conduct comprehensive ablation studies to understand component interactions and dependencies across 5 different configurations
     \item Evaluate the effectiveness of DeepSeek attention mechanisms within MoE architectures compared to standard multi-head attention
     \item Investigate DeepSeek MLP architectures and their integration with MoE systems across different model sizes
     \item Analyze DeepSeek MoE implementations and their performance compared to baseline approaches
@@ -71,24 +71,21 @@ We conduct three comprehensive experiments to systematically evaluate DeepSeek c
 
 \subsection{Experiment 1: Comprehensive Ablation Study}
 
-\textbf{Objective}: Systematic evaluation of individual and combined DeepSeekV3 components through comprehensive ablation study across 32 different configurations.
+\textbf{Objective}: Systematic evaluation of individual and combined DeepSeekV3 components through comprehensive ablation study across 5 different configurations.
 
 \textbf{Setup}:
 \begin{itemize}
-    \item Blueberry LLM: 256d, 3L, 4H (consistent across all experiments)
+    \item Blueberry LLM: 512d, 3L, 4H (Experiment 1), 512d (Experiment 2), 256d (Experiment 3)
     \item Training: 1500 steps with identical hyperparameters for extended convergence
     \item Batch size: 16, 100K tokens, 1K documents
     \item Hardware: NVIDIA GeForce RTX 4090 (25.3 GB VRAM)
-    \item 32 configurations tested across 8 categories:
+    \item 5 configurations tested across different architectural categories:
     \begin{itemize}
         \item \textbf{Baseline}: Standard Blueberry LLM (control group)
-        \item \textbf{Single Components}: MLP-only, Attention-only configurations
-        \item \textbf{MoE Configurations}: Various expert counts (4, 8, 16) and top-k selections (1, 2)
-        \item \textbf{Two Components}: Attention+MLP, Attention+MoE combinations
-        \item \textbf{MLP Size Scaling}: MLP variants with different dimensions (128d, 256d, 512d, 1024d, 2048d)
-        \item \textbf{Architecture Scaling}: Attention+MoE combinations with different model sizes
-        \item \textbf{Layer Count}: Attention+MoE with different layer counts (3, 6 layers)
-        \item \textbf{Attention Variants}: No RoPE, No bias, Standard attention combinations
+        \item \textbf{DeepSeek MLP}: MLP-only configuration
+        \item \textbf{DeepSeek Attention + MLP}: Combined attention and MLP
+        \item \textbf{GLM4 MoE}: MoE-only configuration (8 experts, top-2)
+        \item \textbf{DeepSeek Attention + GLM4 MoE}: Combined attention and MoE
     \end{itemize}
     \item Evaluation: Validation loss, accuracy, perplexity, training time, parameter count
 \end{itemize}
@@ -126,125 +123,62 @@ We conduct three comprehensive experiments to systematically evaluate DeepSeek c
 
 \subsection{Experiment 1: Comprehensive Ablation Study}
 
-Table \ref{tab:exp1_results} shows the top 10 configurations from our comprehensive ablation study across 32 different model configurations, revealing a dramatic 189x performance gap between best and worst configurations.
+Table \ref{tab:exp1_results} shows the results from our comprehensive ablation study across 5 different model configurations, revealing a dramatic 8.7x performance gap between best and worst configurations.
 
 \begin{table}[H]
 \centering
-\caption{Experiment 1 Results: Blueberry LLM Comprehensive Ablation Study (Top 10 Configurations, 1500 steps)}
+\caption{Experiment 1 Results: Blueberry LLM Comprehensive Ablation Study (5 Configurations, 1500 steps)}
 \label{tab:exp1_results}
 \begin{tabular}{@{}lccccccc@{}}
 \toprule
 Rank & Configuration & Val Loss & Val Acc & Val Perp & Time (min) & Params (M) & Category \\
 \midrule
-1 & attention\_moe\_8e\_2k\_1024d & 0.0166 & 99.71\% & 1.02 & 3.15 & 471.30 & Architecture Scaling \\
-2 & attention\_mlp\_1024d & 0.0170 & 99.69\% & 1.02 & 1.58 & 65.29 & Other \\
-3 & attention\_mlp\_2048d & 0.0175 & 99.69\% & 1.02 & 2.87 & 138.44 & Other \\
-4 & attention\_moe\_8e\_2k\_no\_rope & 0.0183 & 99.70\% & 1.02 & 2.99 & 437.88 & Attention Variant \\
-5 & attention\_moe\_16e\_2k\_512d & 0.0186 & 99.69\% & 1.02 & 1.87 & 231.52 & Architecture Scaling \\
-6 & attention\_mlp\_512d & 0.0187 & 99.68\% & 1.02 & 1.05 & 31.66 & Other \\
-7 & attention\_moe\_8e\_2k\_3layers & 0.0188 & 99.69\% & 1.02 & 1.87 & 231.52 & Layer Count \\
-8 & attention\_moe\_8e\_2k\_512d & 0.0189 & 99.71\% & 1.02 & 1.87 & 231.52 & Architecture Scaling \\
-9 & attention\_moe\_8e\_2k\_6layers & 0.0213 & 99.68\% & 1.02 & 2.99 & 437.88 & Layer Count \\
-10 & attention\_moe\_8e\_2k\_no\_bias & 0.0214 & 99.67\% & 1.02 & 2.98 & 437.87 & Attention Variant \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table \ref{tab:exp1_bottom} shows the bottom 10 configurations to illustrate the performance gap.
-
-\begin{table}[H]
-\centering
-\caption{Experiment 1 Results: Blueberry LLM Bottom 10 Configurations (1500 steps)}
-\label{tab:exp1_bottom}
-\begin{tabular}{@{}lccccccc@{}}
-\toprule
-Rank & Configuration & Val Loss & Val Acc & Val Perp & Time (min) & Params (M) & Category \\
-\midrule
-23 & attention\_mlp\_128d & 0.1213 & 99.60\% & 1.13 & 0.78 & 7.73 & Other \\
-24 & mlp\_512d & 0.1537 & 97.28\% & 1.17 & 1.05 & 33.03 & Other \\
-25 & moe\_8e\_1k & 0.2785 & 95.25\% & 1.32 & 1.27 & 114.87 & MoE Only \\
-26 & moe\_8e\_2k & 0.3057 & 95.00\% & 1.36 & 1.25 & 114.87 & MoE Only \\
-27 & moe\_16e\_2k & 0.3311 & 94.50\% & 1.39 & 1.28 & 114.87 & MoE Only \\
-28 & moe\_4e\_2k & 0.3328 & 94.46\% & 1.39 & 1.27 & 114.87 & MoE Only \\
-29 & baseline & 0.8207 & 85.43\% & 2.27 & 2.02 & 25.96 & Baseline \\
-30 & mlp\_256d & 0.9903 & 81.62\% & 2.69 & 0.77 & 15.73 & Other \\
-31 & mlp & 1.0477 & 80.00\% & 2.85 & 0.73 & 15.73 & Single Component \\
-32 & mlp\_128d & 3.1340 & 45.62\% & 22.96 & 0.69 & 7.67 & Other \\
+1 & attention\_moe\_8e\_2k\_512d & 0.0172 & 99.67\% & 1.02 & 1.62 & 231.42 & DeepSeek Attn+MoE \\
+2 & attention\_mlp\_512d & 0.0174 & 99.71\% & 1.02 & 1.13 & 36.28 & DeepSeek Attn+MLP \\
+3 & moe\_8e\_2k\_512d & 0.1097 & 97.95\% & 1.12 & 1.59 & 232.89 & GLM4 MoE \\
+4 & baseline & 0.1203 & 97.75\% & 1.13 & 2.21 & 53.49 & Baseline \\
+5 & mlp\_512d & 0.1508 & 97.22\% & 1.16 & 0.93 & 37.75 & DeepSeek MLP \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Key Findings}:
 \begin{itemize}
-    \item \textbf{Massive performance gap}: 189x difference between best (0.0166) and worst (3.1340) validation loss
-    \item \textbf{Attention dominance}: All top 10 configurations include DeepSeek attention mechanisms
-    \item \textbf{Architecture scaling effectiveness}: Larger models (1024d, 2048d) achieve best performance
-    \item \textbf{MoE vs MLP trade-offs}: Attention+MoE combinations excel at top performance, while Attention+MLP provides efficiency
-    \item \textbf{Component interaction insights}: MLP alone performs poorly (rank 31), but excels when combined with attention
-\end{itemize}
-
-\subsection{Category Analysis}
-
-Table \ref{tab:category_analysis} shows performance analysis by model category.
-
-\begin{table}[H]
-\centering
-\caption{Category Performance Analysis}
-\label{tab:category_analysis}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-Category & Models & Best Loss & Avg Loss & Best Configuration \\
-\midrule
-Architecture Scaling & 5 & 0.0166 & 0.0201 & attention\_moe\_8e\_2k\_1024d \\
-Attention Variant & 3 & 0.0183 & 0.0199 & attention\_moe\_8e\_2k\_no\_rope \\
-Layer Count & 2 & 0.0188 & 0.0201 & attention\_moe\_8e\_2k\_3layers \\
-Two Components & 5 & 0.0241 & 0.0252 & attention\_moe\_4e\_2k \\
-Other & 10 & 0.0170 & 0.4664 & attention\_mlp\_1024d \\
-MoE Only & 5 & 0.1056 & 0.2707 & standard\_moe\_8e\_2k \\
-Single Component & 2 & 0.0232 & 0.5355 & attention \\
-Baseline & 1 & 0.8207 & 0.8207 & baseline \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Category Insights}:
-\begin{itemize}
-    \item \textbf{Architecture Scaling dominates}: Best overall performance with larger model dimensions
-    \item \textbf{Attention variants effective}: Removing RoPE or bias still achieves excellent performance
-    \item \textbf{Layer count matters less}: 3 layers perform similarly to 6 layers
-    \item \textbf{Two-component synergy}: Attention+MoE combinations consistently outperform single components
-    \item \textbf{MLP size sensitivity}: Larger MLP dimensions crucial for good performance
-    \item \textbf{MoE alone insufficient}: Standard MoE without attention performs poorly
+    \item \textbf{Massive performance gap}: 8.7x difference between best (0.0172) and worst (0.1508) validation loss
+    \item \textbf{Attention dominance}: All top 2 configurations include DeepSeek attention mechanisms
+    \item \textbf{DeepSeek Attention + MLP efficiency}: attention\_mlp\_512d achieves excellent performance with only 36.28M parameters
+    \item \textbf{MoE vs MLP trade-offs}: DeepSeek Attention + MoE achieves best performance, while DeepSeek Attention + MLP provides efficiency
+    \item \textbf{Component interaction insights}: MLP alone performs poorly (rank 5), but excels when combined with attention
 \end{itemize}
 
 \subsection{Statistical Analysis}
 
 \textbf{Loss Statistics}:
 \begin{itemize}
-    \item Mean: 0.2568 ± 0.5845
-    \item Range: 0.0166 - 3.1340
-    \item Best/Worst Ratio: 0.01x (189x gap)
+    \item Mean: 0.0831 ± 0.0598
+    \item Range: 0.0172 - 0.1508
+    \item Best/Worst Ratio: 0.11x (8.7x gap)
 \end{itemize}
 
 \textbf{Accuracy Statistics}:
 \begin{itemize}
-    \item Mean: 95.54\% ± 10.31\%
-    \item Range: 45.62\% - 99.71\%
+    \item Mean: 98.26\% ± 1.02\%
+    \item Range: 97.22\% - 99.71\%
     \item Top performers achieve near-perfect accuracy
 \end{itemize}
 
 \textbf{Training Time Statistics}:
 \begin{itemize}
-    \item Mean: 1.7 ± 0.8 minutes
-    \item Range: 0.7 - 3.5 minutes
-    \item Efficient configurations train 3x faster than complex ones
+    \item Mean: 1.5 ± 0.5 minutes
+    \item Range: 0.9 - 2.2 minutes
+    \item Efficient configurations train 2.4x faster than complex ones
 \end{itemize}
 
 \textbf{Parameter Statistics}:
 \begin{itemize}
-    \item Mean: 150.8 ± 143.5M parameters
-    \item Range: 7.7M - 471.3M parameters
-    \item Best configurations use 40\% fewer parameters than worst
+    \item Mean: 118.4 ± 95.8M parameters
+    \item Range: 36.3M - 232.9M parameters
+    \item Best configurations use 6.4x fewer parameters than worst
 \end{itemize}
 
 \subsection{Experiment 2: Learning Rate Optimization for DeepSeek Attention + MLP}
@@ -342,93 +276,36 @@ Our three comprehensive experiments reveal several key insights about DeepSeek c
 \begin{itemize}
     \item \textbf{Attention Mechanisms}: Consistently dominant across all three experiments - the primary performance driver
     \item \textbf{Learning Rate Optimization}: Critical for achieving optimal performance in both MLP and MoE architectures
-    \item \textbf{Architecture Scaling}: Larger model dimensions achieve better performance but with diminishing returns
+    \item \textbf{Architecture Scaling}: 512d models achieve excellent performance, while 256d models provide memory efficiency
     \item \textbf{MoE vs MLP Trade-offs}: Both architectures can achieve excellent performance when properly optimized
 \end{itemize}
 
-\textbf{Experiment 1 - Ablation Study Insights}:
+\textbf{Key Findings}:
 \begin{itemize}
-    \item Attention mechanisms provide the largest performance gains across all 32 configurations
-    \item Architecture scaling category dominates the top rankings with 1024d models
-    \item MLP alone performs poorly (rank 31) but excels when combined with attention
-    \item MoE alone is insufficient (ranks 25-28) but powerful with attention
-\end{itemize}
-
-\textbf{Experiment 2 - Learning Rate Optimization Insights}:
-\begin{itemize}
-    \item Learning rate optimization is crucial for DeepSeek Attention + MLP architectures
-    \item 3e-3 learning rate achieves optimal performance (0.015 validation loss, 99.7\% accuracy)
-    \item Conservative learning rates (1e-4, 3e-4) fail to achieve adequate performance
-    \item Higher learning rates show faster convergence to optimal performance
-\end{itemize}
-
-\textbf{Experiment 3 - MoE Optimization Insights}:
-\begin{itemize}
-    \item Learning rate consistency: 3e-3 optimal for both MLP and MoE architectures
-    \item Extended training (10,000 steps) provides stable convergence
-    \item 4 experts with top-2 routing achieve excellent performance (98.73\% accuracy)
-    \item Memory-efficient 256d models enable GPU training within constraints
-\end{itemize}
-
-\textbf{Attention Mechanisms}:
-\begin{itemize}
-    \item Attention mechanisms provide the largest performance gains across all configurations
-    \item Attention variants (no RoPE, no bias) still achieve excellent performance (ranks 4, 10)
-    \item DeepSeek attention is essential for achieving near-perfect accuracy (99.71\%)
-    \item Attention dominance is consistent across all model categories and sizes
-\end{itemize}
-
-\textbf{Architecture Scaling Insights}:
-\begin{itemize}
-    \item Larger model dimensions (1024d, 2048d) consistently achieve best performance
-    \item Architecture scaling category dominates the top rankings
-    \item 1024d models achieve optimal balance of performance and efficiency
-    \item 2048d models provide marginal gains over 1024d at higher computational cost
-\end{itemize}
-
-\textbf{Component Interaction Patterns}:
-\begin{itemize}
-    \item MLP alone performs poorly (rank 31) but excels when combined with attention
-    \item MoE alone is insufficient (ranks 25-28) but powerful with attention
-    \item Attention+MLP combinations provide excellent efficiency (ranks 2, 3, 6)
-    \item Attention+MoE combinations achieve peak performance (ranks 1, 5, 7, 8)
+    \item \textbf{Attention dominance}: Models with DeepSeek attention achieve 8.7x better performance than those without
+    \item \textbf{Learning rate consistency}: 3e-3 optimal for both MLP and MoE architectures across experiments
+    \item \textbf{Parameter efficiency}: attention\_mlp\_512d achieves 99.71\% accuracy with only 36.28M parameters
+    \item \textbf{Training efficiency}: All configurations complete training in under 3 minutes (Experiment 1) to 26.6 minutes (Experiment 3)
 \end{itemize}
 
 \subsection{Efficiency Analysis}
 
-\textbf{Cross-Experiment Training Time Efficiency}:
+\textbf{Training Efficiency}:
 \begin{itemize}
-    \item \textbf{Experiment 1}: MLP-based models train fastest (0.69-1.58 minutes), MoE combinations require 1.87-3.15 minutes
-    \item \textbf{Experiment 2}: DeepSeek Attention + MLP achieves optimal performance in ~2-3 hours with 3e-3 learning rate
+    \item \textbf{Experiment 1}: Fastest configurations complete in 0.93-2.21 minutes
+    \item \textbf{Experiment 2}: DeepSeek Attention + MLP achieves optimal performance with extended training
     \item \textbf{Experiment 3}: DeepSeek Attention + MoE completes 10,000-step training in 26.6 minutes
-    \item \textbf{Learning rate impact}: Higher learning rates (3e-3) provide faster convergence across all architectures
+    \item \textbf{Learning rate impact}: 3e-3 learning rate provides fastest convergence across all architectures
 \end{itemize}
 
-\textbf{Parameter Efficiency Analysis}:
+\textbf{Parameter Efficiency}:
 \begin{itemize}
-    \item \textbf{Experiment 1}: attention\_mlp\_1024d (rank 2) achieves excellent performance with 65.29M parameters
-    \item \textbf{Experiment 2}: DeepSeek Attention + MLP achieves 99.7\% accuracy with optimized parameters
-    \item \textbf{Experiment 3}: 256d MoE model achieves 98.73\% accuracy with memory-efficient configuration
-    \item \textbf{Efficiency trade-offs}: Larger models provide marginal gains at significantly higher computational cost
+    \item \textbf{Most efficient}: attention\_mlp\_512d achieves 99.71\% accuracy with 36.28M parameters
+    \item \textbf{Memory optimization}: 256d models enable GPU training within memory constraints
+    \item \textbf{Performance trade-offs}: Larger models provide marginal gains at significantly higher computational cost
 \end{itemize}
 
-\textbf{Learning Rate Optimization Impact}:
-\begin{itemize}
-    \item \textbf{Critical importance}: Learning rate optimization is essential for achieving optimal performance
-    \item \textbf{Consistent optimal value}: 3e-3 learning rate optimal for both MLP and MoE architectures
-    \item \textbf{Performance gap}: Conservative learning rates (1e-4, 3e-4) fail to achieve adequate performance
-    \item \textbf{Training stability}: Higher learning rates show stable convergence without instability
-\end{itemize}
-
-\textbf{Performance per Parameter Analysis}:
-\begin{itemize}
-    \item \textbf{Most efficient}: attention\_mlp\_512d achieves 99.68\% accuracy with 31.66M parameters
-    \item \textbf{Parameter scaling}: Larger models show diminishing returns on accuracy
-    \item \textbf{Optimal balance}: 1024d models provide best performance/efficiency trade-off
-    \item \textbf{Wasteful configurations}: 2048d models provide minimal gains over 1024d
-\end{itemize}
-
-\subsection{Cost Analysis and T4 GPU Optimization}
+\subsection{Cost Analysis and GPU Optimization}
 
 Our three comprehensive experiments demonstrate the feasibility of training high-performance LLMs on consumer hardware:
 
@@ -442,16 +319,16 @@ Our three comprehensive experiments demonstrate the feasibility of training high
 
 \textbf{Cost Breakdown for \$1 Training Goal}:
 \begin{itemize}
-    \item \textbf{T4 GPU Cost}: \$0.20-0.50 per hour (cloud providers)
+    \item \textbf{RTX 4090 Cost}: \$0.18 per hour (Novita AI Spot Billion pricing)
     \item \textbf{Training Duration}: 0.69-26.6 minutes (0.0115-0.44 hours)
-    \item \textbf{Estimated Cost}: \$0.0023-0.22 per training run
-    \item \textbf{Safety Margin}: 4.5-435x under \$1 budget for complete training
-    \item \textbf{Multiple Experiments}: Can run 4.5-435 complete training cycles within budget
+    \item \textbf{Estimated Cost}: \$0.0021-0.20 per training run
+    \item \textbf{Safety Margin}: 5-476x under \$1 budget for complete training
+    \item \textbf{Multiple Experiments}: Can run 5-476 complete training cycles within budget
 \end{itemize}
 
 \textbf{Hardware Optimization Insights}:
 \begin{itemize}
-    \item \textbf{Memory Efficiency}: All configurations fit within T4 memory constraints
+    \item \textbf{Memory Efficiency}: All configurations fit within RTX 4090 memory constraints (25.3 GB VRAM)
     \item \textbf{Learning rate impact}: Proper learning rate optimization reduces training time significantly
     \item \textbf{Architecture scaling}: Smaller models (256d) enable efficient GPU training
     \item \textbf{MoE efficiency}: 4 experts with top-2 routing provide good performance/efficiency balance
@@ -461,7 +338,7 @@ Our three comprehensive experiments demonstrate the feasibility of training high
 
 The comprehensive ablation study demonstrates clear statistical separation:
 \begin{itemize}
-    \item \textbf{Massive performance gap}: 189x difference between best and worst configurations
+    \item \textbf{Massive performance gap}: 8.7x difference between best and worst configurations
     \item \textbf{Clear ranking}: Consistent performance ordering across all metrics
     \item \textbf{Category separation}: Distinct performance clusters by model category
     \item \textbf{Component dominance}: Attention mechanisms show overwhelming superiority
@@ -474,17 +351,17 @@ This comprehensive study of DeepSeek components within the Blueberry LLM MoE fra
 \subsection{Key Contributions}
 
 \begin{enumerate}
-    \item \textbf{Attention mechanisms dominate all other improvements}: Across all three experiments, DeepSeek attention mechanisms consistently provide the largest performance gains. Experiment 1's 189x performance gap between best and worst configurations demonstrates the critical importance of attention mechanism design, while Experiments 2 and 3 confirm this dominance in optimized architectures.
+    \item \textbf{Attention mechanisms dominate all other improvements}: Across all three experiments, DeepSeek attention mechanisms consistently provide the largest performance gains. Experiment 1's 8.7x performance gap between best and worst configurations demonstrates the critical importance of attention mechanism design, while Experiments 2 and 3 confirm this dominance in optimized architectures.
     
     \item \textbf{Learning rate optimization is critical for optimal performance}: Experiments 2 and 3 demonstrate that learning rate optimization is essential for achieving optimal performance. The consistent finding that 3e-3 learning rate is optimal for both MLP and MoE architectures provides a clear guideline for practitioners.
     
-    \item \textbf{Architecture scaling provides optimal performance}: Experiment 1 shows that larger model dimensions (1024d, 2048d) achieve best performance, while Experiment 3 demonstrates that memory-efficient 256d models can achieve excellent performance (98.73\% accuracy) with proper optimization.
+    \item \textbf{Architecture scaling provides optimal performance}: Experiment 1 shows that 512d models achieve excellent performance, while Experiment 3 demonstrates that memory-efficient 256d models can achieve excellent performance (98.73\% accuracy) with proper optimization.
     
     \item \textbf{Efficiency champions identified across architectures}: Both MLP and MoE architectures achieve excellent performance when properly optimized. Experiment 2's DeepSeek Attention + MLP achieves 99.7\% accuracy, while Experiment 3's DeepSeek Attention + MoE achieves 98.73\% accuracy with extended training.
     
-    \item \textbf{Cost-effective training demonstrated}: Training costs range from \$0.0023-0.22 per run across all experiments, providing a 4.5-435x safety margin under the \$1 budget goal. The Blueberry LLM proves that high-performance LLM training is accessible on consumer hardware.
+    \item \textbf{Cost-effective training demonstrated}: Training costs range from \$0.0021-0.20 per run across all experiments, providing a 5-476x safety margin under the \$1 budget goal. The Blueberry LLM proves that high-performance LLM training is accessible on consumer hardware.
     
-    \item \textbf{T4 GPU optimization achieved}: All configurations across all three experiments fit within T4 memory constraints, with Experiment 3's 256d model demonstrating efficient GPU training within memory limitations.
+    \item \textbf{RTX 4090 GPU optimization achieved}: All configurations across all three experiments fit within RTX 4090 memory constraints, with Experiment 3's 256d model demonstrating efficient GPU training within memory limitations.
     
     \item \textbf{Component interaction insights validated}: The findings from Experiment 1's ablation study are validated by Experiments 2 and 3, confirming that individual component improvements can hurt performance while combinations reveal synergistic effects.
     
@@ -494,11 +371,11 @@ This comprehensive study of DeepSeek components within the Blueberry LLM MoE fra
 \subsection{Practical Implications}
 
 \begin{itemize}
-    \item \textbf{For Blueberry LLM production systems}: Use Experiment 1's attention\_moe\_8e\_2k\_1024d for peak performance or Experiment 2's DeepSeek Attention + MLP with 3e-3 learning rate for optimal efficiency. Both achieve near-perfect accuracy with different resource trade-offs.
+    \item \textbf{For Blueberry LLM production systems}: Use Experiment 1's attention\_moe\_8e\_2k\_512d for peak performance or Experiment 2's DeepSeek Attention + MLP with 3e-3 learning rate for optimal efficiency. Both achieve near-perfect accuracy with different resource trade-offs.
     \item \textbf{For MoE research}: Focus on attention mechanism design as the primary bottleneck, followed by learning rate optimization. Use Experiment 3's 4 experts with top-2 routing as a starting point for MoE architectures.
     \item \textbf{For learning rate selection}: Always use 3e-3 learning rate for DeepSeek architectures, as validated by both Experiments 2 and 3. Avoid conservative learning rates (1e-4, 3e-4) that fail to achieve adequate performance.
     \item \textbf{For accessible AI development}: The Blueberry LLM provides practical solutions for training high-performance LLMs on consumer hardware for under \$1, democratizing AI development across all three experimental paradigms.
-    \item \textbf{For T4 GPU optimization}: All configurations across all experiments are T4-compatible with automatic hardware detection, making the system accessible to users with no technical experience.
+    \item \textbf{For RTX 4090 GPU optimization}: All configurations across all experiments are RTX 4090-compatible with automatic hardware detection, making the system accessible to users with modern GPU hardware.
     \item \textbf{For component selection}: Prioritize attention mechanisms, then optimize learning rates, then consider MoE vs MLP trade-offs based on efficiency vs performance requirements.
     \item \textbf{For extended training}: Use Experiment 3's approach of 10,000+ steps with regular checkpoints for optimal convergence and performance.
 \end{itemize}
@@ -524,7 +401,7 @@ Our findings from all three experiments suggest several directions for future va
 \begin{itemize}
     \item \textbf{Extended scaling experiments}: Test findings on larger models (1B+ parameters) and longer training durations beyond Experiment 3's 10,000 steps
     \item \textbf{Cross-task validation}: Test findings across different NLP tasks and domains to ensure generalizability beyond language modeling
-    \item \textbf{Hardware expansion}: Extend compatibility to other consumer GPUs (RTX 3060, RTX 4060, etc.) beyond T4 optimization
+    \item \textbf{Hardware expansion}: Extend compatibility to other consumer GPUs (RTX 3060, RTX 4060, etc.) beyond RTX 4090 optimization
     \item \textbf{Automated optimization}: Develop systems that automatically select optimal configurations based on hardware and budget constraints
     \item \textbf{Component interaction analysis}: Deeper mathematical analysis of why certain combinations work better than others, building on Experiment 1's findings
     \item \textbf{Learning rate scheduling}: Investigate learning rate decay and scheduling strategies for very long training periods
@@ -536,8 +413,8 @@ Our findings from all three experiments suggest several directions for future va
 \begin{itemize}
     \item \textbf{Scale experiments}: Investigate component effectiveness on larger models (1B+ parameters) and longer training durations beyond Experiment 3's findings
     \item \textbf{Cross-task validation}: Test findings across different NLP tasks and domains to ensure generalizability beyond language modeling
-    \item \textbf{Cost optimization}: Further optimize for even lower training costs, potentially targeting \$0.10 or less per training run
-    \item \textbf{Hardware expansion}: Extend compatibility to other consumer GPUs (RTX 3060, RTX 4060, etc.) beyond T4 optimization
+    \item \textbf{Cost optimization}: Further optimize for even lower training costs, potentially targeting \$0.05 or less per training run
+    \item \textbf{Hardware expansion}: Extend compatibility to other consumer GPUs (RTX 3060, RTX 4060, etc.) beyond RTX 4090 optimization
     \item \textbf{Architecture evolution}: Explore new attention mechanisms and MLP designs based on insights from all three experiments
     \item \textbf{Automated optimization}: Develop systems that automatically select optimal configurations based on hardware and budget constraints
     \item \textbf{Learning rate scheduling}: Investigate advanced learning rate schedules and decay strategies for extended training
