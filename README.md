@@ -2,14 +2,19 @@
 
 A comprehensive course that takes you from absolute beginner to conducting cutting-edge AI research. Learn Python, understand the math behind AI, build neural networks from scratch, implement transformers, and conduct real research experiments.
 
+YouTube videos and self-study materials working together.
+
+### 🎬 YouTube Course Coming Soon
+
 ## 🎯 What You'll Learn
 
-- **Python Programming**: From basics to advanced features
-- **AI Mathematics**: Functions, derivatives, gradients, linear algebra
-- **Neural Networks**: From single neurons to complex architectures
-- **Transformers**: Complete implementation from scratch
-- **Research Skills**: Design and run meaningful AI experiments
-- **State-of-the-Art**: DeepSeek attention and GLM-4 MoE
+- **Python Programming**: Master Python from variables to advanced OOP, preparing you for AI/ML development with NumPy, Pandas, and PyTorch
+- **AI Mathematics**: Build intuition for functions, derivatives, gradients, vectors, and matrices - the mathematical foundation that powers all AI
+- **Neural Networks**: Understand and implement everything from single neurons to complex multi-layer networks, including backpropagation
+- **Transformers**: Build complete transformer architectures from scratch, including attention mechanisms, positional encoding, and feedforward layers
+- **Research Skills**: Learn to design controlled experiments, conduct ablation studies, and analyze results like a professional AI researcher
+- **State-of-the-Art Techniques**: Implement cutting-edge architectures including DeepSeek's latent attention and GLM-4's Mixture of Experts
+- **Practical Implementation**: Write production-ready code, handle real datasets, and optimize model performance through systematic experimentation
 
 ## 📚 Complete Curriculum
 
