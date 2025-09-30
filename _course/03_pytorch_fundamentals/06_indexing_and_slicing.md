@@ -117,4 +117,8 @@ Write code to select the first 3 samples from the batch. What is the shape of th
 
 Next, we'll see how to combine tensors.
 
+---
+
+**Next Lesson**: [Concatenation](07_concatenation.md)
+
 ```

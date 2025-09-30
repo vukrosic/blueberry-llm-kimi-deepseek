@@ -690,3 +690,7 @@ Now that you understand functions, you're ready to learn about:
 - **Backpropagation**: Using gradients to train neural networks
 
 Functions are the building blocks of everything in neural networks. Every operation, from simple addition to complex transformations, can be understood as a function. Master functions, and you'll have a solid foundation for understanding how neural networks work!
+
+---
+
+**Next Lesson**: [Derivatives](02_derivatives.md)

@@ -99,3 +99,7 @@ import torch
 ---
 
 Next up, we'll learn how to perform basic operations on these tensors, like addition.
+
+---
+
+**Next Lesson**: [Tensor Addition](02_tensor_addition.md)

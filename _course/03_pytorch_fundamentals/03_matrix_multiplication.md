@@ -113,3 +113,7 @@ Print both results. Notice how different they are!
 ---
 
 Next, we'll learn how to change the "view" of a tensor by transposing it.
+
+---
+
+**Next Lesson**: [Transposing](04_transposing.md)

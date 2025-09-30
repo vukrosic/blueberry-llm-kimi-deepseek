@@ -973,3 +973,7 @@ Now that you understand gradients, you're ready to:
 - **Understand modern architectures** (ResNet, Transformer, etc.)
 
 Gradients are the mathematical engine that powers neural network learning. They transform static functions into adaptive systems that can learn from data!
+
+---
+
+**Next Lesson**: [Vectors](04_vectors.md)

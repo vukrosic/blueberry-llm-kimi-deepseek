@@ -165,3 +165,7 @@ Now that you have a grasp of vectors, you can explore:
 - **Matrices**: 2D arrays of numbers, which can be seen as collections of vectors.
 - **Tensors**: The generalization of vectors and matrices to any number of dimensions.
 - **Linear Transformations**: How matrices can operate on vectors to rotate, scale, and skew them.
+
+---
+
+**Next Lesson**: [Matrices](05_matrices.md)

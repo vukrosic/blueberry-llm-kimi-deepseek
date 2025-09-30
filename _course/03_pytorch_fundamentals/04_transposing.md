@@ -126,3 +126,7 @@ batch_A = torch.randn(10, 3, 4)
 ---
 
 Next, we'll learn how to arbitrarily reshape tensors into new configurations.
+
+---
+
+**Next Lesson**: [Reshaping Tensors](05_reshaping_tensors.md)

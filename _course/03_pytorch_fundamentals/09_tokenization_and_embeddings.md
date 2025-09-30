@@ -87,3 +87,7 @@ print(f"\nEmbedding for token ID 1:\n {first_word_embedding}")
 ```
 
 This process—turning text into token IDs and then looking up those IDs in a learnable embedding matrix—is the starting point for all modern language models.
+
+---
+
+**Next Lesson**: [What is a Neuron?](../04_neuron_from_scratch/01_what_is_a_neuron.md) (Neuron Module)

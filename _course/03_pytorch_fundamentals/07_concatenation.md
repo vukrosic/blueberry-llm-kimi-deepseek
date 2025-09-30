@@ -108,3 +108,7 @@ Now, try to concatenate them along `dim=0`. Does it work? Why?
 ---
 
 Next, we'll look at creating tensors with pre-filled values like zeros and ones.
+
+---
+
+**Next Lesson**: [Creating Special Tensors](08_creating_special_tensors.md)

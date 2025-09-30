@@ -169,3 +169,7 @@ Understanding matrices opens the door to more advanced topics:
 - **Tensors**: The generalization of matrices to more than two dimensions.
 - **Eigenvalues and Eigenvectors**: The "special" vectors of a matrix that only get scaled by a transformation.
 
+---
+
+**Next Lesson**: [Creating Tensors](../03_pytorch_fundamentals/01_creating_tensors.md) (PyTorch Module)
+

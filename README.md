@@ -129,19 +129,61 @@ A comprehensive course that takes you from absolute beginner to conducting cutti
 - **[The GLM-4 MoE Architecture](_course/11_glm4_moe/02_the_glm4_moe_architecture.md)** - GLM-4's MoE design
 - **[Implementation in Code](_course/11_glm4_moe/03_implementation_in_code.md)** - Building GLM-4 MoE
 
-## 🔬 Research Experiments
+## 🔬 Research Methodology
 
-After mastering the fundamentals, conduct real AI research through hands-on experiments:
+After mastering the fundamentals, this course teaches you how to conduct real AI research through hands-on experiments.
 
-- **Experiment 1**: Architecture comparison (5 model variants)
-- **Experiment 2**: Learning rate optimization for different architectures  
-- **Experiment 3**: MoE configuration search and scaling
+### Research Design Principles
+- **Hypothesis Formation**: Start with clear, testable hypotheses
+- **Controlled Experiments**: Isolate variables to understand their effects
+- **Ablation Studies**: Systematically remove components to understand contributions
+- **Baseline Comparisons**: Always compare against established baselines
+
+### Experimental Framework
+Our research experiments follow a structured approach:
+
+#### **Experiment 1: Simplified Ablation Study**
+- **Purpose**: Compare different architectural components at a manageable scale
+- **Models**: 5 variants (baseline, MLP, attention+MLP, MoE, attention+MoE)
+- **Scale**: 512 hidden dimensions for efficient experimentation
+- **Evaluation**: HellaSwag benchmark integration
+- **Key Learning**: Understanding how different components contribute to performance
+
+#### **Experiment 2: Learning Rate Search**
+- **Purpose**: Find optimal learning rates for different architectures
+- **Focus**: DeepSeek attention + MLP combinations
+- **Method**: Systematic learning rate exploration
+- **Metrics**: Validation loss, accuracy, perplexity
+- **Key Learning**: How hyperparameters affect different architectures
+
+#### **Experiment 3: Expert Configuration Search**
+- **Purpose**: Optimize MoE configurations
+- **Focus**: DeepSeek attention + GLM4 MoE
+- **Variables**: Expert count, learning rates, top-k values
+- **Method**: Grid search with validation
+- **Key Learning**: How to scale MoE models effectively
+
+### Research Skills You'll Develop
+- **Experimental Design**: Creating meaningful, controlled experiments
+- **Data Analysis**: Interpreting results and drawing conclusions
+- **Benchmarking**: Using standard evaluation metrics
+- **Reproducibility**: Writing code that others can replicate
+- **Documentation**: Communicating research findings clearly
+
+### How to Run the Research Experiments
 
 ```bash
-# Run experiments
-cd experiments/exp1_simplified_ablation_study && python exp1_trainer.py
-cd experiments/exp2_deepseek_attn_mlp_lr_search && python lr_search.py
-cd experiments/exp3_deepseek_attn_glm4_moe_lr_expert_search && python expert_search.py
+# Experiment 1: Simplified Ablation Study
+cd experiments/exp1_simplified_ablation_study
+python exp1_trainer.py
+
+# Experiment 2: Learning Rate Search
+cd experiments/exp2_deepseek_attn_mlp_lr_search
+python lr_search.py
+
+# Experiment 3: Expert Configuration Search
+cd experiments/exp3_deepseek_attn_glm4_moe_lr_expert_search
+python expert_search.py
 ```
 
 ## 🚀 Getting Started

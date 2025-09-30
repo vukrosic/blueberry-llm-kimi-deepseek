@@ -61,3 +61,7 @@ We'll learn about specific activation functions in the next lesson!
 
 ---
 Next, we'll look closer at the linear step of the calculation.
+
+---
+
+**Next Lesson**: [The Linear Step](02_the_linear_step.md)

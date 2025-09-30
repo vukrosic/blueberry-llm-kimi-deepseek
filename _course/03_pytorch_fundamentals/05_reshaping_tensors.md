@@ -137,3 +137,7 @@ Run the code above. Why does `.view()` fail while `.reshape()` succeeds? (Answer
 ---
 
 This concludes our initial tour of fundamental PyTorch tensor manipulations!
+
+---
+
+**Next Lesson**: [Indexing and Slicing](06_indexing_and_slicing.md)

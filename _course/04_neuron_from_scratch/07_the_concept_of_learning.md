@@ -120,3 +120,7 @@ You now have the conceptual foundation to understand entire neural networks.
 
 ---
 Next, we'll dive deeper into one of the key components: the activation function.
+
+---
+
+**Next Lesson**: [ReLU](../05_activation_functions/01_relu.md) (Activation Functions Module)

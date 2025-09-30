@@ -103,3 +103,7 @@ Create a weight matrix for a linear layer that takes 784 input features and prod
 ---
 
 This concludes our extended tour of PyTorch fundamentals! You now have the tools to create, manipulate, and combine tensors. Next, we'll see how to build a neuron from scratch using these concepts.
+
+---
+
+**Next Lesson**: [Tokenization and Embeddings](09_tokenization_and_embeddings.md)

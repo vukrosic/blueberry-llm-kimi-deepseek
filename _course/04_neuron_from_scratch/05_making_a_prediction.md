@@ -114,3 +114,7 @@ What if we change the bias of the `pass_fail_neuron` to `0.0`? Rerun the predict
 
 ---
 We can make a prediction, but it's useless if we can't tell how good it is. Next, we'll learn how to quantify the neuron's error using a loss function.
+
+---
+
+**Next Lesson**: [The Concept of Loss](06_the_concept_of_loss.md)

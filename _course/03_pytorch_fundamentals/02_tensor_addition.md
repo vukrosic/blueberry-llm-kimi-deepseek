@@ -115,3 +115,7 @@ Try this yourself. Create two tensors, `X` and `Y`, and add `Y` to `X` in-place.
 ---
 
 Next, we'll move on to a more complex operation: matrix multiplication.
+
+---
+
+**Next Lesson**: [Matrix Multiplication](03_matrix_multiplication.md)

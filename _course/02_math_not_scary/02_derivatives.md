@@ -1149,3 +1149,7 @@ Now that you understand derivatives, you're ready to learn about:
 - **Optimization algorithms**: Advanced gradient-based methods
 
 Derivatives are the mathematical foundation that makes neural network training possible. They tell us not just how functions change, but how to make them change in the direction we want!
+
+---
+
+**Next Lesson**: [Gradients](03_gradients.md)
