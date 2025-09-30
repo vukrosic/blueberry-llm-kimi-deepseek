@@ -1,5 +1,7 @@
 # Zero to AI Researcher: A Complete Learning Journey
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/6AbXGpKTwN)
+
 This repository contains a comprehensive course in the `_course` folder and scientific research on LLMs, including training language models from scratch. A complete learning journey that takes you from absolute beginner to conducting cutting-edge AI research.
 
 YouTube videos and self-study materials working together to create ultimate # Zero to AI Researcher roadmap.
