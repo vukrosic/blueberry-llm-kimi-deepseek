@@ -469,3 +469,7 @@ Master these best practices and you'll be ready for:
 - Working in professional development teams
 - Creating maintainable, scalable code
 - Preparing for technical interviews
+
+---
+
+**Next Lesson**: [Functions](../02_math_not_scary/01_functions.md) (Math Module)

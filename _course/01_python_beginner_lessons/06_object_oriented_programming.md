@@ -404,3 +404,7 @@ Master OOP and you'll be ready for:
 - Building complex applications
 - Working with frameworks
 - Preparing for AI/ML development
+
+---
+
+**Next Lesson**: [Advanced Python Features](07_advanced_python_features.md)

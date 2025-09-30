@@ -403,3 +403,7 @@ Master these AI/ML foundations and you'll be ready for:
 - Building production ML systems
 - Working with large datasets
 - Contributing to AI research
+
+---
+
+**Next Lesson**: [Python Best Practices](09_python_best_practices.md)

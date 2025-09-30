@@ -129,3 +129,7 @@ Once you master these basics, you'll be ready for:
 - Lists and data structures
 - Object-oriented programming
 - Building your first AI/ML models
+
+---
+
+**Next Lesson**: [Control Flow and Loops](02_control_flow_and_loops.md)

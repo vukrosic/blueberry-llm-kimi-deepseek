@@ -307,3 +307,7 @@ Master file handling and modules and you'll be ready for:
 - Building web applications
 - Data analysis and visualization
 - Creating your own Python packages
+
+---
+
+**Next Lesson**: [Error Handling and Debugging](05_error_handling_and_debugging.md)

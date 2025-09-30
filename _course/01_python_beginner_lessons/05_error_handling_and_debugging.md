@@ -332,3 +332,7 @@ Master error handling and debugging and you'll be ready for:
 - Working with external APIs
 - Creating production-ready code
 - Advanced debugging techniques
+
+---
+
+**Next Lesson**: [Object-Oriented Programming](06_object_oriented_programming.md)

@@ -1,17 +1,15 @@
 # Zero to AI Researcher: A Complete Learning Journey
 
-Welcome to **Zero to AI Researcher** - a comprehensive, hands-on course that takes you from absolute beginner to conducting cutting-edge AI research. This course combines theoretical foundations with practical implementation, culminating in real research experiments with state-of-the-art transformer architectures.
+A comprehensive course that takes you from absolute beginner to conducting cutting-edge AI research. Learn Python, understand the math behind AI, build neural networks from scratch, implement transformers, and conduct real research experiments.
 
-## 🎯 Course Overview
+## 🎯 What You'll Learn
 
-This course is designed for anyone who wants to understand AI from the ground up and eventually conduct their own research. Whether you're a complete beginner or have some programming experience, this structured learning path will guide you through:
-
-- **Programming Fundamentals**: Python from scratch
-- **Mathematical Foundations**: The math behind AI (made approachable!)
-- **Deep Learning Basics**: Neural networks from first principles
-- **Modern AI Architectures**: Transformers, attention mechanisms, and MoE
-- **Research Methodology**: How to design and conduct AI experiments
-- **Real Research**: Hands-on experiments with advanced models
+- **Python Programming**: From basics to advanced features
+- **AI Mathematics**: Functions, derivatives, gradients, linear algebra
+- **Neural Networks**: From single neurons to complex architectures
+- **Transformers**: Complete implementation from scratch
+- **Research Skills**: Design and run meaningful AI experiments
+- **State-of-the-Art**: DeepSeek attention and GLM-4 MoE
 
 ## 📚 Complete Curriculum
 
@@ -131,159 +129,32 @@ This course is designed for anyone who wants to understand AI from the ground up
 - **[The GLM-4 MoE Architecture](_course/11_glm4_moe/02_the_glm4_moe_architecture.md)** - GLM-4's MoE design
 - **[Implementation in Code](_course/11_glm4_moe/03_implementation_in_code.md)** - Building GLM-4 MoE
 
-## 🔬 Research Methodology: How to Conduct AI Research
+## 🔬 Research Experiments
 
-After mastering the fundamentals, this course teaches you how to conduct real AI research through hands-on experiments. Here's how we approach research:
+After mastering the fundamentals, conduct real AI research through hands-on experiments:
 
-### 1. **Research Design Principles**
-- **Hypothesis Formation**: Start with clear, testable hypotheses
-- **Controlled Experiments**: Isolate variables to understand their effects
-- **Ablation Studies**: Systematically remove components to understand contributions
-- **Baseline Comparisons**: Always compare against established baselines
-
-### 2. **Experimental Framework**
-Our research experiments follow a structured approach:
-
-#### **Experiment 1: Simplified Ablation Study**
-- **Purpose**: Compare different architectural components at a manageable scale
-- **Models**: 5 variants (baseline, MLP, attention+MLP, MoE, attention+MoE)
-- **Scale**: 512 hidden dimensions for efficient experimentation
-- **Evaluation**: HellaSwag benchmark integration
-- **Key Learning**: Understanding how different components contribute to performance
-
-#### **Experiment 2: Learning Rate Search**
-- **Purpose**: Find optimal learning rates for different architectures
-- **Focus**: DeepSeek attention + MLP combinations
-- **Method**: Systematic learning rate exploration
-- **Metrics**: Validation loss, accuracy, perplexity
-- **Key Learning**: How hyperparameters affect different architectures
-
-#### **Experiment 3: Expert Configuration Search**
-- **Purpose**: Optimize MoE configurations
-- **Focus**: DeepSeek attention + GLM4 MoE
-- **Variables**: Expert count, learning rates, top-k values
-- **Method**: Grid search with validation
-- **Key Learning**: How to scale MoE models effectively
-
-### 3. **Research Skills You'll Develop**
-- **Experimental Design**: Creating meaningful, controlled experiments
-- **Data Analysis**: Interpreting results and drawing conclusions
-- **Benchmarking**: Using standard evaluation metrics
-- **Reproducibility**: Writing code that others can replicate
-- **Documentation**: Communicating research findings clearly
-
-### 4. **How to Run the Research Experiments**
+- **Experiment 1**: Architecture comparison (5 model variants)
+- **Experiment 2**: Learning rate optimization for different architectures  
+- **Experiment 3**: MoE configuration search and scaling
 
 ```bash
-# Experiment 1: Simplified Ablation Study
-cd experiments/exp1_simplified_ablation_study
-python exp1_trainer.py
-
-# Experiment 2: Learning Rate Search
-cd experiments/exp2_deepseek_attn_mlp_lr_search
-python lr_search.py
-
-# Experiment 3: Expert Configuration Search
-cd experiments/exp3_deepseek_attn_glm4_moe_lr_expert_search
-python expert_search.py
-```
-
-## 🏗️ Repository Structure
-
-This repository serves as both a learning resource and a research framework:
-
-```
-zero-to-ai-researcher/
-├── _course/                          # Complete course materials
-│   ├── 00_start_here/               # Course introduction
-│   ├── 01_python_beginner_lessons/  # Python fundamentals
-│   ├── 02_math_not_scary/           # Mathematical foundations
-│   ├── 03_pytorch_fundamentals/     # PyTorch basics
-│   ├── 04_neuron_from_scratch/      # Neural network basics
-│   ├── 05_activation_functions/     # Activation functions
-│   ├── 06_neural_network_from_scratch/ # Neural networks
-│   ├── 07_attention_mechanism/      # Attention mechanisms
-│   ├── 08_transformer_feedforward/  # Transformer FF layers
-│   ├── 09_building_a_transformer/   # Full transformer
-│   ├── 10_deepseek_latent_attention/ # DeepSeek attention
-│   └── 11_glm4_moe/                 # GLM4 MoE architecture
-├── experiments/                      # Research experiments
-│   ├── exp1_simplified_ablation_study/ # Architecture comparison
-│   ├── exp2_deepseek_attn_mlp_lr_search/ # Learning rate optimization
-│   └── exp3_deepseek_attn_glm4_moe_lr_expert_search/ # MoE optimization
-├── models/                          # Model implementations
-│   ├── components.py                # Model components
-│   ├── layers.py                    # Custom layers
-│   └── moe_llm.py                   # MoE LLM implementation
-├── training/                        # Training utilities
-│   ├── trainer.py                   # Training loop
-│   └── evaluation.py                # Evaluation metrics
-├── data/                            # Data handling
-│   ├── dataset.py                   # Dataset classes
-│   └── loader.py                    # Data loading utilities
-├── optimizers/                      # Custom optimizers
-│   └── muon.py                      # Muon optimizer
-├── configs/                         # Configuration files
-│   └── moe_config.py                # MoE model configuration
-└── utils/                           # Utility functions
-    └── helpers.py                   # Helper functions
+# Run experiments
+cd experiments/exp1_simplified_ablation_study && python exp1_trainer.py
+cd experiments/exp2_deepseek_attn_mlp_lr_search && python lr_search.py
+cd experiments/exp3_deepseek_attn_glm4_moe_lr_expert_search && python expert_search.py
 ```
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- No programming experience required
-- Basic computer skills
-- Access to a computer with internet
-
-### Installation
-
-1. **Clone the repository**:
+1. **Clone and install**:
 ```bash
-git clone <repository-url>
-cd zero-to-ai-researcher
-```
-
-2. **Install dependencies**:
-```bash
+git clone <repository-url> && cd zero-to-ai-researcher
 pip install -r requirements.txt
 ```
 
-3. **Verify installation**:
-```bash
-python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
-```
+2. **Start learning**: Begin with [Start Here](_course/00_start_here/00_start_here.md)
 
-### Learning Path
-
-1. **Start with the Course**: Begin with [Start Here](_course/00_start_here/00_start_here.md)
-2. **Follow the Modules**: Complete modules 1-11 in order
-3. **Practice with Code**: Implement each concept as you learn
-4. **Run Experiments**: Conduct the research experiments
-5. **Build Your Own**: Create your own research projects
-
-## 🎓 Learning Outcomes
-
-By completing this course, you will:
-
-- **Master Python Programming**: From basics to advanced features
-- **Understand AI Mathematics**: Functions, derivatives, gradients, linear algebra
-- **Build Neural Networks**: From single neurons to complex architectures
-- **Implement Transformers**: Complete transformer models from scratch
-- **Conduct Research**: Design and run meaningful AI experiments
-- **Work with State-of-the-Art**: DeepSeek attention and GLM-4 MoE
-- **Evaluate Models**: Use standard benchmarks and metrics
-- **Document Research**: Communicate findings effectively
-
-## 🔬 Research Applications
-
-This course prepares you for:
-
-- **Academic Research**: Conducting publishable AI research
-- **Industry Applications**: Building production AI systems
-- **Startup Development**: Creating AI-powered products
-- **Open Source Contributions**: Contributing to AI projects
-- **Teaching**: Sharing knowledge with others
+3. **Follow the path**: Complete modules 1-11 in order, then run the research experiments
 
 ## 🤝 Contributing
 

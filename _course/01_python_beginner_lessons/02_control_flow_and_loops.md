@@ -244,3 +244,7 @@ Master these concepts and you'll be ready for:
 - Error handling
 - Object-oriented programming
 - Building interactive applications
+
+---
+
+**Next Lesson**: [Lists and Data Structures](03_lists_and_data_structures.md)

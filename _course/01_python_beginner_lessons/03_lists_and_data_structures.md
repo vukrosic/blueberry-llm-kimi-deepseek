@@ -269,3 +269,7 @@ Master these data structures and you'll be ready for:
 - Object-oriented programming
 - Working with APIs and external data
 - Building more complex applications
+
+---
+
+**Next Lesson**: [File Handling and Modules](04_file_handling_and_modules.md)

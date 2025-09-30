@@ -397,3 +397,7 @@ Master these advanced features and you'll be ready for:
 - Performance optimization
 - Preparing for AI/ML development
 - Contributing to open source projects
+
+---
+
+**Next Lesson**: [Preparing for AI/ML](08_preparing_for_ai_ml.md)
