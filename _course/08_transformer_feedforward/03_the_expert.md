@@ -40,3 +40,7 @@ The gating network (which we'll cover next) selects which one or two experts are
 This is what allows MoE models to be so large while remaining computationally manageable. You might have 64 experts, but for any given token, you might only use the two best ones.
 
 In the next lesson, we'll look at the gating network, which is the component that makes this selection.
+
+---
+
+**Next Lesson**: [The Gate](04_the_gate.md)

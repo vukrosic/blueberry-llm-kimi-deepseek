@@ -74,3 +74,7 @@ We periodically check the model's performance on a **validation set**—a separa
 After this long and computationally intensive process, we are left with a set of trained weights. These weights are the "brain" of our model. When loaded into our Transformer architecture, they give it the remarkable ability to understand and generate human-like text.
 
 This concludes our journey of building a complete Transformer from the ground up!
+
+---
+
+**Next Lesson**: [What is Latent Attention?](../10_deepseek_latent_attention/01_what_is_latent_attention.md) (DeepSeek Module)

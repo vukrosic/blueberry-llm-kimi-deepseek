@@ -25,3 +25,7 @@ It then creates a "blend" of the input words, where the most relevant words are 
 This is incredibly powerful because it allows the model to create context-aware representations of words. The meaning of "bank" is different in "river bank" vs. "investment bank", and the attention mechanism can capture this by looking at the surrounding words.
 
 In the next lessons, we'll dive into exactly how this is done, starting with the core components of the attention mechanism: Queries, Keys, and Values.
+
+---
+
+**Next Lesson**: [Self-Attention from Scratch](02_self_attention_from_scratch.md)

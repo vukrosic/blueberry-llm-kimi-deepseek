@@ -77,3 +77,7 @@ Here's a simplified diagram of the decoder-only architecture:
 ```
 
 In the next lessons, we will build each of these components, starting with the clever way Transformers handle sequence order: Rotary Positional Encoding.
+
+---
+
+**Next Lesson**: [RoPE Positional Encoding](02_rope_positional_encoding.md)

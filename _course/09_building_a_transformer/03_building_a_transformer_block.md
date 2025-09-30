@@ -72,3 +72,7 @@ By ensuring that the inputs to the main layers (Attention and FFN) are always we
 *   **Feed-Forward Network (FFN)**: After the attention layer has gathered context from across the sequence, the FFN's job is to process this new information. It operates on each token's vector independently. In our model, we will use a **Mixture of Experts (MoE)** layer here, which is a more powerful and efficient type of FFN that we explored in Module 8.
 
 With this block structure, we can now stack them to create a deep, powerful model. Each block adds another layer of processing and refinement, allowing the model to capture increasingly complex patterns in the data.
+
+---
+
+**Next Lesson**: [The Final Linear Layer](05_the_final_linear_layer.md)

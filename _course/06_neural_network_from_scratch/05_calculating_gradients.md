@@ -71,3 +71,7 @@ We now have a way to calculate the gradients for a single neuron! These gradient
 - If `dL/dw` is negative, increasing `w` decreases the loss. So we should increase `w`.
 
 This is the core of gradient-based learning. In the next lesson, we'll see how this works in a full network with multiple layers.
+
+---
+
+**Next Lesson**: [Backpropagation in Action](06_backpropagation_in_action.md)

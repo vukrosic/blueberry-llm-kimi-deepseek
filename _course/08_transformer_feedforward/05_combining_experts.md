@@ -58,3 +58,7 @@ So, for each token that flows through the Transformer block:
 This process allows the model to access a huge amount of knowledge (stored in the many experts) but use it in a very targeted and efficient way.
 
 In the next lessons, we'll see how this fits into the larger Transformer architecture and look at a conceptual code implementation.
+
+---
+
+**Next Lesson**: [MoE in a Transformer](06_moe_in_a_transformer.md)

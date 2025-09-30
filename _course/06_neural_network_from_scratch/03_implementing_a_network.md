@@ -124,4 +124,8 @@ Define a network for a regression task. It should take 10 input features, have o
 
 Our network can now make predictions. The next step is to calculate the loss for a whole batch of these predictions, which will prepare us for the training process.
 
+---
+
+**Next Lesson**: [The Chain Rule](04_the_chain_rule.md)
+
 ```

@@ -66,3 +66,7 @@ We will build a simple, fully-connected neural network to solve a binary classif
 
 ---
 Next, we'll move from the single `Neuron` class to a `Layer` class, which represents a collection of neurons.
+
+---
+
+**Next Lesson**: [Building a Layer](02_building_a_layer.md)

@@ -65,3 +65,7 @@ As you can see, the gradient calculation starts at the loss function and flows b
 5.  Repeat until you reach the first layer.
 
 This is the backpropagation algorithm! In the next and final lesson of this section, we'll see how to implement this in Python.
+
+---
+
+**Next Lesson**: [Implementing Backpropagation](07_implementing_backpropagation.md)

@@ -248,3 +248,7 @@ for x, y in zip(x_train, y_train):
     print(f"Input: {x.ravel()}, Prediction: {prediction.ravel()}, Actual: {y.ravel()}")
 ```
 This complete example shows how the forward pass, backward pass, and update step all work together over many epochs to train the network. You can run this code and watch the loss decrease as the network learns!
+
+---
+
+**Next Lesson**: [What is Attention?](../07_attention_mechanism/01_what_is_attention.md) (Attention Module)

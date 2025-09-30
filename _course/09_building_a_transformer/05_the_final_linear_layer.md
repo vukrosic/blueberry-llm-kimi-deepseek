@@ -70,3 +70,7 @@ Now that we have probabilities, we can finally choose our next token.
 This sampling can be controlled with techniques like **temperature scaling** (to make the distribution more or less random) and **top-k/top-p sampling** (to avoid sampling from the long tail of very unlikely tokens).
 
 We have now completed the full forward pass of a Transformer, from input tokens to a final, usable prediction. The only remaining step is to put all these components together in code.
+
+---
+
+**Next Lesson**: [Full Transformer in Code](06_full_transformer_in_code.md)

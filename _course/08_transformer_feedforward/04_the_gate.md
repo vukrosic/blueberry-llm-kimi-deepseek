@@ -57,3 +57,7 @@ The weights for these top-k experts are then re-normalized (so they sum to 1), a
 This ensures that only a small, fixed number of experts are used for each token, which is the key to the computational savings of MoE.
 
 In the next lesson, we'll see how to combine the outputs of these selected experts.
+
+---
+
+**Next Lesson**: [Combining Experts](05_combining_experts.md)

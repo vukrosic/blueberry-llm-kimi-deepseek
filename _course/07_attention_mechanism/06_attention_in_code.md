@@ -157,3 +157,7 @@ print("Final output:\n", final_output)
 print("\nAttention weights:\n", weights)
 ```
 This step-by-step process is the core of the self-attention mechanism and a fundamental building block of Transformers.
+
+---
+
+**Next Lesson**: [The Feedforward Layer](../08_transformer_feedforward/01_the_feedforward_layer.md) (Transformer Feedforward Module)

@@ -193,3 +193,7 @@ Enhanced Tokens with Specialized Processing
 This architecture allows GLM-4 to maintain both massive model capacity and efficient inference, making it one of the most advanced language models available today.
 
 In our next lesson, we'll implement this sophisticated architecture in code and see how elegant the resulting system becomes!
+
+---
+
+**Next Lesson**: [Implementation in Code](03_implementation_in_code.md)

@@ -167,3 +167,7 @@ print("Output shape:", output.shape)
 print("Final output for the batch:\n", output)
 ```
 This complete class shows how a batch of tokens can be efficiently processed, with each token being routed to its own specialized expert. This is the core principle that allows MoE models to scale to trillions of parameters.
+
+---
+
+**Next Lesson**: [The DeepSeek MLP](08_the_deepseek_mlp.md)

@@ -60,3 +60,7 @@ Sum = `1.78 + 1.78 + 1 = 4.56`
 These are our **attention weights**. They tell us that to understand the word "The" in this context, the model should pay about 39% of its attention to "The", 39% to "cat", and 22% to "sat".
 
 In the next lesson, we'll see how to use these attention weights to create the final output vector.
+
+---
+
+**Next Lesson**: [Applying Attention Weights](04_applying_attention_weights.md)

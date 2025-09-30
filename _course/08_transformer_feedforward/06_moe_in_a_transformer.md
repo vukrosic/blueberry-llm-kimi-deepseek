@@ -46,3 +46,7 @@ By using MoE layers, a model can have a vastly larger number of parameters witho
 A model might have 1 trillion total parameters, but for any given token, it might only use 20 billion of them. This makes it possible to train and serve models that would otherwise be computationally infeasible.
 
 In our final lesson, we'll look at a conceptual implementation of an MoE layer in Python.
+
+---
+
+**Next Lesson**: [MoE in Code](07_moe_in_code.md)

@@ -47,3 +47,7 @@ We do this for every word in our input sequence. So, for the sentence "The cat s
 By comparing a word's Query vector with the Key vectors of all other words, the model can determine how much attention to pay to each of them.
 
 In the next lesson, we'll walk through the exact calculation of attention scores using these Q, K, and V vectors, with real numbers.
+
+---
+
+**Next Lesson**: [Calculating Attention Scores](03_calculating_attention_scores.md)

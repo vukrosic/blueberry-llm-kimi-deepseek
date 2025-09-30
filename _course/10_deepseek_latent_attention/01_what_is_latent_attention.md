@@ -100,3 +100,7 @@ Token6 ────┘   │                                       │   enhance
 ```
 
 In the next lesson, we'll see exactly how DeepSeek implements this elegant architecture.
+
+---
+
+**Next Lesson**: [DeepSeek Attention Architecture](02_deepseek_attention_architecture.md)

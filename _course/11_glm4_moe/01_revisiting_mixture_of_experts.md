@@ -134,3 +134,7 @@ GLM-4 and other MoE models use **auxiliary loss terms** that encourage balanced 
 - **Ensures quality**: All experts get enough training data to specialize properly
 
 In the next lesson, we'll see exactly how GLM-4 implements these ideas to create one of the most sophisticated MoE architectures in production today.
+
+---
+
+**Next Lesson**: [The GLM4 MoE Architecture](02_the_glm4_moe_architecture.md)

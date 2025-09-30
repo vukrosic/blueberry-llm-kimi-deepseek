@@ -121,3 +121,7 @@ Modify the code to pass a batch of data through the `nn.Linear` layer.
 
 ---
 We can now build layers. In the next lesson, we'll stack these layers together to create the full architecture of our neural network.
+
+---
+
+**Next Lesson**: [Implementing a Network](03_implementing_a_network.md)

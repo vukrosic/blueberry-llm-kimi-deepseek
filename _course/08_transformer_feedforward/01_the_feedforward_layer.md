@@ -41,3 +41,7 @@ An important detail is that the FFN is applied to each word's representation **i
 This means that while the attention layer is busy mixing information between words, the FFN provides a consistent transformation for each word based on its new, context-aware representation.
 
 In the next lessons, we will explore a more advanced and efficient version of the FFN called the Mixture of Experts (MoE).
+
+---
+
+**Next Lesson**: [What is Mixture of Experts?](02_what_is_mixture_of_experts.md)

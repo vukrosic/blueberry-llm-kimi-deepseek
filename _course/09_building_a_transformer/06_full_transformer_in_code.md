@@ -213,3 +213,7 @@ if __name__ == '__main__':
 *   **Example Usage**: The `if __name__ == '__main__'` block shows how to create an instance of the model and pass some dummy data through it to verify that the output shape is correct.
 
 We now have a complete, functional Transformer model in a single file. The final step is to understand conceptually how we would train this model on a large dataset.
+
+---
+
+**Next Lesson**: [Training a Transformer](07_training_a_transformer.md)

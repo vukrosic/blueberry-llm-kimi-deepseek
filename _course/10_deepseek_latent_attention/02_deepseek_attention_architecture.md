@@ -139,3 +139,7 @@ INPUT SEQUENCE
 The genius is in the **forced summarization** - the model must distill every input into these compact latent representations, learning to extract only what matters most.
 
 In the next lesson, we'll implement this entire mechanism in PyTorch and see how beautiful the code looks!
+
+---
+
+**Next Lesson**: [Implementation in Code](03_implementation_in_code.md)

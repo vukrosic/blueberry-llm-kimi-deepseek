@@ -89,3 +89,7 @@ if __name__ == '__main__':
 ```
 
 This DeepSeek MLP, with its SwiGLU architecture, provides a powerful and efficient way for the Transformer to process information within its feed-forward layers, contributing to the high performance of these models.
+
+---
+
+**Next Lesson**: [Transformer Architecture](../09_building_a_transformer/01_transformer_architecture.md) (Building Transformer Module)

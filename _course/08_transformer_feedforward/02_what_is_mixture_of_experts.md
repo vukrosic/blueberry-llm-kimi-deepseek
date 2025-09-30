@@ -32,3 +32,7 @@ This is a form of **conditional computation**. Instead of all the experts proces
 This shift from dense to sparse architectures is a key trend in modern large language models.
 
 In the next lessons, we will break down the components of an MoE layer: the expert and the gating network.
+
+---
+
+**Next Lesson**: [The Expert](03_the_expert.md)

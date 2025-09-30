@@ -120,3 +120,7 @@ This pre-computes the `sin` and `cos` values for all positions up to a certain l
 *   **Good Performance**: It has become a standard and is used in many state-of-the-art LLMs like Llama and PaLM.
 
 We have now established a robust method for the model to understand sequence order. In the next lesson, we will see how this fits into the main processing unit of our model: the Transformer Block.
+
+---
+
+**Next Lesson**: [Building a Transformer Block](03_building_a_transformer_block.md)

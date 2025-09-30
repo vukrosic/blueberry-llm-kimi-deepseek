@@ -257,3 +257,7 @@ This implementation brings DeepSeek Deep Attention to life! Notice how:
 The genius is in the forced compression - the model must distill everything it learns into these compact latent representations, making it much more efficient and interpretable.
 
 In the next module, we'll explore another innovative architecture: GLM-4's approach to Mixture of Experts!
+
+---
+
+**Next Lesson**: [Revisiting Mixture of Experts](../11_glm4_moe/01_revisiting_mixture_of_experts.md) (GLM4 Module)

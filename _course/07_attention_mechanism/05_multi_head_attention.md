@@ -43,3 +43,7 @@ It's like having a team of specialists. Instead of one generalist trying to unde
 In the original Transformer paper, they used 8 attention heads. This has become a common practice.
 
 In the final lesson of this section, we'll look at how to implement a simple version of self-attention in Python.
+
+---
+
+**Next Lesson**: [Attention in Code](06_attention_in_code.md)

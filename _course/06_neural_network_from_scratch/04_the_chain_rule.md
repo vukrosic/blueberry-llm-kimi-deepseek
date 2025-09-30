@@ -50,3 +50,7 @@ To train the network, we need to figure out how the **loss** changes with respec
 This process of using the chain rule to calculate gradients is what we call **backpropagation**.
 
 In the next lesson, we'll see how to apply the chain rule to a single neuron.
+
+---
+
+**Next Lesson**: [Calculating Gradients](05_calculating_gradients.md)
