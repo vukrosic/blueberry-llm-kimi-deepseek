@@ -3,7 +3,7 @@
 This is your complete roadmap from zero to AI researcher. This course is currently in active development, so your feedback is invaluable! 
 
 **Have suggestions or found issues?** 
-- Join our D[iscord community](https://discord.gg/6AbXGpKTwN) for discussions
+- Join our [Discord community](https://discord.gg/6AbXGpKTwN) for discussions
 - Open GitHub issues for bugs or improvements
 - Video course content is coming soon!
 
